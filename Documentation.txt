@@ -1,0 +1,160 @@
+﻿This is just developer documentation
+do not use this as it may be outdated.
+
+
+BSL
+Block Scripting Language
+
+Object Delarations
+
+	Subpart()
+	Button(dummyName)
+	Lever(dummyName, [x, y, z], time, angle)
+	Emitter(dummyName)
+	Emissive(emissiveID)
+	# BasicIK(dummyNamme) - WIP, need SEUT support
+
+Method format:
+	object.method(xyz).delay(t)
+
+ObjectMethods:
+	
+	Subpart.
+		translate([x, y, z], time, lerp)
+		rotate([x, y, z], angle, time, lerp)
+		spin([x, y, z], speed, time)
+		vibrate(time)
+		setVisible(bool)
+		reset()
+		resetPos()
+		setResetPos()
+	
+	#technically a subpart
+	Button.
+		enabled(bool)
+		interactable(bool)
+
+	#technically a subpart
+	Lever.
+		enabled(bool)
+		interactable(bool)
+
+	Emitter.
+		playSound(p)
+		playParticle(name, size, life, [x, y, z], r, g, b)
+	
+	Emissive.
+		setColor(r, g, b, s)
+
+		
+	#still a WIP: !SEUT required!
+	BasicIK.
+		trackTo(time, [x, y, z])
+		chainTo(object, [x, y, z])
+		enabled(bool)
+
+Lerps:
+
+	Instant
+	Linear
+
+	InBounce
+	OutBounce
+	InOutBounce
+
+	InElastic
+	OutElastic
+	InOutElastic
+
+	InExpo
+	OutExpo
+	InOutExpo
+
+	InCubic
+	OutCubic
+	InOutCubic
+
+	InBack
+	OutBack
+	InOutBack
+
+
+BlockMethods:
+
+	Block.
+		PowerOn()
+		PowerOff()
+		TogglePower()
+		Log(string)
+
+	LandingGear.
+		LockOn()
+		LockOff()
+		ToggleLock()
+
+	Doors.
+		OpenDoor()
+		CloseDoor()
+		ToggleDoor()
+		
+
+Actions:
+
+	ButtonAction(btn):
+		-PressedOn
+		-PressedOff
+		-Pressed
+
+	LeverAction(lvr):
+		-SwitchedOn
+		-SwitchedOff
+		-Switched
+		
+	ProductionAction:
+		-StartProducing
+		-ProducingLoop(loopTime)
+		-StopProducing
+
+	DoorAction:
+		-Close
+		-Open
+
+	CockpitAction:
+		-Enter
+		-Exit
+
+	LandingGearAction:
+		-Lock
+		-Unlock
+		-ReadyLock
+
+	BlockAction:
+		-Create
+		-Built
+			
+		-Working
+		-WorkingLoop(loopTime)
+		-NotWorking
+
+	DistanceAction(distance):
+		-Arrive
+		-Leave
+
+
+	#Weaponcore ideas?
+	#not implemented yet-
+	WeaponCoreAction:
+		-Reloading
+        -Firing
+        -Tracking
+        -Overheated
+        -TurnOn
+        -TurnOff
+        -BurstReload
+        -OutOfAmmo
+        -PreFire
+        -EmptyOnGameLoad
+        -StopFiring
+        -StopTracking
+
+		-IdleLoop(loopTime)
