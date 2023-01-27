@@ -1,5 +1,5 @@
-﻿using AnimationEngine.Language;
-using AnimationEngine.Logic;
+﻿using AnimationEngine.LanguageV1;
+using AnimationEngine.LogicV1;
 using System.Collections.Generic;
 
 namespace AnimationEngine.Core

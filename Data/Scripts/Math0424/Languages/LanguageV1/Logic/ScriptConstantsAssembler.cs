@@ -1,9 +1,9 @@
 ﻿using AnimationEngine.Core;
-using AnimationEngine.Language;
+using AnimationEngine.LanguageV1;
 using AnimationEngine.Util;
 using System.Collections.Generic;
 
-namespace AnimationEngine.Logic
+namespace AnimationEngine.LogicV1
 {
     internal static class ScriptConstantsAssembler
     {

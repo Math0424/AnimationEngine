@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Text;
 
-namespace AnimationEngine.Language
+namespace AnimationEngine.LanguageV1
 {
     internal class ScriptError : Exception
     {

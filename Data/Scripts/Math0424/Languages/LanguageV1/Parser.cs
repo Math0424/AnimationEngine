@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace AnimationEngine.Language
+namespace AnimationEngine.LanguageV1
 {
     internal class Parser
     {

@@ -1,4 +1,4 @@
-﻿namespace AnimationEngine.Language
+﻿namespace AnimationEngine.LanguageV1
 {
     internal enum TokenType
     {

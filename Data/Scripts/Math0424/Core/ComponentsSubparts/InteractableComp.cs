@@ -32,7 +32,10 @@ namespace AnimationEngine
         {
             //TODO fix this for parenting
             //Utils.LogToFile("Part core id " + core.Subpart.Parent);
-            block = core.Subpart.Parent as IMyCubeBlock;
+            block = core?.Subpart?.Parent as IMyCubeBlock;
+
+            if (block == null)
+                return;
 
             Dictionary<string, IMyModelDummy> dummies = new Dictionary<string, IMyModelDummy>();
             block.Model.GetDummies(dummies);

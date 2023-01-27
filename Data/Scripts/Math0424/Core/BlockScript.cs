@@ -1,5 +1,5 @@
-﻿using AnimationEngine.Language;
-using AnimationEngine.Logic;
+﻿using AnimationEngine.LanguageV1;
+using AnimationEngine.LogicV1;
 using AnimationEngine.Util;
 using Sandbox.Definitions;
 using Sandbox.ModAPI;
@@ -17,6 +17,7 @@ namespace AnimationEngine.Core
      */
     internal class BlockScript
     {
+
         public IMyCubeBlock Block { get; private set; }
         private ScriptConstants constants;
 

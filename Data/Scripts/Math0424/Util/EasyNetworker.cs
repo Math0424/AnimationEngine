@@ -7,7 +7,7 @@ using VRage.Game.ModAPI;
 using VRage.Utils;
 using VRageMath;
 
-namespace Math0424.Networking
+namespace AnimationEngine.Networking
 {
 
     /// <summary>

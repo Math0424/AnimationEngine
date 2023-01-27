@@ -1,5 +1,5 @@
 ﻿using AnimationEngine.Core;
-using AnimationEngine.Logic;
+using AnimationEngine.LogicV1;
 using AnimationEngine.Util;
 using Sandbox.ModAPI;
 using System;
@@ -8,7 +8,7 @@ using System.IO;
 using VRage.Utils;
 using static VRage.Game.MyObjectBuilder_Checkpoint;
 
-namespace AnimationEngine.Language
+namespace AnimationEngine.LanguageV1
 {
     internal class Script
     {

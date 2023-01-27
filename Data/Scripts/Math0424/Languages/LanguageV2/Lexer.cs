@@ -4,7 +4,68 @@ namespace AnimationEngine.Language
 {
     internal static class Lexer
     {
-        public static void TokenizeScript(Script compiler)
+
+        public static bool IsMathVariable(this TokenType token)
+        {
+            switch (token)
+            {
+                case TokenType.INT:
+                case TokenType.FLOAT:
+                case TokenType.MVECTOR:
+                case TokenType.STR:
+                    return true;
+                default:
+                    return false;
+            }
+        }
+
+
+        public static bool IsMathOperator(this TokenType token)
+        {
+            switch (token) 
+            {
+                case TokenType.ADD:
+                case TokenType.SUB:
+                case TokenType.MUL:
+                case TokenType.DIV:
+                case TokenType.MOD:
+                    return true;
+                default: 
+                    return false;
+            }
+        }
+
+        public static bool IsLogicOperator(this TokenType token)
+        {
+            switch(token)
+            {
+                case TokenType.AND:
+                case TokenType.OR:
+                    return true;
+                default:
+                    return false;
+            }
+
+        }
+
+        public static bool IsLogic(this TokenType token)
+        {
+            switch (token)
+            {
+                case TokenType.GRT:
+                case TokenType.LST:
+                case TokenType.GRTE:
+                case TokenType.LSTE:
+                case TokenType.COMP:
+                case TokenType.NOTEQ:
+                    return true;
+                default:
+                    return false;
+            }
+        }
+
+
+        public static void TokenizeScript(ScriptCreator compiler)
         {
             for (int lineNum = 0; lineNum < compiler.RawScript.Length; lineNum++)
             {
@@ -42,7 +103,10 @@ namespace AnimationEngine.Language
                             compiler.Tokens.Add(new Token(type, val, lineNum, index));
                             continue;
                         }
-                        throw compiler.Error.AppendError("Error parsing number", line, index);
+                        if (type != TokenType.SUB)
+                        {
+                            throw compiler.Error.AppendError("Error parsing number", line, index);
+                        }
                     }
 
                     //strings
@@ -105,8 +169,6 @@ namespace AnimationEngine.Language
                 case ']':
                     return TokenType.RSQBRC;
 
-                case '=':
-                    return TokenType.EQL;  
                 case '+':
                     return TokenType.ADD;  
                 case '-':
@@ -114,19 +176,52 @@ namespace AnimationEngine.Language
                 case '*':
                     return TokenType.MUL;  
                 case '/':
-                    return TokenType.DIV;  
-                case '<':
-                    return TokenType.GRT;  
-                case '>':
-                    return TokenType.LST;  
-                case '!':
-                    return TokenType.NOT;  
-                case '&':
-                    return TokenType.AND;  
-                case '|':
-                    return TokenType.OR;
+                    return TokenType.DIV;
                 case '%':
                     return TokenType.MOD;
+
+                case '<':
+                    if (line[index + 1] == '=')
+                    {
+                        index++;
+                        return TokenType.GRTE;
+                    }
+                    return TokenType.GRT;
+                case '>':
+                    if (line[index + 1] == '=')
+                    {
+                        index++;
+                        return TokenType.LSTE;
+                    }
+                    return TokenType.LST;
+                case '=':
+                    if (line[index + 1] == '=')
+                    {
+                        index++;
+                        return TokenType.COMP;
+                    }
+                    return TokenType.EQL;
+                case '!':
+                    if (line[index + 1] == '=')
+                    {
+                        index++;
+                        return TokenType.NOTEQ;
+                    }
+                    return TokenType.NOT;
+                case '|':
+                    if (line[index + 1] == '|')
+                    {
+                        index++;
+                        return TokenType.OR;
+                    }
+                    return TokenType.UKWN;
+                case '&':
+                    if (line[index + 1] == '&')
+                    {
+                        index++;
+                        return TokenType.AND;
+                    }
+                    return TokenType.UKWN;
 
             }
             return TokenType.UKWN;
@@ -143,6 +238,7 @@ namespace AnimationEngine.Language
             else if (lword.Equals("as")) { return TokenType.AS; }
             else if (lword.Equals("func")) { return TokenType.FUNC; }
             else if (lword.Equals("action")) { return TokenType.ACTION; }
+            else if (lword.Equals("terminal")) { return TokenType.TERMINAL; }
             else if (lword.Equals("var")) { return TokenType.VAR; }
 
             else if (lword.Equals("true")) {
@@ -154,21 +250,12 @@ namespace AnimationEngine.Language
                 return TokenType.BOOL; 
             }
 
-            else if (lword.Equals("subpart")) { return TokenType.SUBPART; }
-            else if (lword.Equals("button")) { return TokenType.BUTTON; }
-            else if (lword.Equals("basicik")) { return TokenType.BASICIK; }
-            else if (lword.Equals("light")) { return TokenType.LIGHT; }
-            else if (lword.Equals("emitter")) { return TokenType.EMITTER; }
-            else if (lword.Equals("emissive")) { return TokenType.EMISSIVE; }
             else if (lword.Equals("parent")) { return TokenType.PARENT; }
 
-            else if (lword.Equals("!=")) { return TokenType.NOTEQ; }
-            else if (lword.Equals("==")) { return TokenType.COMP; }
-            else if (lword.Equals("<=")) { return TokenType.GRTE; }
-            else if (lword.Equals(">=")) { return TokenType.LSTE; }
             else if (lword.Equals("if")) { return TokenType.IF; }
-            else if (lword.Equals("elif")) { return TokenType.ELIF; }
             else if (lword.Equals("else")) { return TokenType.ELSE; }
+            else if (lword.Equals("while")) { return TokenType.WHILE; }
+            else if (lword.Equals("return")) { return TokenType.RETURN; }
 
             foreach (var x in Enum.GetValues(typeof(ShortHandLerp)))
             {
@@ -229,6 +316,7 @@ namespace AnimationEngine.Language
                 }
                 else
                 {
+                    type = TokenType.SUB;
                     return null;
                 }
             }

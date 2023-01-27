@@ -1,7 +1,7 @@
-﻿using AnimationEngine.Language;
+﻿using AnimationEngine.LanguageV1;
 using System.Collections.Generic;
 
-namespace AnimationEngine.Logic
+namespace AnimationEngine.LogicV1
 {
     public struct Caller
     {

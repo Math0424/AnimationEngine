@@ -1,5 +1,5 @@
 ﻿using AnimationEngine.Core;
-using AnimationEngine.Language;
+using AnimationEngine.LanguageV1;
 using AnimationEngine.Util;
 using Sandbox.Game.Entities;
 using Sandbox.ModAPI;
@@ -145,6 +145,8 @@ namespace AnimationEngine
             }
 
             MyEntities.OnEntityCreate += OnEntityAdded;
+        
+            
         }
 
         public void OnEntityAdded(IMyEntity ent)
