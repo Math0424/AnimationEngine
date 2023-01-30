@@ -71,4 +71,9 @@
     </Reference>
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Data\Scripts\Math0424\Core\EntityComponents\" />
+    <Folder Include="Data\Scripts\Math0424\Languages\Programming\LanguageV1\Runner\" />
+  </ItemGroup>
+
 </Project>

@@ -1,6 +1,6 @@
 ﻿using AnimationEngine.Core;
 using AnimationEngine.LanguageV1;
-using AnimationEngine.Util;
+using AnimationEngine.Utility;
 using Sandbox.Game.Entities;
 using Sandbox.ModAPI;
 using System;
@@ -33,14 +33,14 @@ namespace AnimationEngine
         {
             if (registered.ContainsKey(id))
             {
-                Utils.LogToFile($"Warning, Multiple scripts registered for block {id}, overriding previous script.");
+                Utility.LogToFile($"Warning, Multiple scripts registered for block {id}, overriding previous script.");
             }
             registered[id] = constant;
         }
 
         protected override void UnloadData()
         {
-            Utils.CloseLog();
+            Utility.CloseLog();
         }
 
         int currentTick = 0;
@@ -93,16 +93,16 @@ namespace AnimationEngine
             }
             catch (Exception ex)
             {
-                Utils.LogToFile(ex.TargetSite);
-                Utils.LogToFile(ex.StackTrace);
-                Utils.LogToFile(ex.Message);
+                Utility.LogToFile(ex.TargetSite);
+                Utility.LogToFile(ex.StackTrace);
+                Utility.LogToFile(ex.Message);
             }
         }
 
         public override void LoadData()
         {
-            Utils.LogToFile($"Starting Animation Engine...");
-            Utils.LogToFile($"Reading {MyAPIGateway.Session.Mods.Count} mods");
+            Utility.LogToFile($"Starting Animation Engine...");
+            Utility.LogToFile($"Reading {MyAPIGateway.Session.Mods.Count} mods");
             int registered = 0;
             foreach (var mod in MyAPIGateway.Session.Mods)
             {
@@ -110,17 +110,17 @@ namespace AnimationEngine
                 {
                     if (MyAPIGateway.Utilities.FileExistsInModLocation(MainPath + MainScript, mod))
                     {
-                        new Script(mod, MainPath + MainScript);
+                        new ScriptV1Generator(mod, MainPath + MainScript);
                         registered++;
                     } 
                     else if(MyAPIGateway.Utilities.FileExistsInModLocation(MainPath + MainInfo, mod))
                     {
-                        Utils.LogToFile($"Reading animation file for {mod.Name}");
+                        Utility.LogToFile($"Reading animation file for {mod.Name}");
                         foreach (var s in MyAPIGateway.Utilities.ReadFileInModLocation(MainPath + MainInfo, mod).ReadToEnd().Split('\n'))
                         {
                             if (s.ToLower().StartsWith("animation "))
                             {
-                                new Script(mod, MainPath + s.ToLower().Substring(10).Trim() + ".bsl");
+                                new ScriptV1Generator(mod, MainPath + s.ToLower().Substring(10).Trim() + ".bsl");
                                 registered++;
                             }
                         }
@@ -130,18 +130,18 @@ namespace AnimationEngine
                 {
                     if (!(ex is ScriptError))
                     {
-                        Utils.LogToFile("System critical script error!");
+                        Utility.LogToFile("System critical script error!");
                     }
-                    Utils.LogToFile(ex.ToString());
+                    Utility.LogToFile(ex.ToString());
                     failed.Add(mod.Name);
                 }
             }
-            Utils.LogToFile($"Loaded {registered} scripts");
+            Utility.LogToFile($"Loaded {registered} scripts");
 
             if (failed.Count != 0)
             {
                 MyAPIGateway.Utilities.ShowMessage("AnimationEngine", "One or more scripts failed to compile, please check your SE logs for more information (paste the link in clipboard into explorer)");
-                MyClipboardHelper.SetClipboard(Utils.GetLogPath());
+                MyClipboardHelper.SetClipboard(Utility.GetLogPath());
             }
 
             MyEntities.OnEntityCreate += OnEntityAdded;
@@ -168,11 +168,11 @@ namespace AnimationEngine
                     BlockScript script = new BlockScript(registered[id]);
                     script.Init(block.FatBlock);
                     loaded.Add(script);
-                    Utils.LogToFile($"Attached script to {id} ({block.FatBlock.EntityId})");
+                    Utility.LogToFile($"Attached script to {id} ({block.FatBlock.EntityId})");
                 }
                 else
                 {
-                    Utils.LogToFile($"Cannot attach script to {id} (Cannot attach to armor blocks)");
+                    Utility.LogToFile($"Cannot attach script to {id} (Cannot attach to armor blocks)");
                 }
             }
         }

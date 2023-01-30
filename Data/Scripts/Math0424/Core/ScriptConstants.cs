@@ -1,4 +1,5 @@
-﻿using AnimationEngine.LanguageV1;
+﻿using AnimationEngine.Language;
+using AnimationEngine.LanguageV1;
 using AnimationEngine.LogicV1;
 using System.Collections.Generic;
 
@@ -20,7 +21,7 @@ namespace AnimationEngine.Core
         }
 
         public Dictionary<string, Caller[]> Calls = new Dictionary<string, Caller[]>();
-        public List<ScriptAction> ScriptActions = new List<ScriptAction>();
+        public List<V1ScriptAction> ScriptActions = new List<V1ScriptAction>();
         public List<ObjectDef> ObjectDefs = new List<ObjectDef>();
     }
 }

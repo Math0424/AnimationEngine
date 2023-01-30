@@ -1,6 +1,6 @@
 ﻿using AnimationEngine.LanguageV1;
 using AnimationEngine.LogicV1;
-using AnimationEngine.Util;
+using AnimationEngine.Utility;
 using Sandbox.Definitions;
 using Sandbox.ModAPI;
 using SpaceEngineers.Game.ModAPI;
@@ -166,7 +166,7 @@ namespace AnimationEngine.Core
         }
 
 
-        private void RegisterAction(ScriptAction act)
+        private void RegisterAction(V1ScriptAction act)
         {
             string subpart;
             switch (act.Name.Value.ToString())
