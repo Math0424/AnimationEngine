@@ -10,7 +10,7 @@ namespace AnimationEngine.Core
 
         public ScriptRunner Clone();
 
-        public void Execute(string entity, string method, params SVariable[] args);
+        public void Execute(string function, params SVariable[] args);
 
     }
 }

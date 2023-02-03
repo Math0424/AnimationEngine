@@ -9,6 +9,11 @@ namespace AnimationEngine.Core
 {
     internal struct Subpart
     {
+        public Subpart(string name, string parent)
+        {
+            Name = name;
+            Parent = parent;
+        }
         public string Name;
         public string Parent;
     }

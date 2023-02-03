@@ -16,7 +16,6 @@
         // used for parsing in functions
         FUNCCALL,
         OBJECTCALL,
-        OBJECT, // V1 
 
         //keywords
         LERP,

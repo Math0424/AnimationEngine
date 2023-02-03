@@ -8,7 +8,7 @@ namespace AnimationEngine.LanguageV1
     internal class Parser
     {
         private ScriptV1Generator compiler;
-        private List<Token> tokens { get { return compiler.Tokens; } }
+        private List<Token> tokens { get { return compiler.Script.Tokens; } }
 
         private List<Token> GrabUntil(int start, TokenType stop, bool filterEndL = false)
         {
@@ -67,11 +67,11 @@ namespace AnimationEngine.LanguageV1
                 }
                 
                 int begin = next++;
-                Token[] vec = AssembleVector(compiler.Tokens.ToArray(), ref next, TokenType.RSQBRC);
+                Token[] vec = AssembleVector(tokens.ToArray(), ref next, TokenType.RSQBRC);
 
                 if (vec.Length != 3)
                 {
-                    throw compiler.DetailedLog("Math vectors must be length 3", compiler.Tokens[next]);
+                    throw compiler.DetailedLog("Math vectors must be length 3", tokens[next]);
                 }
 
                 foreach(var x in vec)
@@ -82,8 +82,8 @@ namespace AnimationEngine.LanguageV1
                     }
                 }
 
-                compiler.Tokens.RemoveRange(begin, next - begin);
-                compiler.Tokens[begin] = new Token(TokenType.MVECTOR, vec.ToVector3(), compiler.Tokens[begin].Line, compiler.Tokens[begin].Col);
+                tokens.RemoveRange(begin, next - begin);
+                tokens[begin] = new Token(TokenType.MVECTOR, vec.ToVector3(), tokens[begin].Line, tokens[begin].Col);
                 next -= next - begin;
 
                 next = FindNext(next, TokenType.LSQBRC);
@@ -92,7 +92,7 @@ namespace AnimationEngine.LanguageV1
 
         private void AssembleBodys(int start)
         {
-            if (start > compiler.Tokens.Count)
+            if (start > tokens.Count)
                 return;
 
             start = FindNext(start, TokenType.LBRACE);
@@ -102,7 +102,7 @@ namespace AnimationEngine.LanguageV1
 
             int end = FindNext(start, TokenType.RBRACE);
             if (end == -1)
-                throw compiler.DetailedLog("Missing closing bracket", compiler.Tokens[start]);
+                throw compiler.DetailedLog("Missing closing bracket", tokens[start]);
 
             if (end > FindNext(start, TokenType.LBRACE))
             {
@@ -111,7 +111,7 @@ namespace AnimationEngine.LanguageV1
 
             end = FindNext(start, TokenType.RBRACE);
             if (end == -1)
-                throw compiler.DetailedLog("Missing closing bracket", compiler.Tokens[start]);
+                throw compiler.DetailedLog("Missing closing bracket", tokens[start]);
 
 
             List<Token> args = new List<Token>();
@@ -204,7 +204,7 @@ namespace AnimationEngine.LanguageV1
 
                     if (toks[next + 1].Type == TokenType.DOT)
                     {
-                        call.Type = TokenType.OBJECT;
+                        call.Type = TokenType.OBJECTCALL;
                         List<V1Expression> exprs = new List<V1Expression>();
                         next++;
                         while (next < toks.Length && toks[next].Type != TokenType.ENDL)

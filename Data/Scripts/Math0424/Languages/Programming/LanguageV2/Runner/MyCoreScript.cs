@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using AnimationEngine.Language.Libs;
 using AnimationEngine.Utility;
 using VRageMath;
+using AnimationEngine.Core;
 
 /// <summary>
 /// This handles the code, its pretty much a emulator for a basic computer
@@ -46,8 +47,11 @@ namespace AnimationEngine.Language
         End, // terminate program (or jump to previous _callStack)
     }
 
-    internal class MyCoreScript
+    internal class ScriptV2Runner : ScriptRunner
     {
+        CoreScript core;
+
+        #region Script
         private RAStack<SVariable> _stack;
         private Stack<int> _callStack;
         private bool nFlag, zFlag, nzFlag;
@@ -59,59 +63,67 @@ namespace AnimationEngine.Language
 
         private List<SVariable> _globals;
         private List<ScriptLib> _libraries;
-        //private BlockScript script;
-        //public void Initalize(BlockScript script)
-        //{
-        //    this.script = script;
-        //}
+        #endregion
 
-        public MyCoreScript(ScriptV2Generator creator)
+        public void Execute(string function, params SVariable[] args)
         {
-            _libraries = new List<ScriptLib>();
-            _libraries.Add(new ScriptMath());
-            _libraries.Add(new ScriptAPI());
-
-            _stack = new RAStack<SVariable>();
-            _callStack = new Stack<int>();
-            _globals = new List<SVariable>(creator.globals);
-            
-            _program = creator.program.ToArray();
-            _immediates = creator._immediates.ToArray();
-            _methodLookup = new Dictionary<string, int>(creator.methodLookup);
+            if (_methodLookup.ContainsKey(function))
+            {
+                foreach(var x in args)
+                    _stack.Push(x);
+                Execute(_methodLookup[function]);
+            }
         }
 
-        public MyCoreScript(MyCoreScript copy)
+        public ScriptRunner Clone()
+        {
+            return new ScriptV2Runner(this);
+        }
+
+        public void Init(CoreScript script)
+        {
+            core = script;
+        }
+
+        public void Tick(int time)
+        {
+            
+        }
+
+        public void Close()
+        {
+
+        }
+
+        public ScriptV2Runner(List<Entity> ents, List<SVariable> globals, Line[] program, SVariable[] immediates, Dictionary<string, int> methods)
+        {
+            _globals = globals;
+            _program = program;
+            _immediates = immediates;
+            _methodLookup = methods;
+
+            foreach(var x in ents)
+            {
+
+            }
+        }
+
+        public ScriptV2Runner(ScriptV2Runner copy)
         {
             _stack = new RAStack<SVariable>();
             _callStack = new Stack<int>();
             _globals = new List<SVariable>(copy._globals);
 
+            _libraries = new List<ScriptLib>();
+            _libraries.Add(new ScriptMath());
+            _libraries.Add(new ScriptAPI());
+
             _program = copy._program;
             _immediates = copy._immediates;
             _methodLookup = copy._methodLookup;
         }
-        
-        public void Push(SVariable var)
-        {
-            _stack.Push(var);
-        }
 
-        public SVariable Pop(int i)
-        {
-            return _stack.Pop(i);
-        }
-
-        public bool Execute(string name)
-        {
-            if (!_methodLookup.ContainsKey(name))
-            {
-                return false;
-            }
-            Execute(_methodLookup[name]);
-            return true;
-        }
-
-        public void Execute(int line)
+        private void Execute(int line)
         {
             int start = _stack.Count;
             Line curr;

@@ -1,4 +1,6 @@
-﻿using AnimationEngine.Utility;
+﻿using AnimationEngine.Core;
+using AnimationEngine.LanguageV1;
+using AnimationEngine.Utility;
 using Sandbox.ModAPI;
 using System;
 using System.Collections.Generic;
@@ -37,16 +39,25 @@ namespace AnimationEngine.Language
                     int versionId;
                     if (!int.TryParse(headers["version"], out versionId))
                         throw new Exception($"version number '{headers["version"]}' cannot be read");
+                    if (!headers.ContainsKey("blockid"))
+                        throw new Exception("Cannot find @blockid header");
 
+                    ScriptRunner runner = null;
+                    List<Subpart> subparts = null;
                     switch (versionId)
                     {
                         case 1:
+                            new ScriptV1Generator(this, out runner, out subparts);
                             break;
                         case 2:
+                            
                             break;
                         default:
                             throw new Exception($"Unsupported script version number {versionId}");
                     }
+
+                    Log($"|  Registering block");
+                    AnimationEngine.AddToRegisteredScripts(headers["blockid"], subparts.ToArray(), runner);
 
                     Log($"Compiled script ({(DateTime.Now.Ticks - start) / TimeSpan.TicksPerMillisecond}ms)");
                 }
@@ -58,6 +69,10 @@ namespace AnimationEngine.Language
                     }
                     throw Error;
                 }
+            }
+            else
+            {
+                throw new Exception($"Script file not found! ({path} {mod.Name})");
             }
         }
 
@@ -92,6 +107,11 @@ namespace AnimationEngine.Language
                 if (Tokens[i].Type == type)
                     return i;
             return -1;
+        }
+
+        public ScriptError DetailedErrorLog(string reason, Token token)
+        {
+            return Error.AppendError($"{reason} : line {token.Line}", RawScript[token.Line].Trim(), token.Col - (token.Value.ToString().Length / 2));
         }
 
         private void Log(object msg)

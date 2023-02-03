@@ -27,7 +27,7 @@ namespace AnimationEngine.LogicV1
         public bool Executed;
     }
 
-    internal static class Lexicon
+    internal static class V1Lexicon
     {
         public static bool IsValidMethodName(V1Expression exp, out MethodDef? def)
         {
@@ -125,7 +125,7 @@ namespace AnimationEngine.LogicV1
             new MethodDef("stopsound"),
         };
 
-        public static void IsValidAction(V1ScriptAction act, ref ScriptV1Generator script)
+        public static void IsValidAction(V1ScriptAction act, ScriptV1Generator script)
         {
             foreach (var defAct in DefinedActions)
             {

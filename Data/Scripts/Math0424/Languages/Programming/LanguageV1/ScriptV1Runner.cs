@@ -50,7 +50,8 @@ namespace AnimationEngine.LanguageV1
                 Delayed delayed = delay[i];
                 if (delayed.Delay <= 0)
                 {
-                    Execute(delayed.Object, delayed.Name, delayed.Args);
+                    if (actionables.ContainsKey(delayed.Object))
+                        actionables[delayed.Object].Call(delayed.Name, delayed.Args);
                     delayed.Executed = true;
                 }
                 delayed.Delay -= time;
@@ -216,10 +217,10 @@ namespace AnimationEngine.LanguageV1
             }
         }
 
-        public void Execute(string entity, string method, params SVariable[] args)
+        public void Execute(string function, params SVariable[] args)
         {
-            if (actionables.ContainsKey(entity))
-                actionables[entity].Call(method, args);
+            if (actionables.ContainsKey(function))
+                CallFunction(function);
         }
 
         public void Close()
