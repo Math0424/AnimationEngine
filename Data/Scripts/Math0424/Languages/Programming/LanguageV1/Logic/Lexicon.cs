@@ -4,25 +4,25 @@ using System.Collections.Generic;
 
 namespace AnimationEngine.LogicV1
 {
-    public struct Caller
+    internal struct Caller
     {
         public string Object;
         public bool FuncCall;
         public Argument[] Args;
     }
 
-    public struct Argument
+    internal struct Argument
     {
         public string Name;
-        public object[] Value;
+        public SVariable[] Value;
         public int Delay;
     }
 
-    public struct Delayed
+    internal struct Delayed
     {
         public string Object;
         public string Name;
-        public object[] Args;
+        public SVariable[] Args;
         public int Delay;
         public bool Executed;
     }

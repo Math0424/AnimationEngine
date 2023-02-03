@@ -42,7 +42,7 @@ namespace AnimationEngine.LanguageV1
                     Log($"|    created {actions.Count} actions");
                     Log($"|  Logic 3/4");
                     string blockid;
-                    ScriptConstants script = ScriptConstantsAssembler.Assemble(this, out blockid);
+                    ScriptV1Constants script = ScriptConstantsAssembler.Assemble(this, out blockid);
                     Log($"|    assembled logic for block '{blockid}'");
                     Log($"|  Registering 4/4");
                     AnimationEngine.AddToRegistered(blockid.ToLower(), script);

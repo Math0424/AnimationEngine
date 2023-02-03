@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace AnimationEngine.CoreScript.Libs
+namespace AnimationEngine.Language.Libs
 {
     internal class ScriptMath : ScriptLib
     {

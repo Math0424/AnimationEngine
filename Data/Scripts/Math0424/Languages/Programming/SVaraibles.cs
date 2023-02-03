@@ -1,7 +1,6 @@
-﻿using AnimationEngine.Language;
-using VRageMath;
+﻿using VRageMath;
 
-namespace AnimationEngine.CoreScript
+namespace AnimationEngine.Language
 {
     internal static class SVarUtil
     {

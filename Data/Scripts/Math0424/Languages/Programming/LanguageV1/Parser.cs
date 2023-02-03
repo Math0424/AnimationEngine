@@ -48,7 +48,6 @@ namespace AnimationEngine.LanguageV1
             compiler.objects.Add("block", new Entity());
 
             AssembleMathVectors(); // [1, 2, 3] -> MVector
-            AssembleArguments(); // Keyword ( ... ) { ... } -> Keyword Vector { ... }
             AssembleBodys(0); // Keyword Vector { ... } -> Keyword Vector Vector
 
             ParseHeaders();
@@ -89,11 +88,6 @@ namespace AnimationEngine.LanguageV1
 
                 next = FindNext(next, TokenType.LSQBRC);
             }
-        }
-
-        private void AssembleArguments()
-        {
-
         }
 
         private void AssembleBodys(int start)

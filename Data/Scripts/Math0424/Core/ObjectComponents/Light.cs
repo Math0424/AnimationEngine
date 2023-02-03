@@ -20,7 +20,7 @@ namespace AnimationEngine.Core
         private IMyEntity parent;
         private MyLight light;
 
-        public Light(string dummyName, float radius)
+        public Light(string dummyName, float radius, string parent)
         {
             this.radius = radius;
             this.dummyName = dummyName;
@@ -40,7 +40,7 @@ namespace AnimationEngine.Core
             if (light != null)
                 MyLights.RemoveLight(light);
             ent.OnClose -= Close;
-            Utility.LogToFile($"Closed light attached to '{dummyName}'");
+            Utils.LogToFile($"Closed light attached to '{dummyName}'");
         }
 
         private bool FindDummy(IMyEntity ent)

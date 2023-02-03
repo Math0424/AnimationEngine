@@ -1,7 +1,7 @@
-﻿using AnimationEngine.CoreScript;
+﻿using AnimationEngine.Language;
 using AnimationEngine.Language;
 using System;
-using AnimationEngine.CoreScript;
+using AnimationEngine.Language;
 
 namespace AnimationEngine.LanguageV2.Nodes
 {

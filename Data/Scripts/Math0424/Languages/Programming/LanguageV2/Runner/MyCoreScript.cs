@@ -3,15 +3,14 @@
 using AnimationEngine.Language;
 using System;
 using System.Collections.Generic;
-using AnimationEngine.CoreScript;
-using AnimationEngine.CoreScript.Libs;
+using AnimationEngine.Language.Libs;
 using AnimationEngine.Utility;
 using VRageMath;
 
 /// <summary>
 /// This handles the code, its pretty much a emulator for a basic computer
 /// </summary>
-namespace AnimationEngine.CoreScript
+namespace AnimationEngine.Language
 {
     internal enum ProgramFunc
     {
@@ -253,14 +252,6 @@ namespace AnimationEngine.CoreScript
                 }
             }
             throw new Exception("Script too complex, large loop detected (this is not a bug)");
-        }
-
-        public void CallMethod(string name)
-        {
-            if (_methodLookup.ContainsKey(name))
-            {
-                Execute(_methodLookup[name]);
-            }
         }
 
     }

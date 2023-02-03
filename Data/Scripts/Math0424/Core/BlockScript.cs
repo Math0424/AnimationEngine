@@ -19,28 +19,11 @@ namespace AnimationEngine.Core
     {
 
         public IMyCubeBlock Block { get; private set; }
-        private ScriptConstants constants;
+        private ScriptV1Constants constants;
 
-        public BlockScript(ScriptConstants constants)
+        public BlockScript(ScriptV1Constants constants)
         {
             this.constants = constants;
-
-            foreach (var x in constants.ObjectDefs)
-            {
-                RegisterObject(x);
-            }
-        }
-
-        public T GetComponent<T>() where T : BlockComponent
-        {
-            foreach(var x in components)
-            {
-                if (x.GetType() == typeof(T))
-                {
-                    return (T)x;
-                }
-            }
-            return null;
         }
 
         //on initaliazation
@@ -76,23 +59,6 @@ namespace AnimationEngine.Core
             Call("blockaction", "create");
             Definition = ((MyCubeBlockDefinition)block.SlimBlock.BlockDefinition);
             Built = block.SlimBlock.BuildLevelRatio < Definition.CriticalIntegrityRatio;
-        }
-
-        private void Close(IMyEntity ent)
-        {
-            AnimationEngine.RemoveScript(this);
-        }
-
-        private void Call(string action, string function)
-        {
-            foreach (var x in constants.ScriptActions)
-            {
-                if (x.Name.Value.Equals(action))
-                {
-                    Execute($"{x.ID}_{function}");
-                    break;
-                }
-            }
         }
 
         public void Execute(string call)
@@ -265,31 +231,6 @@ namespace AnimationEngine.Core
                                 break;
                         }
                     };
-                    break;
-            }
-        }
-
-        private void RegisterObject(ScriptConstants.ObjectDef def)
-        {
-            SubpartCore subpart;
-            switch (def.Type)
-            {
-                case TokenType.SUBPART:
-                    objects.Add(def.Name.ToLower(), new SubpartCore(def.Name, null));
-                    break;
-                case TokenType.BUTTON:
-                    subpart = new SubpartCore(def.Name, null);
-                    subpart.AddComponent(new ButtonComp(def.Values[0].ToString()));
-                    objects.Add(def.Name.ToLower(), subpart);
-                    break;
-                case TokenType.EMISSIVE:
-                    objects.Add(def.Name.ToLower(), new Emissive(def.Values[0].ToString(), null));
-                    break;
-                case TokenType.EMITTER:
-                    objects.Add(def.Name.ToLower(), new Emitter(def.Values[0].ToString(), null));
-                    break;
-                case TokenType.LIGHT:
-                    objects.Add(def.Name.ToLower(), new Light(def.Values[0].ToString(), (float)def.Values[1]));
                     break;
             }
         }

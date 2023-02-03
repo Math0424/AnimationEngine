@@ -8,7 +8,7 @@ namespace AnimationEngine.LogicV1
 {
     internal static class ScriptConstantsAssembler
     {
-        public static ScriptConstants Assemble(ScriptV1Generator script, out string blockId)
+        public static ScriptV1Constants Assemble(ScriptV1Generator script, out string blockId)
         {
             if (!script.headers.ContainsKey("version") || script.headers["version"].Type != TokenType.INT || (int)script.headers["version"].Value != 1)
             {
@@ -19,7 +19,7 @@ namespace AnimationEngine.LogicV1
                 throw script.Error.AppendError("Missing blockid header");
             }
             blockId = (string)script.headers["blockid"].Value;
-            ScriptConstants constants = new ScriptConstants();
+            ScriptV1Constants constants = new ScriptV1Constants();
 
             foreach(var obj in script.objects.Values) {
                 AssembleObject(obj, constants, script);
@@ -148,40 +148,40 @@ namespace AnimationEngine.LogicV1
             return stack.ToArray();
         }
 
-        private static void AssembleObject(Entity ent, ScriptConstants constants, ScriptV1Generator script)
+        private static void AssembleObject(Entity ent, ScriptV1Constants constants, ScriptV1Generator script)
         {
             switch(ent.Type.Value.ToString().ToLower())
             {
                 case "subpart":
-                    constants.ObjectDefs.Add(new ScriptConstants.ObjectDef(ent.Type, ent.Name.Value.ToString()));
+                    constants.ObjectDefs.Add(new ScriptV1Constants.ObjectDef(ent.Type, ent.Name.Value.ToString()));
                     break;
                 case "button":
                     if (ent.Args == null || ent.Args.Length != 1 || ent.Args[0].Type != TokenType.STR)
                     {
                         throw script.DetailedLog("Invalid button declaration", ent.Name);
                     }
-                    constants.ObjectDefs.Add(new ScriptConstants.ObjectDef(ent.Type, ent.Name.Value.ToString(), ent.Args[0].Value));
+                    constants.ObjectDefs.Add(new ScriptV1Constants.ObjectDef(ent.Type, ent.Name.Value.ToString(), ent.Args[0].Value));
                     break;
                 case "emissive":
                     if (ent.Args == null || ent.Args.Length != 1 || ent.Args[0].Type != TokenType.STR)
                     {
                         throw script.DetailedLog("Invalid emissive declaration", ent.Name);
                     }
-                    constants.ObjectDefs.Add(new ScriptConstants.ObjectDef(ent.Type, ent.Name.Value.ToString(), ent.Args[0].Value));
+                    constants.ObjectDefs.Add(new ScriptV1Constants.ObjectDef(ent.Type, ent.Name.Value.ToString(), ent.Args[0].Value));
                     break;
                 case "emitter":
                     if (ent.Args == null || ent.Args.Length != 1 || ent.Args[0].Type != TokenType.STR)
                     {
                         throw script.DetailedLog("Invalid emitter declaration", ent.Name);
                     }
-                    constants.ObjectDefs.Add(new ScriptConstants.ObjectDef(ent.Type, ent.Name.Value.ToString(), ent.Args[0].Value));
+                    constants.ObjectDefs.Add(new ScriptV1Constants.ObjectDef(ent.Type, ent.Name.Value.ToString(), ent.Args[0].Value));
                     break;
                 case "light":
                     if (ent.Args == null || ent.Args.Length != 3 || ent.Args[0].Type != TokenType.STR || ent.Args[2].Type != TokenType.FLOAT)
                     {
                         throw script.DetailedLog($"Invalid light declaration", ent.Name);
                     }
-                    constants.ObjectDefs.Add(new ScriptConstants.ObjectDef(ent.Type, ent.Name.Value.ToString(), ent.Args[0].Value.ToString(), ent.Args[2].Value));
+                    constants.ObjectDefs.Add(new ScriptV1Constants.ObjectDef(ent.Type, ent.Name.Value.ToString(), ent.Args[0].Value.ToString(), ent.Args[2].Value));
                     break;
             }
         }

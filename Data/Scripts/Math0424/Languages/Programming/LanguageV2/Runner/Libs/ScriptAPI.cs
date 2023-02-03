@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace AnimationEngine.CoreScript.Libs
+namespace AnimationEngine.Language.Libs
 {
     internal class ScriptAPI : ScriptLib
     {

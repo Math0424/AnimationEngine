@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Text;
 using VRageMath;
 
-namespace AnimationEngine.CoreScript
+namespace AnimationEngine.Language
 {
     internal static class LanguageDictionary
     {

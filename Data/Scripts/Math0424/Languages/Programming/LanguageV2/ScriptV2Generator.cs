@@ -1,4 +1,4 @@
-﻿using AnimationEngine.CoreScript;
+﻿using AnimationEngine.Language;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -51,7 +51,7 @@ namespace AnimationEngine.Language
                 try
                 {
                     long start = DateTime.Now.Ticks;
-                    Log($"Compiling script {Path.GetFileName(path)} for {{mod.Name}}");
+                    Log($"Compiling script {Path.GetFileName(path)} for {mod.Name}");
                     Log($"|  Lexer 1/5");
                     Lexer.TokenizeScript(this);
                     Log($"|    loaded {Tokens.Count} tokens");
@@ -121,7 +121,7 @@ namespace AnimationEngine.Language
             }
             else
             {
-                throw new Exception($"Script file not found! ({path} {{mod.Name}})");
+                throw new Exception($"Script file not found! ({path} {mod.Name})");
             }
         }
 

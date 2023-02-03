@@ -1,4 +1,5 @@
 ﻿using AnimationEngine.Core;
+using AnimationEngine.Language;
 using AnimationEngine.LanguageV1;
 using AnimationEngine.Utility;
 using Sandbox.Game.Entities;
@@ -24,85 +25,92 @@ namespace AnimationEngine
         private static readonly string MainInfo = "main.info";
         private static readonly string MainScript = "main.bsl";
 
-        private static Dictionary<string, ScriptConstants> registered = new Dictionary<string, ScriptConstants>();
-        private static List<BlockScript> loaded = new List<BlockScript>();
-
+        private static List<CoreScript> loaded = new List<CoreScript>();
         private static List<string> failed = new List<string>();
+        
+        private static Dictionary<string, Tuple<Subpart[], ScriptRunner>> registeredScripts = new Dictionary<string, Tuple<Subpart[], ScriptRunner>>();
 
-        public static void AddToRegistered(string id, ScriptConstants constant)
+        public static void AddToRegisteredScripts(string id, Subpart[] subparts, ScriptRunner constant)
         {
-            if (registered.ContainsKey(id))
+            if (registeredScripts.ContainsKey(id))
             {
-                Utility.LogToFile($"Warning, Multiple scripts registered for block {id}, overriding previous script.");
+                Utils.LogToFile($"Warning, Multiple scripts registered for {id}, overriding previous script.");
             }
-            registered[id] = constant;
+            registeredScripts[id] = new Tuple<Subpart[], ScriptRunner>(subparts, constant);
         }
 
         protected override void UnloadData()
         {
-            Utility.CloseLog();
+            Utils.CloseLog();
         }
 
         int currentTick = 0;
         public override void UpdateAfterSimulation()
         {
-            try
+            currentTick++;
+            //TODO: create a better data scructure
+            foreach (var x in loaded)
             {
-                currentTick++;
-                //TODO: create a better data scructure
-                foreach (var x in loaded)
+                if (MyAPIGateway.Utilities.IsDedicated)
                 {
-                    if (MyAPIGateway.Utilities.IsDedicated)
+                    if (currentTick % 3 == 0)
                     {
-                        if (currentTick % 3 == 0)
-                        {
-                            x?.Tick(3);
-                        }
-                        continue;
+                        TickObject(x, 3);
                     }
+                    continue;
+                }
 
-                    if (MyAPIGateway.Session.Camera != null)
+                if (MyAPIGateway.Session.Camera != null)
+                {
+                    double dist = Vector3.DistanceSquared(MyAPIGateway.Session.Camera.Position, x.Entity.GetPosition());
+                    if (dist > 1000000) // 1km
                     {
-                        double dist = Vector3.DistanceSquared(MyAPIGateway.Session.Camera.Position, x.Block.GetPosition());
-                        if (dist > 1000000) // 1km
-                        {
-                            if (currentTick % 30 == 0)
-                                x?.Tick(30);
-                        }
-                        if (dist > 100000) // 316 meters
-                        {
-                            if (currentTick % 10 == 0)
-                                x?.Tick(10);
-                        } 
-                        else if (dist > 10000) // 100 meters
-                        {
-                            if (currentTick % 4 == 0)
-                                x?.Tick(4);
-                        } 
-                        else if(dist > 1000) //31 meters
-                        {
-                            if (currentTick % 2 == 0)
-                                x?.Tick(2);
-                        }
-                        else // otherwise 60 fps
-                        {
-                            x?.Tick(1);
-                        }
+                        if (currentTick % 30 == 0)
+                            TickObject(x, 30);
+                    }
+                    if (dist > 100000) // 316 meters
+                    {
+                        if (currentTick % 10 == 0)
+                            TickObject(x, 10);
+                    }
+                    else if (dist > 10000) // 100 meters
+                    {
+                        if (currentTick % 4 == 0)
+                            TickObject(x, 4);
+                    }
+                    else if (dist > 1000) //31 meters
+                    {
+                        if (currentTick % 2 == 0)
+                            TickObject(x, 2);
+                    }
+                    else // otherwise 60 fps
+                    {
+                        TickObject(x, 1);
                     }
                 }
             }
+        }
+
+        private void TickObject(CoreScript script, int time) 
+        { 
+            try
+            {
+                script?.Tick(time);
+            } 
             catch (Exception ex)
             {
-                Utility.LogToFile(ex.TargetSite);
-                Utility.LogToFile(ex.StackTrace);
-                Utility.LogToFile(ex.Message);
+                Utils.LogToFile($"Error while ticking {script.Entity.DisplayName}");
+                Utils.LogToFile(ex.TargetSite);
+                Utils.LogToFile(ex.StackTrace);
+                Utils.LogToFile(ex.Message);
             }
+        
         }
 
         public override void LoadData()
         {
-            Utility.LogToFile($"Starting Animation Engine...");
-            Utility.LogToFile($"Reading {MyAPIGateway.Session.Mods.Count} mods");
+            Utils.LogToFile($"Starting Animation Engine...");
+            Utils.LogToFile($"Reading {MyAPIGateway.Session.Mods.Count} mods");
             int registered = 0;
             foreach (var mod in MyAPIGateway.Session.Mods)
             {
@@ -115,7 +123,7 @@ namespace AnimationEngine
                     } 
                     else if(MyAPIGateway.Utilities.FileExistsInModLocation(MainPath + MainInfo, mod))
                     {
-                        Utility.LogToFile($"Reading animation file for {mod.Name}");
+                        Utils.LogToFile($"Reading animation file for {mod.Name}");
                         foreach (var s in MyAPIGateway.Utilities.ReadFileInModLocation(MainPath + MainInfo, mod).ReadToEnd().Split('\n'))
                         {
                             if (s.ToLower().StartsWith("animation "))
@@ -130,18 +138,18 @@ namespace AnimationEngine
                 {
                     if (!(ex is ScriptError))
                     {
-                        Utility.LogToFile("System critical script error!");
+                        Utils.LogToFile("System critical script error!");
                     }
-                    Utility.LogToFile(ex.ToString());
+                    Utils.LogToFile(ex.ToString());
                     failed.Add(mod.Name);
                 }
             }
-            Utility.LogToFile($"Loaded {registered} scripts");
+            Utils.LogToFile($"Loaded {registered} scripts");
 
             if (failed.Count != 0)
             {
                 MyAPIGateway.Utilities.ShowMessage("AnimationEngine", "One or more scripts failed to compile, please check your SE logs for more information (paste the link in clipboard into explorer)");
-                MyClipboardHelper.SetClipboard(Utility.GetLogPath());
+                MyClipboardHelper.SetClipboard(Utils.GetLogPath());
             }
 
             MyEntities.OnEntityCreate += OnEntityAdded;
@@ -161,25 +169,31 @@ namespace AnimationEngine
         public void OnBlockAdded(IMySlimBlock block)
         {
             string id = block.BlockDefinition.Id.SubtypeId.String.ToLower();
-            if (block.FatBlock != null && registered.ContainsKey(id))
+            if (block.FatBlock != null && registeredScripts.ContainsKey(id))
             {
                 if (block.FatBlock is IMyCubeBlock)
                 {
-                    BlockScript script = new BlockScript(registered[id]);
+                    var x = registeredScripts[id];
+                    CoreScript script = new CoreScript(x.Item1);
+                    script.AddComponent(x.Item2.Clone());
                     script.Init(block.FatBlock);
-                    loaded.Add(script);
-                    Utility.LogToFile($"Attached script to {id} ({block.FatBlock.EntityId})");
+                    Utils.LogToFile($"Attached script to {id} ({block.FatBlock.EntityId})");
                 }
                 else
                 {
-                    Utility.LogToFile($"Cannot attach script to {id} (Cannot attach to armor blocks)");
+                    Utils.LogToFile($"Cannot attach script to {id} (Cannot attach to armor blocks)");
                 }
             }
         }
 
-        public static void RemoveScript(BlockScript script)
+        public static void RemoveScript(CoreScript script)
         {
             loaded.Remove(script);
+        }
+
+        public static void AddScript(CoreScript script)
+        {
+            loaded.Add(script);
         }
 
     }

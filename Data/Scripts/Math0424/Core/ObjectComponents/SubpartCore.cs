@@ -10,21 +10,17 @@ using VRageMath;
 
 namespace AnimationEngine.Core
 {
-    internal class SubpartCore : Actionable, Initializable
+    internal class SubpartCore : Actionable
     {
         private Dictionary<Type, SubpartComponent> components = new Dictionary<Type, SubpartComponent>();
         private Mover mover;
 
         public MyEntitySubpart Subpart { get; private set; }
         private Matrix originMatrix;
-        private IMyEntity parent;
-        private string name;
-        private string parentName;
 
-        public SubpartCore(string name, string parentName)
+        public SubpartCore(MyEntitySubpart subpart)
         {
-            this.name = name;
-            this.parentName = parentName;
+            this.Subpart = subpart;
 
             Actions.Add("reset", Reset);
             Actions.Add("resetpos", ResetPos);
@@ -32,64 +28,27 @@ namespace AnimationEngine.Core
 
             Actions.Add("scale", Scale);
             Actions.Add("setvisible", SetVisibility);
-        }
-        public string GetParent()
-        {
-            return parentName;
-        }
 
-        public void Initalize(IMyEntity ent)
-        {
-            parent = ent;
-            TryInitSubpart(ent);
-
-            foreach (var component in components.Values)
-            {
-                component.Initalize(this);
-            }
-        }
-
-        private bool TryInitSubpart(IMyEntity ent)
-        {
-            MyEntitySubpart part = null;
-            if (!ent.TryGetSubpart(name, out part))
-            {
-                return false;
-            }
-
-            mover?.Clear();
-            mover = null;
-
-            mover = new Mover(part.PositionComp);
+            mover = new Mover(Subpart.PositionComp);
             Actions["translate"] = mover.Translate;
             Actions["rotate"] = mover.Rotate;
             Actions["rotatearound"] = mover.RotateAround;
             Actions["spin"] = mover.Spin;
             Actions["vibrate"] = mover.Vibrate;
-
-            Subpart = part;
             Subpart.OnClose += Close;
-            Subpart.Name = name;
             originMatrix = new Matrix(Subpart.PositionComp.LocalMatrixRef);
-            return true;
         }
 
         public override void Tick(int tick)
         {
-            if (parent == null || !parent.InScene)
-                return;
-
             if (Subpart == null || !Subpart.InScene)
-            {
-                TryInitSubpart(parent);
                 return;
-            }
 
             foreach (var c in components.Values)
                 c.Tick(tick);
             mover.Tick(tick);
 
-            MatrixD parentMat = parent.PositionComp.WorldMatrixRef;
+            MatrixD parentMat = Subpart.Parent.PositionComp.WorldMatrixRef;
             Subpart.PositionComp.UpdateWorldMatrix(ref parentMat);
         }
 
@@ -139,10 +98,9 @@ namespace AnimationEngine.Core
         public void Close(IMyEntity ent)
         {
             Subpart.OnClose -= Close;
+            mover?.Clear();
             foreach (var component in components.Values)
-            {
                 component.Close();
-            }
         }
 
         public void AddComponent<T>(T comp) where T : SubpartComponent

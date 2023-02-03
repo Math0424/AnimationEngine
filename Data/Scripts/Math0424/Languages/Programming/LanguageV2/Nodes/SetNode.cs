@@ -1,9 +1,9 @@
-﻿using AnimationEngine.CoreScript;
+﻿using AnimationEngine.Language;
 using AnimationEngine.Language;
 using System;
 using System.Collections.Generic;
 using System.Text;
-using AnimationEngine.CoreScript;
+using AnimationEngine.Language;
 
 namespace AnimationEngine.LanguageV2.Nodes
 {
