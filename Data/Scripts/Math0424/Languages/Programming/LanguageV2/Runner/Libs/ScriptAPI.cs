@@ -1,4 +1,5 @@
-﻿using System;
+﻿using AnimationEngine.Core;
+using System;
 
 namespace AnimationEngine.Language.Libs
 {
@@ -8,7 +9,6 @@ namespace AnimationEngine.Language.Libs
         {
             AddMethod("log", log);
         }
-
 
         public SVariable log(SVariable[] var)
         {

@@ -35,31 +35,50 @@ namespace AnimationEngine.Core
 
     internal abstract class SubpartComponent
     {
-        public abstract void Initalize(SubpartCore core);
+        public abstract void Init(SubpartCore core);
         public abstract void Tick(int tick);
         public virtual void Close() { }
     }
 
-    internal abstract class BlockComponent
+    internal interface EntityComponent
     {
-        public abstract void Initalize(IMyCubeBlock block);
-        public abstract void Tick(int tick);
+        public void Init(CoreScript parent);
+        public void Tick(int time);
+        public void Close();
+    }
+
+    internal interface ScriptRunner : EntityComponent
+    {
+        public ScriptRunner Clone();
+        public void Execute(string function, params SVariable[] args);
     }
 
     internal interface Initializable
     {
-        string GetParent();
         void Initalize(IMyEntity ent);
     }
 
-    internal abstract class Actionable
+    internal abstract class ScriptLib
     {
-        public Dictionary<string, Action<SVariable[]>> Actions = new Dictionary<string, Action<SVariable[]>>();
-        public virtual void Tick(int tick) { }
-        public void Call(string action, params SVariable[] arr)
+        protected Dictionary<string, Func<SVariable[], SVariable>> _dir = new Dictionary<string, Func<SVariable[], SVariable>>();
+
+        public void AddMethod(string name, Func<SVariable[], SVariable?> func)
         {
-            if (Actions.ContainsKey(action))
-                Actions[action].Invoke(arr);
+            _dir[name] = func;
+        }
+        
+        public void RemoveMethod(string name)
+        {
+            _dir.Remove(name);
+        }
+
+        public SVariable Execute(string value, SVariable[] arr)
+        {
+            if (_dir.ContainsKey(value))
+            {
+                return _dir[value].Invoke(arr);
+            }
+            return null;
         }
     }
 }

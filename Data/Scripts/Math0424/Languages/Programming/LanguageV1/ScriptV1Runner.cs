@@ -11,8 +11,8 @@ namespace AnimationEngine.LanguageV1
     {
         private CoreScript core;
         private List<Delayed> delay;
-        private Dictionary<string, Actionable> actionables;
-        private List<BlockComponent> components;
+        private Dictionary<string, ScriptLib> actionables;
+        private List<EntityComponent> components;
         
         public List<ObjectDef> objectDefs;
         private List<V1ScriptAction> scriptActions;
@@ -32,8 +32,8 @@ namespace AnimationEngine.LanguageV1
 
         public void Init(CoreScript script)
         {
-            components = new List<BlockComponent>();
-            actionables = new Dictionary<string, Actionable>();
+            components = new List<EntityComponent>();
+            actionables = new Dictionary<string, ScriptLib>();
             delay = new List<Delayed>();
             core = script;
 
@@ -51,7 +51,7 @@ namespace AnimationEngine.LanguageV1
                 if (delayed.Delay <= 0)
                 {
                     if (actionables.ContainsKey(delayed.Object))
-                        actionables[delayed.Object].Call(delayed.Name, delayed.Args);
+                        actionables[delayed.Object].Execute(delayed.Name, delayed.Args);
                     delayed.Executed = true;
                 }
                 delayed.Delay -= time;
@@ -101,7 +101,7 @@ namespace AnimationEngine.LanguageV1
             {
                 case "buttonaction":
                     subpart = act.Paramaters[0].Value.ToString().ToLower();
-                    var btnComp = ((SubpartCore)actionables[subpart]).GetComponent<ButtonComp>();
+                    var btnComp = ((SubpartCore)actionables[subpart]).GetFirstComponent<ButtonComp>();
 
                     foreach (var x in act.Funcs)
                     {
@@ -201,18 +201,21 @@ namespace AnimationEngine.LanguageV1
         {
             switch (def.Type)
             {
+                case "subpart":
+                    actionables[def.Name.ToLower()] = core.Subparts[def.Name];
+                    break;
                 case "button":
                     core.Subparts[def.Name].AddComponent(new ButtonComp(def.Values[0].ToString()));
                     actionables[def.Name.ToLower()] = core.Subparts[def.Name];
                     break;
                 case "emissive":
-                    actionables[def.Name.ToLower()] = new Emissive(def.Values[0].ToString(), null);
+                    actionables[def.Name.ToLower()] = new Emissive(def.Values[0].ToString());
                     break;
                 case "emitter":
-                    actionables[def.Name.ToLower()] = new Emitter(def.Values[0].ToString(), null);
+                    actionables[def.Name.ToLower()] = new Emitter(def.Values[0].ToString());
                     break;
                 case "light":
-                    actionables[def.Name.ToLower()] = new Light(def.Values[0].ToString(), (float)def.Values[1], null);
+                    actionables[def.Name.ToLower()] = new Light(def.Values[0].ToString(), (float)def.Values[1]);
                     break;
             }
         }

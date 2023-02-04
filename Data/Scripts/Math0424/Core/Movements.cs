@@ -1,4 +1,6 @@
-﻿using AnimationEngine.Utility;
+﻿using AnimationEngine.Core;
+using AnimationEngine.Language;
+using AnimationEngine.Utility;
 using System;
 using System.Collections.Generic;
 using VRage.Game.Components;
@@ -11,10 +13,12 @@ namespace AnimationEngine
     {
         private MyPositionComponentBase core;
         private List<BaseAction> movements = new List<BaseAction>();
+        private Matrix originMatrix;
 
         public Mover(MyPositionComponentBase core)
         {
             this.core = core;
+            originMatrix = new Matrix(core.LocalMatrixRef);
         }
 
         public void Tick(int time)
@@ -24,55 +28,81 @@ namespace AnimationEngine
             movements.RemoveAll(x => x.IsFinished);
         }
 
-        //translate([x, y, z], time, lerp)
-        public void Translate(object[] args)
+        public SVariable SetResetPos(SVariable[] args)
         {
-            Vector3 val = (Vector3)args[0];
-            int time = (int)args[1];
+            originMatrix = new Matrix(core.LocalMatrixRef);
+            return null;
+        }
+
+        public SVariable ResetPos(SVariable[] args)
+        {
+            Matrix m = core.WorldMatrixRef;
+            m.Translation = originMatrix.Translation;
+            core.SetLocalMatrix(ref m);
+            return null;
+        }
+
+        public SVariable Reset(SVariable[] args)
+        {
+            Clear();
+            core.SetLocalMatrix(ref originMatrix);
+            return null;
+        }
+
+        //translate([x, y, z], time, lerp)
+        public SVariable Translate(SVariable[] args)
+        {
+            Vector3 val = args[0].AsVector3();
+            int time = args[1].AsInt();
             LerpType lerp;
             EaseType ease;
-            ((ShortHandLerp)args[2]).ShortToLong(out lerp, out ease);
+            ((ShortHandLerp)args[2].AsInt()).ShortToLong(out lerp, out ease);
             movements.Add(new TranslateAction(core, time, val, lerp, ease));
+            return null;
         }
 
         //rotate([x, y, z], angle, time, lerp)
-        public void Rotate(params object[] args)
+        public SVariable Rotate(params SVariable[] args)
         {
-            Vector3 val = (Vector3)args[0];
-            float angle = (float)args[1] * 0.0174f;
-            int time = (int)args[2];
+            Vector3 val = args[0].AsVector3();
+            float angle = args[1].AsFloat() * 0.0174f;
+            int time = args[2].AsInt();
             LerpType lerp;
             EaseType ease;
-            ((ShortHandLerp)args[3]).ShortToLong(out lerp, out ease);
+            ((ShortHandLerp)args[3].AsInt()).ShortToLong(out lerp, out ease);
             movements.Add(new RotateAction(core, time, Quaternion.CreateFromAxisAngle(val, angle), lerp, ease));
+            return null;
         }
 
         //rotate([x, y, z], [x, y, z] pivot angle, time, lerp)
-        public void RotateAround(object[] args)
+        public SVariable RotateAround(SVariable[] args)
         {
-            Vector3 val = (Vector3)args[0];
-            Vector3 pivot = (Vector3)args[1];
-            float angle = (float)args[2] * 0.0174f;
-            int time = (int)args[3];
+            Vector3 val = args[0].AsVector3();
+            Vector3 pivot = args[1].AsVector3();
+            float angle = args[2].AsFloat() * 0.0174f;
+            int time = args[3].AsInt();
             LerpType lerp;
             EaseType ease;
-            ((ShortHandLerp)args[4]).ShortToLong(out lerp, out ease);
+            ((ShortHandLerp)args[4].AsInt()).ShortToLong(out lerp, out ease);
             movements.Add(new RotateAroundAction(core, time, pivot, Quaternion.CreateFromAxisAngle(val, angle), lerp, ease));
+            return null;
         }
 
         //spin([x, y, z], speed, time)
-        public void Spin(object[] args)
+        public SVariable Spin(SVariable[] args)
         {
-            Vector3 val = (Vector3)args[0];
-            float speed = (float)args[1] * 0.0174f;
-            int time = (int)args[2];
+            Vector3 val = args[0].AsVector3();
+            float speed = args[1].AsFloat() * 0.0174f;
+            int time = args[2].AsInt();
             movements.Add(new SpinAction(core, time, Quaternion.CreateFromAxisAngle(val, speed)));
+            return null;
         }
 
         //vibrate(time)
-        public void Vibrate(object[] args)
+        public SVariable Vibrate(SVariable[] args)
         {
-            movements.Add(new VibrateAction(core, (int)args[1], (float)args[0]));
+            movements.Add(new VibrateAction(core, args[1].AsInt(), args[0].AsFloat()));
+            return null;
         }
 
         public void Clear()

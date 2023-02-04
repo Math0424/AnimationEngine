@@ -1,16 +1,16 @@
-﻿using AnimationEngine.Language;
-using System;
-using System.Collections.Generic;
-using System.IO;
+﻿using System.Collections.Generic;
 using AnimationEngine.LanguageV2.Nodes;
-using Sandbox.ModAPI;
-using static VRage.Game.MyObjectBuilder_Checkpoint;
 using AnimationEngine.Utility;
+using AnimationEngine.Core;
 
 namespace AnimationEngine.Language
 {
-    internal class ScriptV2Generator : ScriptGenerator
+    internal class ScriptV2Generator
     {
+        ScriptGenerator generator;
+        public ScriptError Error => generator.Error;
+        public List<Token> Tokens => generator.Tokens;
+        public string[] RawScript => generator.RawScript;
 
         // parser
         public Dictionary<string, Token> headers = new Dictionary<string, Token>();
@@ -42,87 +42,61 @@ namespace AnimationEngine.Language
             return _immediates.Count - 1;
         }
 
-        public ScriptV2Generator(ModItem mod, string path) : base(mod, path)
+        public ScriptV2Generator(ScriptGenerator generator, out ScriptRunner runner, out List<Subpart> defs)
         {
-            if (MyAPIGateway.Utilities.FileExistsInModLocation(path, mod))
-            {
-                Error = new ScriptError();
-                RawScript = MyAPIGateway.Utilities.ReadFileInModLocation(path, mod).ReadToEnd().Split('\n');
-                try
-                {
-                    long start = DateTime.Now.Ticks;
-                    Log($"Compiling script {Path.GetFileName(path)} for {mod.Name}");
-                    Log($"|  Lexer 1/5");
-                    Lexer.TokenizeScript(this);
-                    Log($"|    loaded {Tokens.Count} tokens");
-                    Log($"|  Parser 2/5");
-                    //TODO parse headers here and choose compiler
+            this.generator = generator;
 
-                    Context.EnterNewContext(Tokens.ToArray());
-                    Context.SetScript(this);
+            Log($"|  Parser");
 
-                    objects.Add(new Entity("math"));
-                    objects.Add(new Entity("api"));
-                    //objects.Add(new Entity("block"));
-                    //objects.Add(new Entity("wc"));
-                    ScriptNode root = new ScriptNode();
+            Context.EnterNewContext(Tokens.ToArray());
+            Context.SetScript(this);
 
-                    Log($"|    generated {GetNodeCount(root)} nodes");
-                    Log($"|    |    created {globalCount} globals");
-                    Log($"|    |    created {objects.Count} objects");
-                    Log($"|    |    created {functions.Count} functions");
-                    Log($"|    |    created {actions.Count} actions");
-                    Log($"|  Compilation 3/5");
-                    root.Compile();
-                    Log($"|    finalized {program.Count} lines of bytecode");
+            objects.Add(new Entity("math"));
+            objects.Add(new Entity("api"));
+            objects.Add(new Entity("block"));
+            ScriptNode root = new ScriptNode();
 
-                    //Log("\n--Immediates--\n");
-                    //int i = 0;
-                    //foreach (var x in _immediates)
-                    //    Log($"{i++:D3} {x}");
-                    //
-                    //Log("\n--Script--\n");
-                    //i = 0;
-                    //foreach (var x in program) {
-                    //    string v = $"{i++:D4} {x.Arg} : ";
-                    //    if (x.Arr != null)
-                    //    {
-                    //        foreach (var y in x.Arr)
-                    //        {
-                    //            v += $"{y:D4} ";
-                    //        }
-                    //    } 
-                    //    else
-                    //    {
-                    //        v += "NULL";
-                    //    }
-                    //    Log(v);
-                    //}
-                    //Log("\n");
+            Log($"|    generated {GetNodeCount(root)} nodes");
+            Log($"|    |    created {globalCount} globals");
+            Log($"|    |    created {objects.Count} objects");
+            Log($"|    |    created {functions.Count} functions");
+            Log($"|    |    created {actions.Count} actions");
+            Log($"|  Compilation");
+            root.Compile();
+            Log($"|    finalized {program.Count} lines of bytecode");
 
-                    Log($"|  Logic 4/5");
-                    string blockid = "Dummy";
-                    //ScriptConstants script = ScriptConstantsAssembler.Assemble(this, out blockid);
-                    //AnimationEngine.AddToRegistered(blockid.ToLower(), script);
-                    Log($"|    assembled logic for block '{blockid}'");
-                    Log($"|  Registering 5/5");
-                    //TODO: add to all blocks of this type
-                    Log($"|    added '{blockid}' to the script register");
-                    Log($"Compiled script ({(DateTime.Now.Ticks - start) / TimeSpan.TicksPerMillisecond}ms)");
-                }
-                catch (Exception ex)
-                {
-                    if (!(ex is ScriptError))
-                    {
-                        Error.AppendError(ex);
-                    }
-                    throw Error;
-                }
-            }
-            else
-            {
-                throw new Exception($"Script file not found! ({path} {mod.Name})");
-            }
+
+            //Log("\n--Immediates--\n");
+            //int i = 0;
+            //foreach (var x in _immediates)
+            //    Log($"{i++:D3} {x}");
+            //
+            //Log("\n--Script--\n");
+            //i = 0;
+            //foreach (var x in program) {
+            //    string v = $"{i++:D4} {x.Arg} : ";
+            //    if (x.Arr != null)
+            //    {
+            //        foreach (var y in x.Arr)
+            //        {
+            //            v += $"{y:D4} ";
+            //        }
+            //    } 
+            //    else
+            //    {
+            //        v += "NULL";
+            //    }
+            //    Log(v);
+            //}
+            //Log("\n");
+
+            List<Subpart> subparts = new List<Subpart>();
+            foreach (var x in objects)
+                if (x.Type.Value.ToString() == "subpart")
+                    subparts.Add(new Subpart(x.Name.Value.ToString(), x.Parent.Value.ToString()));
+
+            runner = new ScriptV2Runner(objects, globals, program.ToArray(), _immediates.ToArray(), methodLookup);
+            defs = subparts;
         }
 
         private int GetNodeCount(CompilationNode node)

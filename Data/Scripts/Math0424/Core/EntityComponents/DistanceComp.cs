@@ -4,11 +4,12 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using VRage.Game.ModAPI;
+using VRage.ModAPI;
 using VRageMath;
 
 namespace AnimationEngine
 {
-    internal class DistanceComp : BlockComponent
+    internal class DistanceComp : EntityComponent
     {
 
         public Action InRange;
@@ -19,26 +20,26 @@ namespace AnimationEngine
         private bool triggered;
         
         private List<IMyPlayer> characters = new List<IMyPlayer>();
-        private IMyCubeBlock block;
+        private IMyEntity entity;
 
         public DistanceComp(float distance)
         {
             this.distance = distance * distance;
         }
 
-        public override void Initalize(IMyCubeBlock block)
+        public void Close()
         {
-            this.block = block;
+
         }
 
-        public override void Tick(int i)
+        public void Init(CoreScript parent)
         {
-            if (block.CubeGrid.PlayerPresenceTier != MyUpdateTiersPlayerPresence.Normal)
-            {
-                return;
-            }
+            entity = parent.Entity;
+        }
 
-            tick += i;
+        public void Tick(int time)
+        {
+            tick += time;
             if (tick % 60 == 0 || tick > 60)
             {
                 tick = 0;
@@ -57,7 +58,7 @@ namespace AnimationEngine
                 {
                     if (p.Character != null)
                     {
-                        double dist = Vector3D.DistanceSquared(p.Character.GetPosition(), block.WorldMatrix.Translation);
+                        double dist = Vector3D.DistanceSquared(p.Character.GetPosition(), entity.WorldMatrix.Translation);
                         if (dist < lowest)
                         {
                             lowest = dist;
@@ -75,7 +76,6 @@ namespace AnimationEngine
                     OutOfRange?.Invoke();
                     triggered = false;
                 }
-
             }
         }
     }

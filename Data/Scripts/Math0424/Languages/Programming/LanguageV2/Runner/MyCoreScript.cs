@@ -65,6 +65,8 @@ namespace AnimationEngine.Language
         private List<ScriptLib> _libraries;
         #endregion
 
+        List<Entity> _ents;
+
         public void Execute(string function, params SVariable[] args)
         {
             if (_methodLookup.ContainsKey(function))
@@ -101,13 +103,9 @@ namespace AnimationEngine.Language
             _program = program;
             _immediates = immediates;
             _methodLookup = methods;
-
-            foreach(var x in ents)
-            {
-
-            }
+            _ents = ents;
         }
-
+        
         public ScriptV2Runner(ScriptV2Runner copy)
         {
             _stack = new RAStack<SVariable>();

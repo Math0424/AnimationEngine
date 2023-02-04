@@ -28,7 +28,7 @@ namespace AnimationEngine
             interactable = true;
         }
 
-        public override void Initalize(SubpartCore core)
+        public override void Init(SubpartCore core)
         {
             //TODO fix this for parenting
             //Utils.LogToFile("Part core id " + core.Subpart.Parent);
@@ -47,7 +47,7 @@ namespace AnimationEngine
                 }
             }
 
-            Utility.LogToFile($"Interactable failed to spawn, could not find dummy '{dummy}'");
+            Utils.LogToFile($"Interactable failed to spawn, could not find dummy '{dummy}'");
         }
 
         public override void Tick(int i)

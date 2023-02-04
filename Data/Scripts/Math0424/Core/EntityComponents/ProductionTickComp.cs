@@ -7,7 +7,7 @@ using VRage.Game.ModAPI;
 
 namespace AnimationEngine
 {
-    internal class ProductionTickComp : BlockComponent
+    internal class ProductionTickComp : EntityComponent
     {
         public Action Ticked;
         public Action StartedProducing;
@@ -35,22 +35,31 @@ namespace AnimationEngine
             }
         }
 
-        public override void Initalize(IMyCubeBlock block)
+        public void Init(CoreScript parent)
         {
-            if (block is IMyProductionBlock)
+            if (parent.Entity is IMyProductionBlock)
             {
-                productionBlock = ((IMyProductionBlock)block);
+                productionBlock = ((IMyProductionBlock)parent.Entity);
                 productionBlock.StartedProducing += StartedProducing;
                 productionBlock.StoppedProducing += StoppedProducing;
-            } 
-            else if(block.Components.Has<MyResourceSourceComponent>())
+            }
+            else if (parent.Entity.Components.Has<MyResourceSourceComponent>())
             {
                 nonProductionBlock = true;
-                SourceComp = block.Components.Get<MyResourceSourceComponent>();
+                SourceComp = parent.Entity.Components.Get<MyResourceSourceComponent>();
             }
         }
 
-        public override void Tick(int i)
+        public void Close()
+        {
+            if (productionBlock != null)
+            {
+                productionBlock.StartedProducing -= StartedProducing;
+                productionBlock.StoppedProducing -= StoppedProducing;
+            }
+        }
+
+        public void Tick(int time)
         {
             if (LoopTime == -1 || (!nonProductionBlock && !productionBlock.IsProducing))
             {
@@ -75,12 +84,13 @@ namespace AnimationEngine
                     return;
             }
 
-            tick += i;
+            tick += time;
             if (tick % LoopTime == 0 || tick > LoopTime)
             {
                 tick = 0;
                 Ticked?.Invoke();
             }
         }
+
     }
 }

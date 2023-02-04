@@ -46,14 +46,9 @@ namespace AnimationEngine.Language
                     List<Subpart> subparts = null;
                     switch (versionId)
                     {
-                        case 1:
-                            new ScriptV1Generator(this, out runner, out subparts);
-                            break;
-                        case 2:
-                            
-                            break;
-                        default:
-                            throw new Exception($"Unsupported script version number {versionId}");
+                        case 1: new ScriptV1Generator(this, out runner, out subparts); break;
+                        case 2: new ScriptV2Generator(this, out runner, out subparts); break;
+                        default: throw new Exception($"Unsupported script version number {versionId}");
                     }
 
                     Log($"|  Registering block");

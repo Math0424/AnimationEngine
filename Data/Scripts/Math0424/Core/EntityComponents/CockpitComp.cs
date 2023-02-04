@@ -6,18 +6,28 @@ using VRage.Game.ModAPI;
 
 namespace AnimationEngine
 {
-    internal class CockpitComp : BlockComponent
+    internal class CockpitComp : EntityComponent
     {
         public Action EnteredSeat;
         public Action ExitedSeat;
 
         private bool enteredSeat = false;
         private IMyCockpit block;
-        public override void Initalize(IMyCubeBlock block)
+
+        public void Init(CoreScript parent)
         {
-            this.block = (IMyCockpit)block;
-            this.block.ControllerInfo.ControlReleased += Released;
-            this.block.ControllerInfo.ControlAcquired += Controlled;
+            if (parent.Entity is IMyCockpit)
+            {
+                this.block = (IMyCockpit)parent.Entity;
+                this.block.ControllerInfo.ControlReleased += Released;
+                this.block.ControllerInfo.ControlAcquired += Controlled;
+            }
+        }
+
+        public void Close()
+        {
+            this.block.ControllerInfo.ControlReleased -= Released;
+            this.block.ControllerInfo.ControlAcquired -= Controlled;
         }
 
         private void Controlled(IMyEntityController con)
@@ -40,7 +50,7 @@ namespace AnimationEngine
             enteredSeat = false;
         }
 
-        public override void Tick(int i)
+        public void Tick(int time)
         {
 
         }

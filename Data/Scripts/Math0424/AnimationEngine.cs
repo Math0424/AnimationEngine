@@ -51,6 +51,9 @@ namespace AnimationEngine
             //TODO: create a better data scructure
             foreach (var x in loaded)
             {
+                if (!x.Entity.InScene)
+                    continue;
+                
                 if (MyAPIGateway.Utilities.IsDedicated)
                 {
                     if (currentTick % 3 == 0)

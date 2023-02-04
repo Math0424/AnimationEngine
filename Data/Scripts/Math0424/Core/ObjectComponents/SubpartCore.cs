@@ -1,4 +1,5 @@
-﻿using AnimationEngine.LanguageV1;
+﻿using AnimationEngine.Language;
+using AnimationEngine.LanguageV1;
 using AnimationEngine.LogicV1;
 using AnimationEngine.Utility;
 using System;
@@ -6,45 +7,44 @@ using System.Collections.Generic;
 using VRage.Game.Entity;
 using VRage.Game.ModAPI;
 using VRage.ModAPI;
+using VRage.Utils;
 using VRageMath;
 
 namespace AnimationEngine.Core
 {
-    internal class SubpartCore : Actionable
+    internal class SubpartCore : ScriptLib
     {
-        private Dictionary<Type, SubpartComponent> components = new Dictionary<Type, SubpartComponent>();
+        private List<SubpartComponent> components = new List<SubpartComponent>();
         private Mover mover;
 
         public MyEntitySubpart Subpart { get; private set; }
-        private Matrix originMatrix;
 
         public SubpartCore(MyEntitySubpart subpart)
         {
             this.Subpart = subpart;
-
-            Actions.Add("reset", Reset);
-            Actions.Add("resetpos", ResetPos);
-            Actions.Add("setresetpos", SetResetPos);
-
-            Actions.Add("scale", Scale);
-            Actions.Add("setvisible", SetVisibility);
+            
+            AddMethod("scale", Scale);
+            AddMethod("setvisible", SetVisibility);
+            AddMethod("log", Log);
 
             mover = new Mover(Subpart.PositionComp);
-            Actions["translate"] = mover.Translate;
-            Actions["rotate"] = mover.Rotate;
-            Actions["rotatearound"] = mover.RotateAround;
-            Actions["spin"] = mover.Spin;
-            Actions["vibrate"] = mover.Vibrate;
+            AddMethod("translate", mover.Translate);
+            AddMethod("rotate", mover.Rotate);
+            AddMethod("rotatearound", mover.RotateAround);
+            AddMethod("spin", mover.Spin);
+            AddMethod("vibrate", mover.Vibrate);
+            AddMethod("reset", mover.Reset);
+            AddMethod("resetpos", mover.ResetPos);
+            AddMethod("setresetpos", mover.SetResetPos);
             Subpart.OnClose += Close;
-            originMatrix = new Matrix(Subpart.PositionComp.LocalMatrixRef);
         }
 
-        public override void Tick(int tick)
+        public void Tick(int tick)
         {
             if (Subpart == null || !Subpart.InScene)
                 return;
 
-            foreach (var c in components.Values)
+            foreach (var c in components)
                 c.Tick(tick);
             mover.Tick(tick);
 
@@ -52,75 +52,53 @@ namespace AnimationEngine.Core
             Subpart.PositionComp.UpdateWorldMatrix(ref parentMat);
         }
 
-        public void SetOriginMatrix()
+        private SVariable Scale(SVariable[] args)
         {
-            originMatrix = new Matrix(Subpart.PositionComp.LocalMatrixRef);
-        }
-
-        public void Reset()
-        {
-            mover?.Clear();
-            Subpart?.PositionComp.SetLocalMatrix(ref originMatrix);
-        }
-        #region actionables
-
-        private void SetResetPos(object[] args)
-        {
-            SetOriginMatrix();
-        }
-
-        private void Reset(object[] args)
-        {
-            Reset();
-        }
-
-        private void ResetPos(object[] args)
-        {
-            Matrix m = Subpart.WorldMatrix;
-            m.Translation = originMatrix.Translation;
-            Subpart.PositionComp.SetLocalMatrix(ref m);
-        }
-
-        private void Scale(object[] args)
-        {
-            Vector3 scale = (Vector3)args[0];
+            Vector3 scale = args[0].AsVector3();
             Matrix x = Subpart.PositionComp.LocalMatrixRef.Scale(scale);
             Subpart.PositionComp.SetLocalMatrix(ref x, null, false, ref x);
+            return null;
         }
 
-        private void SetVisibility(object[] args)
+        private SVariable SetVisibility(SVariable[] args)
         {
-            Subpart.Render.Visible = (bool)args[0];
+            Subpart.Render.Visible = args[0].AsBool();
+            return null;
         }
-        #endregion
 
+        private SVariable Log(SVariable[] args)
+        {
+            MyLog.Default.WriteLine($"{Subpart.EntityId}: {args[0]}");
+            return null;
+        }
 
         public void Close(IMyEntity ent)
         {
             Subpart.OnClose -= Close;
             mover?.Clear();
-            foreach (var component in components.Values)
+            foreach (var component in components)
                 component.Close();
         }
 
         public void AddComponent<T>(T comp) where T : SubpartComponent
         {
-            components.Add(typeof(T), comp);
+            components.Add(comp);
         }
 
-        public T GetComponent<T>() where T : SubpartComponent
+        public T GetFirstComponent<T>() where T : SubpartComponent
         {
-            SubpartComponent t;
-            if (components.TryGetValue(typeof(T), out t))
-            {
-                return (T)t;
-            }
+            foreach (var x in components)
+                if (x.GetType() == typeof(T))
+                    return (T)x;
             return null;
         }
 
         public bool HasComponent<T>() where T : SubpartComponent
         {
-            return components.ContainsKey(typeof(T));
+            foreach(var x in components)
+                if (x.GetType() == typeof(T))
+                    return true;
+            return false;
         }
 
     }

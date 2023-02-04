@@ -1,4 +1,5 @@
-﻿using Sandbox.Game;
+﻿using AnimationEngine.Language;
+using Sandbox.Game;
 using System;
 using VRageMath;
 
@@ -16,17 +17,17 @@ namespace AnimationEngine.Core
         {
         }
 
-        public override void Initalize(SubpartCore core)
+        public override void Init(SubpartCore core)
         {
-            base.Initalize(core);
+            base.Init(core);
 
             this.core = core;
             OnHover += HoverChange;
             OnUnHover += HoverChange;
             OnInteract += Interacted;
 
-            core.Actions.Add("enabled", SetEnabled);
-            core.Actions.Add("interactable", SetInteractable);
+            core.AddMethod("enabled", SetEnabled);
+            core.AddMethod("interactable", SetInteractable);
         }
 
         private void HoverChange()
@@ -55,14 +56,16 @@ namespace AnimationEngine.Core
             }
         }
 
-        public void SetInteractable(object[] arr)
+        public SVariable SetInteractable(SVariable[] arr)
         {
-            this.interactable = (bool)arr[0];
+            this.interactable = arr[0].AsBool();
+            return null;
         }
 
-        public void SetEnabled(object[] arr)
+        public SVariable SetEnabled(SVariable[] arr)
         {
-            this.enabled = (bool)arr[0];
+            this.enabled = arr[0].AsBool();
+            return null;
         }
 
     }

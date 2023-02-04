@@ -1,4 +1,5 @@
-﻿using AnimationEngine.LanguageV1;
+﻿using AnimationEngine.Language;
+using AnimationEngine.LanguageV1;
 using AnimationEngine.Utility;
 using Sandbox.Definitions;
 using Sandbox.Game.Lights;
@@ -12,27 +13,22 @@ using VRageRender.Lights;
 
 namespace AnimationEngine.Core
 {
-    internal class Light : Actionable, Initializable
+    internal class Light : ScriptLib, Initializable
     {
         private string dummyName;
         private float radius;
         private IMyModelDummy dum;
-        private IMyEntity parent;
         private MyLight light;
+        private IMyEntity parent;
 
-        public Light(string dummyName, float radius, string parent)
+        public Light(string dummyName, float radius)
         {
             this.radius = radius;
             this.dummyName = dummyName;
-            Actions.Add("setcolor", SetColor);
-            Actions.Add("lighton", LightOn);
-            Actions.Add("lightoff", LightOff);
-            Actions.Add("togglelight", ToggleLight);
-        }
-
-        public string GetParent()
-        {
-            return dummyName;
+            AddMethod("setcolor", SetColor);
+            AddMethod("lighton", LightOn);
+            AddMethod("lightoff", LightOff);
+            AddMethod("togglelight", ToggleLight);
         }
 
         public void Close(IMyEntity ent)
@@ -105,39 +101,43 @@ namespace AnimationEngine.Core
             parent = ent;
         }
 
-        private void SetColor(object[] arr)
+        private SVariable SetColor(SVariable[] arr)
         {
             if (light == null && !FindDummy(parent))
-                return;
-            light.Color = new Color((int)arr[0], (int)arr[1], (int)arr[2], 0);
+                return null;
+            light.Color = new Color(arr[0].AsInt(), arr[1].AsInt(), arr[2].AsInt(), 0);
             light.UpdateLight();
+            return null;
         }
 
-        private void LightOn(object[] arr)
+        private SVariable LightOn(SVariable[] arr)
         {
             if (light == null && !FindDummy(parent))
-                return;
+                return null;
             light.LightOn = true;
             light.GlareOn = true;
             light.UpdateLight();
+            return null;
         }
 
-        private void LightOff(object[] arr)
+        private SVariable LightOff(SVariable[] arr)
         {
             if (light == null && !FindDummy(parent))
-                return;
+                return null;
             light.LightOn = false;
             light.GlareOn = false;
             light.UpdateLight();
+            return null;
         }
 
-        private void ToggleLight(object[] arr)
+        private SVariable ToggleLight(SVariable[] arr)
         {
             if (light == null && !FindDummy(parent))
-                return;
+                return null;
             light.LightOn = !light.LightOn;
             light.GlareOn = !light.GlareOn;
             light.UpdateLight();
+            return null;
         }
 
     }

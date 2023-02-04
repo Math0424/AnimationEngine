@@ -1,4 +1,5 @@
-﻿using AnimationEngine.Utility;
+﻿using AnimationEngine.Language;
+using AnimationEngine.Utility;
 using Sandbox.Game.Entities;
 using System.Collections.Generic;
 using VRage.Game;
@@ -9,29 +10,22 @@ using VRageMath;
 
 namespace AnimationEngine.Core
 {
-    internal class Emitter : Actionable, Initializable
+    internal class Emitter : ScriptLib, Initializable
     {
         private string dummyName;
         private IMyEntity ent;
         private IMyModelDummy dum;
-        private string parent;
         private MyEntity3DSoundEmitter soundEmitter;
         private List<MyParticleEffect> effects;
 
-        public Emitter(string dummyName, string parent)
+        public Emitter(string dummyName)
         {
             effects = new List<MyParticleEffect>();
-            this.parent = parent;
             this.dummyName = dummyName;
-            Actions.Add("playparticle", PlayParticle);
-            Actions.Add("stopparticle", StopParticles);
-            Actions.Add("playsound", PlaySound);
-            Actions.Add("stopsound", StopSound);
-        }
-
-        public string GetParent()
-        {
-            return parent;
+            AddMethod("playparticle", PlayParticle);
+            AddMethod("stopparticle", StopParticles);
+            AddMethod("playsound", PlaySound);
+            AddMethod("stopsound", StopSound);
         }
 
         private void Close(IMyEntity ent)
@@ -64,12 +58,13 @@ namespace AnimationEngine.Core
             return false;
         }
 
-        private void StopSound(object[] arr)
+        private SVariable StopSound(SVariable[] arr)
         {
             soundEmitter?.StopSound(true);
+            return null;
         }
 
-        private void PlaySound(object[] arr)
+        private SVariable PlaySound(SVariable[] arr)
         {
             if (soundEmitter == null)
             {
@@ -77,28 +72,29 @@ namespace AnimationEngine.Core
                 soundEmitter.Force2D = true;
             }
             soundEmitter.PlaySoundWithDistance(MySoundPair.GetCueId(arr[0].ToString()));
+            return null;
         }
 
-        private void PlayParticle(object[] arr)
+        private SVariable PlayParticle(SVariable[] arr)
         {
-            var p = Create(arr[0] as string);
+            var p = Create(arr[0].ToString());
             if (p == null)
             {
-                return;
+                return null;
             }
 
-            p.UserScale = (float)arr[1];
-            p.UserLifeMultiplier = (float)arr[2];
+            p.UserScale = arr[1].AsFloat();
+            p.UserLifeMultiplier = arr[2].AsFloat();
             p.Autodelete = true;
 
             if (arr.Length >= 4)
             {
-                p.Velocity = (Vector3)arr[3];
+                p.Velocity = arr[3].AsVector3();
             }
 
             if (arr.Length >= 7)
             {
-                p.UserColorMultiplier = new Vector4((int)arr[4], (int)arr[5], (int)arr[6], 1);
+                p.UserColorMultiplier = new Vector4(arr[4].AsInt(), arr[5].AsInt(), arr[6].AsInt(), 1);
             }
 
             p.Autodelete = true;
@@ -106,14 +102,16 @@ namespace AnimationEngine.Core
             p.OnDelete += (e) => { effects.Remove(e); };
 
             p.Play();
+            return null;
         }
 
-        private void StopParticles(object[] arr)
+        private SVariable StopParticles(SVariable[] arr)
         {
             foreach (var x in effects)
             {
                 x?.Stop();
             }
+            return null;
         }
 
         private MyParticleEffect Create(string particle)

@@ -10,23 +10,25 @@ using AnimationEngine.Utility;
 
 namespace AnimationEngine.Core
 {
-    internal class BlockCore : Actionable
+    internal class BlockCore : ScriptLib
     {
         private IMyCubeBlock Block;
         Mover pilotMover;
         Mover blockMover;
 
-        public BlockCore(BlockScript script)
+        public BlockCore(CoreScript script)
         {
-            this.Block = script.Block;
-
-            Actions.Add("log", Log);
+            if (!(script.Entity is IMyCubeBlock))
+            {
+                return;
+            }
+            this.Block = script.Entity as IMyCubeBlock;
 
             if (Block is IMyDoor)
             {
-                Actions.Add("opendoor", OpenDoor);
-                Actions.Add("closedoor", CloseDoor);
-                Actions.Add("toggledoor", ToggleDoor);
+                AddMethod("opendoor", (e) => { OpenDoor(); return null; });
+                AddMethod("closedoor", (e) => { CloseDoor(); return null; });
+                AddMethod("toggledoor", (e) => { ToggleDoor(); return null; });
             }
 
             if (Block is IMyCockpit)
@@ -40,24 +42,27 @@ namespace AnimationEngine.Core
             }
 
             blockMover = new Mover(Block.PositionComp);
-            Actions.Add("translate", blockMover.Translate);
-            Actions.Add("rotate", blockMover.Rotate);
-            Actions.Add("rotatearound", blockMover.RotateAround);
-            Actions.Add("spin", blockMover.Spin);
-            Actions.Add("vibrate", blockMover.Vibrate);
+            AddMethod("translate", blockMover.Translate);
+            AddMethod("rotate", blockMover.Rotate);
+            AddMethod("rotatearound", blockMover.RotateAround);
+            AddMethod("spin", blockMover.Spin);
+            AddMethod("vibrate", blockMover.Vibrate);
+            AddMethod("reset", blockMover.Reset);
+            AddMethod("resetpos", blockMover.ResetPos);
+            AddMethod("setresetpos", blockMover.SetResetPos);
 
             if (Block is IMyLandingGear)
             {
-                Actions.Add("lockon", LockOn);
-                Actions.Add("lockoff", LockOff);
-                Actions.Add("togglelock", ToggleLock);
+                AddMethod("lockon", (e) => { LockOn(); return null; });
+                AddMethod("lockoff", (e) => { LockOff(); return null; });
+                AddMethod("togglelock", (e) => { ToggleLock(); return null; });
             }
 
             if (Block is IMyFunctionalBlock)
             {
-                Actions.Add("poweron", PowerOn);
-                Actions.Add("poweroff", PowerOff);
-                Actions.Add("togglepower", TogglePower);
+                AddMethod("poweron", (e) => { PowerOn(); return null; });
+                AddMethod("poweroff", (e) => { PowerOff(); return null; });
+                AddMethod("togglepower", (e) => { TogglePower(); return null; });
             }
         }
 
@@ -70,16 +75,17 @@ namespace AnimationEngine.Core
         private void ControlAquired()
         {
             if (Block == null || ((IMyCockpit)Block).Pilot == null)
-            {
                 return;
-            }
 
             pilotMover = new Mover(((IMyCockpit)Block).Pilot.PositionComp);
-            Actions["pilottranslate"] = pilotMover.Translate;
-            Actions["pilotrotate"] = pilotMover.Rotate;
-            Actions["pilotrotatearound"] = pilotMover.RotateAround;
-            Actions["pilotspin"] = pilotMover.Spin;
-            Actions["pilotvibrate"] = pilotMover.Vibrate;
+            AddMethod("pilottranslate", pilotMover.Translate);
+            AddMethod("pilotrotate", pilotMover.Rotate);
+            AddMethod("pilotrotatearound", pilotMover.RotateAround);
+            AddMethod("pilotspin", pilotMover.Spin);
+            AddMethod("pilotvibrate", pilotMover.Vibrate);
+            AddMethod("pilotreset", pilotMover.Reset);
+            AddMethod("pilotresetpos", pilotMover.ResetPos);
+            AddMethod("pilotsetresetpos", pilotMover.SetResetPos);
         }
 
         private void ControlReleased()
@@ -88,53 +94,51 @@ namespace AnimationEngine.Core
                 return;
 
             pilotMover.Clear();
-            Actions.Remove("pilottranslate");
-            Actions.Remove("pilotrotate");
-            Actions.Remove("pilotrotatearound");
-            Actions.Remove("pilotspin");
-            Actions.Remove("pilotvibrate");
+            RemoveMethod("pilottranslate");
+            RemoveMethod("pilotrotate");
+            RemoveMethod("pilotrotatearound");
+            RemoveMethod("pilotspin");
+            RemoveMethod("pilotvibrate");
+            RemoveMethod("pilotreset");
+            RemoveMethod("pilotresetpos");
+            RemoveMethod("pilotsetresetpos");
         }
 
-        private void Log(object[] args)
-        {
-            MyLog.Default.WriteLine($"{Block.EntityId}: {args[0]}");
-        }
-
-        private void PowerOff(object[] args)
+        private void PowerOff()
         {
             ((IMyFunctionalBlock)Block).Enabled = false;
         }
-        private void PowerOn(object[] args)
+        private void PowerOn()
         {
             ((IMyFunctionalBlock)Block).Enabled = true;
         }
-        private void TogglePower(object[] args)
+        private void TogglePower()
         {
             ((IMyFunctionalBlock)Block).Enabled = !((IMyFunctionalBlock)Block).Enabled;
         }
 
-        private void OpenDoor(object[] args)
+        private void OpenDoor()
         {
             (Block as IMyDoor).OpenDoor();
         }
-        private void CloseDoor(object[] args)
+        private void CloseDoor()
         {
             (Block as IMyDoor).CloseDoor();
         }
-        private void ToggleDoor(object[] args)
+        private void ToggleDoor()
         {
             (Block as IMyDoor).ToggleDoor();
         }
 
-        private void LockOn(object[] args)
+        private void LockOn()
         {
             (Block as IMyLandingGear).Lock();
         }
-        private void LockOff(object[] args)
+        private void LockOff()
         {
             (Block as IMyLandingGear).Unlock();
         }
-        private void ToggleLock(object[] args)
+        private void ToggleLock()
         {
             (Block as IMyLandingGear).ToggleLock();
         }

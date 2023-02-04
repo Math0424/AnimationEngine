@@ -7,7 +7,7 @@ using VRageMath;
 
 namespace AnimationEngine
 {
-    internal class WorkingTickComp : BlockComponent
+    internal class WorkingTickComp : EntityComponent
     {
         public Action Ticked;
         public Action OnIsWorking;
@@ -23,17 +23,24 @@ namespace AnimationEngine
             tick = -1;
         }
 
-        public override void Initalize(IMyCubeBlock block)
+        public void Init(CoreScript parent)
         {
-            this.block = block;
+            if (parent.Entity is IMyCubeBlock)
+            {
+                this.block = (IMyCubeBlock)parent.Entity;
 
-            block.IsWorkingChanged += (e) => {
-                if (e.IsWorking) { OnIsWorking?.Invoke(); } else { OnNotWorking?.Invoke(); } 
-            };
-
+                block.IsWorkingChanged += (e) => {
+                    if (e.IsWorking) { OnIsWorking?.Invoke(); } else { OnNotWorking?.Invoke(); }
+                };
+            }
         }
 
-        public override void Tick(int i)
+        public void Close()
+        {
+            //todo cleanup the states
+        }
+
+        public void Tick(int i)
         {
             if (!block.IsWorking)
             {
@@ -58,5 +65,6 @@ namespace AnimationEngine
                 Ticked?.Invoke();
             }
         }
+
     }
 }

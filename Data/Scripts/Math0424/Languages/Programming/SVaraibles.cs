@@ -1,4 +1,5 @@
-﻿using VRageMath;
+﻿using System;
+using VRageMath;
 
 namespace AnimationEngine.Language
 {
@@ -12,11 +13,18 @@ namespace AnimationEngine.Language
                 case TokenType.MVECTOR: return new SVariableVector((Vector3)token.Value);
                 case TokenType.BOOL: return new SVariableBool((bool)token.Value);
                 case TokenType.INT: return new SVariableInt((int)token.Value);
+                case TokenType.STR: return new SVariableString((string)token.Value);
+                case TokenType.LERP:
+                    foreach (var x in Enum.GetValues(typeof(ShortHandLerp)))
+                        if (x.ToString().ToLower().Equals(token.Value.ToString().ToLower()))
+                            return new SVariableInt((int)x);
+                    return null;
             }
             return null;
         }
     }
 
+    //unused, actually slower then classes
     internal struct SVariableStruct
     {
         private enum ValType

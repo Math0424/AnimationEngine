@@ -79,6 +79,8 @@ namespace AnimationEngine.Core
         {
             foreach (var component in components.Values)
                 component.Tick(time);
+            foreach (var x in Subparts.Values)
+                x.Tick(time);
         }
 
         private void OnClose(IMyEntity ent)
