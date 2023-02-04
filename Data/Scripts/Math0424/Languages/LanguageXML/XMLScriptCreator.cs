@@ -6,26 +6,24 @@ namespace AnimationEngine.LanguageXML
 {
     internal class XMLScriptCreator
     {
-        public XMLScriptCreator(string path)
-        {
-            if (File.Exists(path))
-            {
-                long start = DateTime.Now.Ticks;
-                Log($"Compiling XML script {Path.GetFileName(path)} for {{mod.Name}}");
-                
-                XmlSerializer xmlSerializer = new XmlSerializer(typeof(XMLScript));
-                using (var file = File.Open(path, FileMode.Open))
-                    xmlSerializer.Deserialize(file);
-
-                
-
-                Log($"Compiled script ({(DateTime.Now.Ticks - start) / TimeSpan.TicksPerMillisecond}ms)");
-            }
-            else
-            {
-                throw new Exception($"Script file not found! ({path} {{mod.Name}})");
-            }
-        }
+        //public XMLScriptCreator(string path)
+        //{
+        //    if (File.Exists(path))
+        //    {
+        //        long start = DateTime.Now.Ticks;
+        //        Log($"Compiling XML script {Path.GetFileName(path)} for {{mod.Name}}");
+        //        
+        //        XmlSerializer xmlSerializer = new XmlSerializer(typeof(XMLScript));
+        //        using (var file = File.Open(path, FileMode.Open))
+        //            xmlSerializer.Deserialize(file);
+        //
+        //        Log($"Compiled script ({(DateTime.Now.Ticks - start) / TimeSpan.TicksPerMillisecond}ms)");
+        //    }
+        //    else
+        //    {
+        //        throw new Exception($"Script file not found! ({path} {{mod.Name}})");
+        //    }
+        //}
 
         public void Log(object msg)
         {

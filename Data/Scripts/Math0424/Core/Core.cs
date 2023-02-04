@@ -42,15 +42,15 @@ namespace AnimationEngine.Core
 
     internal interface EntityComponent
     {
-        public void Init(CoreScript parent);
-        public void Tick(int time);
-        public void Close();
+        void Init(CoreScript parent);
+        void Tick(int time);
+        void Close();
     }
 
     internal interface ScriptRunner : EntityComponent
     {
-        public ScriptRunner Clone();
-        public void Execute(string function, params SVariable[] args);
+        ScriptRunner Clone();
+        void Execute(string function, params SVariable[] args);
     }
 
     internal interface Initializable
@@ -62,7 +62,7 @@ namespace AnimationEngine.Core
     {
         protected Dictionary<string, Func<SVariable[], SVariable>> _dir = new Dictionary<string, Func<SVariable[], SVariable>>();
 
-        public void AddMethod(string name, Func<SVariable[], SVariable?> func)
+        public void AddMethod(string name, Func<SVariable[], SVariable> func)
         {
             _dir[name] = func;
         }
@@ -80,5 +80,7 @@ namespace AnimationEngine.Core
             }
             return null;
         }
+
+        public virtual void Tick(int time) { }
     }
 }

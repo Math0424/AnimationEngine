@@ -142,23 +142,26 @@ namespace AnimationEngine.Language
 
     internal interface SVariable
     {
-        public int AsInt();
-        public float AsFloat();
-        public bool AsBool();
-        public Vector3 AsVector3();
+        int AsInt();
+        float AsFloat();
+        bool AsBool();
+        Vector3 AsVector3();
 
-        public bool Equals(SVariable a);
-        public SVariable Add(SVariable a);
-        public SVariable Sub(SVariable a);
-        public SVariable Mul(SVariable a);
-        public SVariable Div(SVariable a);
-        public SVariable Mod(SVariable a);
+        bool Equals(SVariable a);
+        SVariable Add(SVariable a);
+        SVariable Sub(SVariable a);
+        SVariable Mul(SVariable a);
+        SVariable Div(SVariable a);
+        SVariable Mod(SVariable a);
     }
 
     internal class SVariableInt : SVariable
     {
         int value;
-        public SVariableInt(int value) => this.value = value;
+        public SVariableInt(int value)
+        {
+            this.value = value;
+        }
 
         public int AsInt() => value;
         public float AsFloat() => (float)value;
@@ -178,7 +181,10 @@ namespace AnimationEngine.Language
     internal class SVariableFloat : SVariable
     {
         float value;
-        public SVariableFloat(float value) => this.value = value;
+        public SVariableFloat(float value)
+        {
+            this.value = value;
+        }
 
         public int AsInt() => (int)value;
         public float AsFloat() => (float)value;
@@ -198,7 +204,10 @@ namespace AnimationEngine.Language
     internal class SVariableBool : SVariable
     {
         bool value;
-        public SVariableBool(bool value) => this.value = value;
+        public SVariableBool(bool value)
+        {
+            this.value = value;
+        }
 
         public int AsInt() => value ? 1 : 0;
         public float AsFloat() => value ? 1 : 0;
@@ -218,7 +227,10 @@ namespace AnimationEngine.Language
     internal class SVariableVector : SVariable
     {
         Vector3 value;
-        public SVariableVector(Vector3 value) => this.value = value;
+        public SVariableVector(Vector3 value)
+        {
+            this.value = value;
+        }
 
         public int AsInt() => (int)value.X;
         public float AsFloat() => value.X;
@@ -238,7 +250,10 @@ namespace AnimationEngine.Language
     internal class SVariableString : SVariable
     {
         string value;
-        public SVariableString(string value) => this.value = value;
+        public SVariableString(string value)
+        {
+            this.value = value;
+        }
 
         public int AsInt() => (int)value.Length;
         public float AsFloat() => (float)value.Length;

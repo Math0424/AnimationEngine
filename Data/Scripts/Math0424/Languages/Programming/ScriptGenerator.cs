@@ -9,7 +9,7 @@ using static VRage.Game.MyObjectBuilder_Checkpoint;
 
 namespace AnimationEngine.Language
 {
-    internal abstract class ScriptGenerator
+    internal class ScriptGenerator
     {
         public ScriptError Error { get; protected set; }
         public string[] RawScript { get; protected set; }

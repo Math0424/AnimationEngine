@@ -121,7 +121,7 @@ namespace AnimationEngine
                 {
                     if (MyAPIGateway.Utilities.FileExistsInModLocation(MainPath + MainScript, mod))
                     {
-                        new ScriptV1Generator(mod, MainPath + MainScript);
+                        new ScriptGenerator(mod, MainPath + MainScript);
                         registered++;
                     } 
                     else if(MyAPIGateway.Utilities.FileExistsInModLocation(MainPath + MainInfo, mod))
@@ -131,7 +131,7 @@ namespace AnimationEngine
                         {
                             if (s.ToLower().StartsWith("animation "))
                             {
-                                new ScriptV1Generator(mod, MainPath + s.ToLower().Substring(10).Trim() + ".bsl");
+                                new ScriptGenerator(mod, MainPath + s.ToLower().Substring(10).Trim() + ".bsl");
                                 registered++;
                             }
                         }

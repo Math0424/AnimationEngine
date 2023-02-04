@@ -39,7 +39,7 @@ namespace AnimationEngine.Core
             Subpart.OnClose += Close;
         }
 
-        public void Tick(int tick)
+        public override void Tick(int tick)
         {
             if (Subpart == null || !Subpart.InScene)
                 return;
