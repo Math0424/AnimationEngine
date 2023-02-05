@@ -13,7 +13,7 @@ namespace AnimationEngine.Language
 
             new SpecialAction("block", new TokenType[0],
                 new SpecialAction("create", new TokenType[0]),
-                new SpecialAction("build", new TokenType[0]),
+                new SpecialAction("built", new TokenType[0]),
                 new SpecialAction("working", new TokenType[0]),
                 new SpecialAction("notworking", new TokenType[0])
             ),
@@ -100,12 +100,26 @@ namespace AnimationEngine.Language
             ),
 
             new ObjectDictionary("subpart",
-                new MethodDictionary("spin", false, "Vector", "Speed", "Time")
+                new MethodDictionary("translate", false, "PositionVector", "Time", "Lerp"),
+                new MethodDictionary("rotate", false, "AxisVector", "Speed", "Time"),
+                new MethodDictionary("rotatearound", false, "AxisVector", "PivotVector", "Time", "Lerp"),
+                new MethodDictionary("spin", false, "Vector", "Speed", "Time"),
+                new MethodDictionary("vibrate", false, "Scale", "Time"),
+                new MethodDictionary("reset", false),
+                new MethodDictionary("resetpos", false),
+                new MethodDictionary("setresetpos", false)
                 //TODO
             ),
 
             new ObjectDictionary("block",
-                new MethodDictionary("spin", false, "Vector", "Speed", "Time")
+                new MethodDictionary("translate", false, "PositionVector", "Time", "Lerp"),
+                new MethodDictionary("rotate", false, "AxisVector", "Speed", "Time"),
+                new MethodDictionary("rotatearound", false, "AxisVector", "PivotVector", "Time", "Lerp"),
+                new MethodDictionary("spin", false, "Vector", "Speed", "Time"),
+                new MethodDictionary("vibrate", false, "Scale", "Time"),
+                new MethodDictionary("reset", false),
+                new MethodDictionary("resetpos", false),
+                new MethodDictionary("setresetpos", false)
                 //TODO
             ),
         };

@@ -47,7 +47,7 @@ namespace AnimationEngine
             //TODO: create a better data scructure
             foreach (var x in loaded)
             {
-                if (x.Entity == null || !x.Entity.InScene)
+                if (x == null || x.Entity == null || !x.Entity.InScene)
                     continue;
 
                 if (MyAPIGateway.Utilities?.IsDedicated ?? false)
@@ -59,7 +59,7 @@ namespace AnimationEngine
                     continue;
                 }
 
-                if (MyAPIGateway.Session?.Camera != null)
+                if (MyAPIGateway.Session?.Camera != null && MyAPIGateway.Session.Camera.Position != null)
                 {
                     double dist = Vector3.DistanceSquared(MyAPIGateway.Session.Camera.Position, x.Entity.GetPosition());
                     if (dist > 1000000) // 1km

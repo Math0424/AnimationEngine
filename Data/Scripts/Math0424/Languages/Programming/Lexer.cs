@@ -13,6 +13,8 @@ namespace AnimationEngine.Language
                 case TokenType.FLOAT:
                 case TokenType.MVECTOR:
                 case TokenType.STR:
+                case TokenType.BOOL:
+                case TokenType.LERP:
                     return true;
                 default:
                     return false;

@@ -7,6 +7,7 @@ namespace AnimationEngine.LanguageV2.Nodes
         Token t;
         string objectName;
         bool function = false;
+        string prevousContext;
 
         public ClassCallNode(ref int index)
         {
@@ -24,6 +25,7 @@ namespace AnimationEngine.LanguageV2.Nodes
             }
             else if (Tokens[index + 1].Type == TokenType.DOT)
             {
+                prevousContext = Context.ClassContext;
                 Context.ClassContext = "";
                 foreach (var x in Script.objects)
                 {
@@ -37,6 +39,7 @@ namespace AnimationEngine.LanguageV2.Nodes
                     throw Script.DetailedErrorLog("Cannot find object", t);
                 index += 2;
                 children.Add(new MethodCallNode(ref index));
+                Context.ClassContext = prevousContext;
             }
             else
             {

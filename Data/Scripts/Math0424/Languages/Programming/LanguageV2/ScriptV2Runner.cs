@@ -1,8 +1,10 @@
 ﻿using AnimationEngine.Core;
 using AnimationEngine.Language.Libs;
 using AnimationEngine.Utility;
+using Sandbox.Definitions;
 using System;
 using System.Collections.Generic;
+using VRage.Game.ModAPI;
 
 /// <summary>
 /// This handles the code, its pretty much a emulator for a basic computer
@@ -64,6 +66,10 @@ namespace AnimationEngine.Language
         List<Entity> _ents;
         List<ScriptAction> _actions;
 
+        private bool Built;
+        private MyCubeBlockDefinition Definition;
+        private string buildId;
+
         public void Execute(string function, params SVariable[] args)
         {
             if (_methodLookup.ContainsKey(function))
@@ -99,6 +105,8 @@ namespace AnimationEngine.Language
                 if (x is Initializable)
                     ((Initializable)x).Init(script.Entity);
 
+            Definition = ((MyCubeBlockDefinition)((IMyCubeBlock)script.Entity).SlimBlock.BlockDefinition);
+            Built = ((IMyCubeBlock)script.Entity).SlimBlock.BuildLevelRatio < Definition.CriticalIntegrityRatio;
         }
 
         private Dictionary<string, string> nameTranslationTable = new Dictionary<string, string>();
@@ -160,9 +168,9 @@ namespace AnimationEngine.Language
                     foreach (var x in action.Funcs)
                         switch (x.TokenName)
                         {
-                            case "create": Execute($"act_{action.ID}_pressed"); break;
-                            case "build":
-
+                            case "create": Execute($"act_{action.ID}_create"); break;
+                            case "built":
+                                buildId = $"act_{action.ID}_built";
                                 break;
                             case "working":
                                 if (!core.HasComponent<WorkingTickComp>())
@@ -226,7 +234,16 @@ namespace AnimationEngine.Language
         public void Tick(int time)
         {
             foreach (var x in _libraries)
-                x.Tick(time);
+                if (!(x is SubpartCore))
+                    x.Tick(time);
+
+            var check = ((IMyCubeBlock)core.Entity).SlimBlock.BuildLevelRatio < Definition.CriticalIntegrityRatio;
+            if (check != Built)
+            {
+                Built = check;
+                if (Built)
+                    Execute(buildId);
+            }
         }
 
         public void Close()
@@ -305,9 +322,9 @@ namespace AnimationEngine.Language
                         break;
                     case ProgramFunc.Cmp:
                         var x = _stack.Peek(curr.Arr[0]);
-                        zFlag = x.AsInt() == 0;
-                        nzFlag = x.AsInt() != 0;
-                        nFlag = x.AsInt() < 0;
+                        zFlag = x.AsFloat() == 0;
+                        nzFlag = x.AsFloat() != 0;
+                        nFlag = x.AsFloat() < 0;
                         break;
                     case ProgramFunc.BNZ:
                         if (nzFlag)
@@ -362,6 +379,7 @@ namespace AnimationEngine.Language
                     case ProgramFunc.Mth:
                         SVariable[] arr = new SVariable[curr.Arr[1]];
                         _stack.CopyTo(_stack.Count - curr.Arr[1], arr, 0, curr.Arr[1]);
+                        _stack.RemoveRange(_stack.Count - curr.Arr[1], curr.Arr[1]);
                         SVariable s = _libraries[_context].Execute(_immediates[curr.Arr[0]].ToString(), arr);
                         if (s != null)
                         {

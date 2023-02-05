@@ -24,122 +24,6 @@ namespace AnimationEngine.Language
         }
     }
 
-    //unused, actually slower then classes
-    internal struct SVariableStruct
-    {
-        private enum ValType
-        {
-            INT = 1, FLOAT = 2, BOOL = 4, VECTOR = 8, STRING = 16
-        }
-
-        readonly ValType type;
-        public readonly int intVal;
-        public readonly float floatVal;
-        public readonly bool boolVal;
-        public readonly Vector3 vector3Val;
-
-        public int AsInt() => intVal;
-        public float AsFloat() => floatVal;
-        public bool AsBool() => boolVal;
-        public Vector3 AsVector3() => vector3Val;
-
-        public SVariableStruct(string obj)
-        {
-            type = ValType.INT;
-            intVal = obj.Length;
-            floatVal = intVal;
-            vector3Val = new Vector3(intVal, intVal, intVal);
-            boolVal = intVal != 0;
-        }
-
-        public SVariableStruct(int obj)
-        {
-            type = ValType.INT;
-            intVal = (int)obj;
-            floatVal = (float)obj;
-            vector3Val = new Vector3(obj, obj, obj);
-            boolVal = obj != 0;
-        }
-
-        public SVariableStruct(float obj)
-        {
-            type = ValType.FLOAT;
-            intVal = (int)obj;
-            floatVal = (float)obj;
-            vector3Val = new Vector3(obj, obj, obj);
-            boolVal = obj != 0;
-        }
-
-        public SVariableStruct(bool obj)
-        {
-            type = ValType.BOOL;
-            intVal = obj ? 1 : 0;
-            floatVal = intVal;
-            vector3Val = new Vector3(intVal, intVal, intVal);
-            boolVal = obj;
-        }
-
-        public SVariableStruct(Vector3 obj)
-        {
-            type = ValType.VECTOR;
-            intVal = (int)obj.LengthSquared();
-            floatVal = obj.LengthSquared();
-            vector3Val = obj;
-            boolVal = obj.LengthSquared() == 0;
-        }
-
-        public bool Equals(SVariableStruct a)
-        {
-            return a.type == type && (type == ValType.VECTOR ? vector3Val.Equals(a.vector3Val) : floatVal == a.floatVal);
-        }
-
-        public SVariableStruct Add(SVariableStruct a)
-        {
-            if (((int)type | (int)a.type) == 8)
-                return new SVariableStruct(vector3Val + a.vector3Val);
-            return new SVariableStruct(floatVal + a.floatVal);
-        }
-        public SVariableStruct Sub(SVariableStruct a)
-        {
-            if (((int)type | (int)a.type) == 8)
-                return new SVariableStruct(vector3Val - a.vector3Val);
-            return new SVariableStruct(floatVal - a.floatVal);
-        }
-        public SVariableStruct Mul(SVariableStruct a)
-        {
-            if (((int)type | (int)a.type) == 8)
-                return new SVariableStruct(vector3Val * a.vector3Val);
-            return new SVariableStruct(floatVal * a.floatVal);
-        }
-        public SVariableStruct Div(SVariableStruct a)
-        {
-            if (((int)type | (int)a.type) == 8)
-                return new SVariableStruct(a.vector3Val / vector3Val);
-            return new SVariableStruct(floatVal / a.floatVal);
-        }
-        public SVariableStruct Mod(SVariableStruct a)
-        {
-            return new SVariableStruct(a.floatVal % floatVal);
-        }
-
-        public override string ToString()
-        {
-            switch (type)
-            {
-                case ValType.INT:
-                    return intVal.ToString();
-                case ValType.FLOAT:
-                    return floatVal.ToString();
-                case ValType.BOOL:
-                    return boolVal.ToString();
-                case ValType.VECTOR:
-                    return vector3Val.ToString();
-                default:
-                    return intVal.ToString();
-            }
-        }
-    }
-
     internal interface SVariable
     {
         int AsInt();
@@ -215,11 +99,11 @@ namespace AnimationEngine.Language
         public Vector3 AsVector3() => new Vector3(value ? 1 : 0);
 
         public bool Equals(SVariable a) => a.GetType() == typeof(SVariableBool) && value == ((SVariableBool)a).AsBool();
-        public SVariable Add(SVariable a) => new SVariableBool(value | a.AsBool());
-        public SVariable Sub(SVariable a) => new SVariableBool(value & a.AsBool()); // dunno
-        public SVariable Div(SVariable a) => new SVariableBool(value & a.AsBool()); // dunno
-        public SVariable Mod(SVariable a) => new SVariableBool(value & a.AsBool()); // dunno
-        public SVariable Mul(SVariable a) => new SVariableBool(value & a.AsBool()); // dunno
+        public SVariable Add(SVariable a) => new SVariableInt(AsInt() + a.AsInt());
+        public SVariable Sub(SVariable a) => new SVariableInt(AsInt() - a.AsInt()); 
+        public SVariable Div(SVariable a) => new SVariableInt(AsInt() / a.AsInt()); 
+        public SVariable Mod(SVariable a) => new SVariableInt(AsInt() % a.AsInt()); 
+        public SVariable Mul(SVariable a) => new SVariableInt(AsInt() * a.AsInt()); 
 
         public override string ToString() => value.ToString();
     }
@@ -265,7 +149,13 @@ namespace AnimationEngine.Language
         public SVariable Sub(SVariable a) => new SVariableString(value.Replace(a.ToString(), ""));
         public SVariable Div(SVariable a) => new SVariableString(value + a.ToString()); // dunno
         public SVariable Mod(SVariable a) => new SVariableString(value + a.ToString()); // dunno
-        public SVariable Mul(SVariable a) => new SVariableString(value + a.ToString()); // dunno
+        public SVariable Mul(SVariable a)
+        {
+            string x = value;
+            for(int i = 0; i < a.AsInt(); i++)
+                x += value;
+            return new SVariableString(value);
+        }
 
         public override string ToString() => value.ToString();
     }

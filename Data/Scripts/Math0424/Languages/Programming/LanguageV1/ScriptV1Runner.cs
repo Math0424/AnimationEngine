@@ -76,7 +76,6 @@ namespace AnimationEngine.LanguageV1
                 if (!(x is SubpartCore))
                     x.Tick(time);
 
-
             var check = ((IMyCubeBlock)core.Entity).SlimBlock.BuildLevelRatio < Definition.CriticalIntegrityRatio;
             if (check != Built)
             {

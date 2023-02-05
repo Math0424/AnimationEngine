@@ -1,4 +1,5 @@
 ﻿using AnimationEngine.Core;
+using AnimationEngine.Utility;
 using System;
 
 namespace AnimationEngine.Language.Libs
@@ -36,19 +37,11 @@ namespace AnimationEngine.Language.Libs
         }
         public SVariable max(SVariable[] var)
         {
-            if (var[0].AsFloat() > var[1].AsFloat())
-            {
-                return var[0];
-            }
-            return var[1];
+            return new SVariableFloat(var[0].AsFloat() > var[1].AsFloat() ? var[0].AsFloat() : var[1].AsFloat());
         }
         public SVariable min(SVariable[] var)
         {
-            if (var[0].AsFloat() < var[1].AsFloat())
-            {
-                return var[0];
-            }
-            return var[1];
+            return new SVariableFloat(var[0].AsFloat() < var[1].AsFloat() ? var[0].AsFloat() : var[1].AsFloat());
         }
         public SVariable floor(SVariable[] var)
         {

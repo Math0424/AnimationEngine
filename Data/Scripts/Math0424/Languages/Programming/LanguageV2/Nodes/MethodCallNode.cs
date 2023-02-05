@@ -102,15 +102,13 @@ namespace AnimationEngine.LanguageV2.Nodes
                 x.Compile();
             Context.IncreaseStackIndex();
             Script.program.Add(new Line(ProgramFunc.Mth, Script.AddImmediate(new SVariableString(methodName)), variables));
+            foreach (var x in children)
+                Context.PopStackIndex();
             next?.Compile();
         }
 
         public override void PostCompile()
         {
-            foreach (var x in children)
-            {
-                x.PostCompile();
-            }
             next?.PostCompile();
             if (!Context.RequireReturn)
             {
