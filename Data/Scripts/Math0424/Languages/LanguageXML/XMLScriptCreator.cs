@@ -1,4 +1,5 @@
-﻿using System;
+﻿using AnimationEngine.Utility;
+using System;
 using System.IO;
 using System.Xml.Serialization;
 
@@ -27,7 +28,7 @@ namespace AnimationEngine.LanguageXML
 
         public void Log(object msg)
         {
-            Console.WriteLine(msg);
+            Utils.LogToFile(msg);
         }
     }
 

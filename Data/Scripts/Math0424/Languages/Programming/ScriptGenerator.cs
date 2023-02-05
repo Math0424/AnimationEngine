@@ -29,10 +29,10 @@ namespace AnimationEngine.Language
                     Log($"Reading script {Path.GetFileName(path)} for {mod.Name}");
                     Log($"|  Lexer");
                     Lexer.TokenizeScript(this);
-                    Log($"|    Read {Tokens.Count} tokens");
+                    Log($"|  |  Generated {Tokens.Count} tokens");
                     Log($"|  Reading headers");
                     ParseHeaders();
-                    Log($"|    Found {headers.Count} headers");
+                    Log($"|  |  Found {headers.Count} headers");
                     
                     if (!headers.ContainsKey("version"))
                         throw new Exception("Cannot find script @version header");
@@ -53,6 +53,7 @@ namespace AnimationEngine.Language
 
                     Log($"|  Registering block");
                     AnimationEngine.AddToRegisteredScripts(headers["blockid"], subparts.ToArray(), runner);
+                    Log($"|  |  Registered script to '{headers["blockid"]}'");
 
                     Log($"Compiled script ({(DateTime.Now.Ticks - start) / TimeSpan.TicksPerMillisecond}ms)");
                 }
@@ -79,7 +80,7 @@ namespace AnimationEngine.Language
             {
                 arr = Grab(next);
                 if (arr.Count == 4)
-                    headers[arr[1].Value.ToString().ToLower()] = arr[2].Value.ToString().ToLower();
+                    headers[arr[1].Value.ToString().ToLower()] = arr[2].Value.ToString();
                 next = FindNext(next + 1, TokenType.AT);
             }
         }

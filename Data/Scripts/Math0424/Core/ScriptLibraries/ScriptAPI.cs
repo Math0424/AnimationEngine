@@ -1,5 +1,5 @@
 ﻿using AnimationEngine.Core;
-using System;
+using AnimationEngine.Utility;
 
 namespace AnimationEngine.Language.Libs
 {
@@ -12,7 +12,7 @@ namespace AnimationEngine.Language.Libs
 
         public SVariable log(SVariable[] var)
         {
-            Console.WriteLine("API Log: " + var[0].ToString());
+            Utils.LogToFile("API Log: " + var[0].ToString());
             return null;
         }
 

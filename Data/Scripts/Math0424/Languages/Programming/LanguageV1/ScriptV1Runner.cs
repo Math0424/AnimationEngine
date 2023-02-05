@@ -1,6 +1,7 @@
 ﻿using AnimationEngine.Core;
 using AnimationEngine.Language;
 using AnimationEngine.LogicV1;
+using AnimationEngine.Utility;
 using Sandbox.ModAPI;
 using SpaceEngineers.Game.ModAPI;
 using System.Collections.Generic;
@@ -11,8 +12,7 @@ namespace AnimationEngine.LanguageV1
     {
         private CoreScript core;
         private List<Delayed> delay;
-        private Dictionary<string, ScriptLib> actionables;
-        private List<EntityComponent> components;
+        private Dictionary<string, ScriptLib> libraries;
         
         public List<ObjectDef> objectDefs;
         private List<V1ScriptAction> scriptActions;
@@ -32,8 +32,7 @@ namespace AnimationEngine.LanguageV1
 
         public void Init(CoreScript script)
         {
-            components = new List<EntityComponent>();
-            actionables = new Dictionary<string, ScriptLib>();
+            libraries = new Dictionary<string, ScriptLib>();
             delay = new List<Delayed>();
             core = script;
 
@@ -41,6 +40,12 @@ namespace AnimationEngine.LanguageV1
                 InitObject(obj);
             foreach (var obj in scriptActions)
                 InitAction(obj);
+
+            libraries.Add("block", new BlockCore(script));
+
+            foreach (var x in libraries.Values)
+                if (x is Initializable)
+                    ((Initializable)x).Init(script.Entity);
         }
 
         public void Tick(int time)
@@ -50,8 +55,8 @@ namespace AnimationEngine.LanguageV1
                 Delayed delayed = delay[i];
                 if (delayed.Delay <= 0)
                 {
-                    if (actionables.ContainsKey(delayed.Object))
-                        actionables[delayed.Object].Execute(delayed.Name, delayed.Args);
+                    if (libraries.ContainsKey(delayed.Object))
+                        libraries[delayed.Object.ToLower()].Execute(delayed.Name, delayed.Args);
                     delayed.Executed = true;
                 }
                 delayed.Delay -= time;
@@ -59,10 +64,9 @@ namespace AnimationEngine.LanguageV1
             }
             delay.RemoveAll(x => x.Executed);
 
-            foreach(var x in actionables.Values)
-            {
-                x.Tick(time);
-            }
+            foreach(var x in libraries.Values)
+                if (!(x is SubpartCore))
+                    x.Tick(time);
         }
 
         private void CallFunction(string name)
@@ -96,12 +100,12 @@ namespace AnimationEngine.LanguageV1
 
         private void InitAction(V1ScriptAction act)
         {
-            string subpart;
             switch (act.Name.Value.ToString())
             {
                 case "buttonaction":
-                    subpart = act.Paramaters[0].Value.ToString().ToLower();
-                    var btnComp = ((SubpartCore)actionables[subpart]).GetFirstComponent<ButtonComp>();
+                    var subpart = act.Paramaters[0].Value.ToString().ToLower();
+                    ButtonComp btnComp = new ButtonComp(subpart);
+                    core.Subparts[subpart].AddComponent(btnComp);
 
                     foreach (var x in act.Funcs)
                     {
@@ -115,7 +119,7 @@ namespace AnimationEngine.LanguageV1
                     break;
                 case "productionaction":
                     var proComp = new ProductionTickComp(-1);
-                    components.Add(proComp);
+                    core.AddComponent(proComp);
 
                     foreach (var x in act.Funcs)
                     {
@@ -132,7 +136,7 @@ namespace AnimationEngine.LanguageV1
                     break;
                 case "distanceaction":
                     var distComp = new DistanceComp((float)act.Paramaters[0].Value);
-                    components.Add(distComp);
+                    core.AddComponent(distComp);
 
                     foreach (var x in act.Funcs)
                     {
@@ -145,7 +149,7 @@ namespace AnimationEngine.LanguageV1
                     break;
                 case "blockaction":
                     var workComp = new WorkingTickComp(-1);
-                    components.Add(workComp);
+                    core.AddComponent(workComp);
 
                     foreach (var x in act.Funcs)
                     {
@@ -167,7 +171,7 @@ namespace AnimationEngine.LanguageV1
                     break;
                 case "cockpitaction":
                     CockpitComp cockComp = new CockpitComp();
-                    components.Add(cockComp);
+                    core.AddComponent(cockComp);
 
                     foreach (var x in act.Funcs)
                     {
@@ -202,27 +206,27 @@ namespace AnimationEngine.LanguageV1
             switch (def.Type)
             {
                 case "subpart":
-                    actionables[def.Name.ToLower()] = core.Subparts[def.Name];
+                    libraries[def.Name.ToLower()] = core.Subparts[def.Name];
                     break;
                 case "button":
                     core.Subparts[def.Name].AddComponent(new ButtonComp(def.Values[0].ToString()));
-                    actionables[def.Name.ToLower()] = core.Subparts[def.Name];
+                    libraries[def.Name.ToLower()] = core.Subparts[def.Name];
                     break;
                 case "emissive":
-                    actionables[def.Name.ToLower()] = new Emissive(def.Values[0].ToString());
+                    libraries[def.Name.ToLower()] = new Emissive(def.Values[0].ToString());
                     break;
                 case "emitter":
-                    actionables[def.Name.ToLower()] = new Emitter(def.Values[0].ToString());
+                    libraries[def.Name.ToLower()] = new Emitter(def.Values[0].ToString());
                     break;
                 case "light":
-                    actionables[def.Name.ToLower()] = new Light(def.Values[0].ToString(), (float)def.Values[1]);
+                    libraries[def.Name.ToLower()] = new Light(def.Values[0].ToString(), (float)def.Values[1]);
                     break;
             }
         }
 
         public void Execute(string function, params SVariable[] args)
         {
-            if (actionables.ContainsKey(function))
+            if (libraries.ContainsKey(function))
                 CallFunction(function);
         }
 

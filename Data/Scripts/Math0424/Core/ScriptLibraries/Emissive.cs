@@ -17,7 +17,7 @@ namespace AnimationEngine.Core
             AddMethod("setsubpartcolor", SetSubpartColor);
         }
 
-        public void Initalize(IMyEntity ent)
+        public void Init(IMyEntity ent)
         {
             this.ent = ent;
         }

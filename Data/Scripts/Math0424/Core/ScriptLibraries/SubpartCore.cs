@@ -19,10 +19,10 @@ namespace AnimationEngine.Core
 
         public MyEntitySubpart Subpart { get; private set; }
 
-        public SubpartCore(MyEntitySubpart subpart)
+        public void Init(MyEntitySubpart subpart)
         {
             this.Subpart = subpart;
-            
+
             AddMethod("scale", Scale);
             AddMethod("setvisible", SetVisibility);
             AddMethod("log", Log);
@@ -37,6 +37,11 @@ namespace AnimationEngine.Core
             AddMethod("resetpos", mover.ResetPos);
             AddMethod("setresetpos", mover.SetResetPos);
             Subpart.OnClose += Close;
+        }
+
+        public void Close()
+        {
+
         }
 
         public override void Tick(int tick)
@@ -72,7 +77,7 @@ namespace AnimationEngine.Core
             return null;
         }
 
-        public void Close(IMyEntity ent)
+        private void Close(IMyEntity ent)
         {
             Subpart.OnClose -= Close;
             mover?.Clear();

@@ -55,7 +55,7 @@ namespace AnimationEngine.Core
             return false;
         }
 
-        public void Initalize(IMyEntity ent)
+        public void Init(IMyEntity ent)
         {
             parent = ent;
             if (!FindDummy(ent))

@@ -33,7 +33,7 @@ namespace AnimationEngine.Core
 
             if (Block is IMyCockpit)
             {
-                var comp = script.GetComponent<CockpitComp>();
+                var comp = script.GetFirstComponent<CockpitComp>();
                 if (comp != null)
                 {
                     comp.EnteredSeat += ControlAquired;

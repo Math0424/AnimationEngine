@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using VRage;
 using VRage.Game;
 using VRage.Game.Components;
 using VRage.Game.ModAPI;
@@ -28,7 +29,7 @@ namespace AnimationEngine
         private static List<CoreScript> loaded = new List<CoreScript>();
         private static List<string> failed = new List<string>();
         
-        private static Dictionary<string, Tuple<Subpart[], ScriptRunner>> registeredScripts = new Dictionary<string, Tuple<Subpart[], ScriptRunner>>();
+        private static Dictionary<string, MyTuple<Subpart[], ScriptRunner>> registeredScripts = new Dictionary<string, MyTuple<Subpart[], ScriptRunner>>();
 
         public static void AddToRegisteredScripts(string id, Subpart[] subparts, ScriptRunner constant)
         {
@@ -36,7 +37,7 @@ namespace AnimationEngine
             {
                 Utils.LogToFile($"Warning, Multiple scripts registered for {id}, overriding previous script.");
             }
-            registeredScripts[id] = new Tuple<Subpart[], ScriptRunner>(subparts, constant);
+            registeredScripts[id] = new MyTuple<Subpart[], ScriptRunner>(subparts, constant);
         }
 
         protected override void UnloadData()
@@ -102,7 +103,7 @@ namespace AnimationEngine
             } 
             catch (Exception ex)
             {
-                Utils.LogToFile($"Error while ticking {script.Entity.DisplayName}");
+                Utils.LogToFile($"Error while ticking {script.Entity.Name}");
                 Utils.LogToFile(ex.TargetSite);
                 Utils.LogToFile(ex.StackTrace);
                 Utils.LogToFile(ex.Message);
@@ -151,8 +152,13 @@ namespace AnimationEngine
 
             if (failed.Count != 0)
             {
-                MyAPIGateway.Utilities.ShowMessage("AnimationEngine", "One or more scripts failed to compile, please check your SE logs for more information (paste the link in clipboard into explorer)");
-                MyClipboardHelper.SetClipboard(Utils.GetLogPath());
+                string mods = "";
+                foreach(var x in failed)
+                {
+                    mods += x + ", ";
+                }
+                mods = mods.Substring(0, mods.Length - 3);
+                MyAPIGateway.Utilities.ShowMessage("AnimationEngine", $"These mods have errors\n{mods}\n check logs for more info");
             }
 
             MyEntities.OnEntityCreate += OnEntityAdded;
@@ -171,7 +177,7 @@ namespace AnimationEngine
 
         public void OnBlockAdded(IMySlimBlock block)
         {
-            string id = block.BlockDefinition.Id.SubtypeId.String.ToLower();
+            string id = block.BlockDefinition.Id.SubtypeId.String;
             if (block.FatBlock != null && registeredScripts.ContainsKey(id))
             {
                 if (block.FatBlock is IMyCubeBlock)

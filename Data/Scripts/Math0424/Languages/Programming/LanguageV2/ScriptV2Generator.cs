@@ -56,14 +56,15 @@ namespace AnimationEngine.Language
             objects.Add(new Entity("block"));
             ScriptNode root = new ScriptNode();
 
-            Log($"|    generated {GetNodeCount(root)} nodes");
-            Log($"|    |    created {globalCount} globals");
-            Log($"|    |    created {objects.Count} objects");
-            Log($"|    |    created {functions.Count} functions");
-            Log($"|    |    created {actions.Count} actions");
+            Log($"|  Running Generator V2");
+            Log($"|  |  generated {GetNodeCount(root)} nodes");
+            Log($"|  |  |  created {globalCount} globals");
+            Log($"|  |  |  created {objects.Count} objects");
+            Log($"|  |  |  created {functions.Count} functions");
+            Log($"|  |  |  created {actions.Count} actions");
             Log($"|  Compilation");
             root.Compile();
-            Log($"|    finalized {program.Count} lines of bytecode");
+            Log($"|  |  finalized {program.Count} lines of bytecode");
 
 
             //Log("\n--Immediates--\n");

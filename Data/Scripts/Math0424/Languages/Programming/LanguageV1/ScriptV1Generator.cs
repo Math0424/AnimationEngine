@@ -16,6 +16,7 @@ namespace AnimationEngine.LanguageV1
         public Dictionary<string, Entity> objects = new Dictionary<string, Entity>();
         public Dictionary<string, V1Function> functions = new Dictionary<string, V1Function>();
         public List<V1ScriptAction> actions = new List<V1ScriptAction>();
+        private List<V1ScriptAction> actionsUpdated = new List<V1ScriptAction>();
 
         private List<Subpart> subparts = new List<Subpart>();
         private List<ObjectDef> objectDefs = new List<ObjectDef>();
@@ -27,13 +28,12 @@ namespace AnimationEngine.LanguageV1
         {
             Script = generator;
 
-            Log($"|  Parser");
-            new Parser(this);
-            Log($"|    created {headers.Count} headers");
-            Log($"|    created {objects.Count} objects");
-            Log($"|    created {functions.Count} functions");
-            Log($"|    created {actions.Count} actions");
             Log($"|  Running Generator V1");
+            new Parser(this);
+            Log($"|  |  created {headers.Count} headers");
+            Log($"|  |  created {objects.Count} objects");
+            Log($"|  |  created {functions.Count} functions");
+            Log($"|  |  created {actions.Count} actions");
 
             foreach (var obj in objects.Values)
                 AssembleObject(obj);
@@ -65,10 +65,10 @@ namespace AnimationEngine.LanguageV1
                         AssembleCall(ref calls[name][i], x.Body[i], name);
                     }
                 }
-                actions.Add(act);
+                actionsUpdated.Add(act);
             }
 
-            runner = new ScriptV1Runner(objectDefs, actions, calls);
+            runner = new ScriptV1Runner(objectDefs, actionsUpdated, calls);
             defs = subparts;
         }
 
@@ -164,10 +164,12 @@ namespace AnimationEngine.LanguageV1
 
         private void AssembleObject(Entity ent)
         {
+            if (ent.Type.Value == null)
+                return;
             switch (ent.Type.Value.ToString().ToLower())
             {
                 case "subpart":
-                    objectDefs.Add(new ObjectDef(ent.Type.Value.ToString(), ent.Name.Value.ToString(), null));
+                    objectDefs.Add(new ObjectDef(ent.Type.Value.ToString().ToLower(), ent.Name.Value.ToString(), null));
                     subparts.Add(new Subpart(ent.Name.Value.ToString(), null));
                     break;
                 case "button":
@@ -175,7 +177,7 @@ namespace AnimationEngine.LanguageV1
                     {
                         throw Script.DetailedErrorLog("Invalid button declaration", ent.Name);
                     }
-                    objectDefs.Add(new ObjectDef(ent.Type.Value.ToString(), ent.Name.Value.ToString(), null, ent.Args[0].Value));
+                    objectDefs.Add(new ObjectDef(ent.Type.Value.ToString().ToLower(), ent.Name.Value.ToString(), null, ent.Args[0].Value));
                     subparts.Add(new Subpart(ent.Name.Value.ToString(), null));
                     break;
                 case "emissive":
@@ -183,21 +185,21 @@ namespace AnimationEngine.LanguageV1
                     {
                         throw Script.DetailedErrorLog("Invalid emissive declaration", ent.Name);
                     }
-                    objectDefs.Add(new ObjectDef(ent.Type.Value.ToString(), ent.Name.Value.ToString(), null, ent.Args[0].Value));
+                    objectDefs.Add(new ObjectDef(ent.Type.Value.ToString().ToLower(), ent.Name.Value.ToString(), null, ent.Args[0].Value));
                     break;
                 case "emitter":
                     if (ent.Args == null || ent.Args.Length != 1 || ent.Args[0].Type != TokenType.STR)
                     {
                         throw Script.DetailedErrorLog("Invalid emitter declaration", ent.Name);
                     }
-                    objectDefs.Add(new ObjectDef(ent.Type.Value.ToString(), ent.Name.Value.ToString(), null, ent.Args[0].Value));
+                    objectDefs.Add(new ObjectDef(ent.Type.Value.ToString().ToLower(), ent.Name.Value.ToString(), null, ent.Args[0].Value));
                     break;
                 case "light":
                     if (ent.Args == null || ent.Args.Length != 3 || ent.Args[0].Type != TokenType.STR || ent.Args[2].Type != TokenType.FLOAT)
                     {
                         throw Script.DetailedErrorLog($"Invalid light declaration", ent.Name);
                     }
-                    objectDefs.Add(new ObjectDef(ent.Type.Value.ToString(), ent.Name.Value.ToString(), null, ent.Args[0].Value.ToString(), ent.Args[2].Value));
+                    objectDefs.Add(new ObjectDef(ent.Type.Value.ToString().ToLower(), ent.Name.Value.ToString(), null, ent.Args[0].Value.ToString(), ent.Args[2].Value));
                     break;
             }
         }

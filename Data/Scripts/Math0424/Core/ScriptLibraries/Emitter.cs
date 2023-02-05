@@ -35,7 +35,7 @@ namespace AnimationEngine.Core
             ent.OnClose -= Close;
         }
 
-        public void Initalize(IMyEntity ent)
+        public void Init(IMyEntity ent)
         {
             this.ent = ent;
             ent.OnClose += Close;

@@ -1,5 +1,6 @@
 ﻿using AnimationEngine.Core;
 using AnimationEngine.Utility;
+using Sandbox.Game.Entities;
 using Sandbox.ModAPI;
 using System;
 using VRage.Game.ModAPI;
@@ -42,7 +43,7 @@ namespace AnimationEngine
 
         public void Tick(int i)
         {
-            if (!block.IsWorking)
+            if (block == null || !block.IsWorking)
             {
                 return;
             }

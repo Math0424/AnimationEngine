@@ -1,4 +1,5 @@
 ﻿using AnimationEngine.Language;
+using AnimationEngine.Utility;
 using Sandbox.ModAPI;
 using System;
 using System.Collections.Generic;
@@ -55,7 +56,7 @@ namespace AnimationEngine.Core
 
     internal interface Initializable
     {
-        void Initalize(IMyEntity ent);
+        void Init(IMyEntity ent);
     }
 
     internal abstract class ScriptLib
@@ -75,9 +76,7 @@ namespace AnimationEngine.Core
         public SVariable Execute(string value, SVariable[] arr)
         {
             if (_dir.ContainsKey(value))
-            {
                 return _dir[value].Invoke(arr);
-            }
             return null;
         }
 
