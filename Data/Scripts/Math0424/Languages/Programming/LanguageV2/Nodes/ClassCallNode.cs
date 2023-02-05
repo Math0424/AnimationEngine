@@ -1,7 +1,4 @@
 ﻿using AnimationEngine.Language;
-using AnimationEngine.Language;
-using System;
-using AnimationEngine.Language;
 
 namespace AnimationEngine.LanguageV2.Nodes
 {
@@ -27,7 +24,17 @@ namespace AnimationEngine.LanguageV2.Nodes
             }
             else if(Tokens[index + 1].Type == TokenType.DOT)
             {
-                Context.ClassContext = objectName;
+                Context.ClassContext = "";
+                foreach (var x in Script.objects)
+                {
+                    if (x.Name.Value.ToString().ToLower() == objectName)
+                    {
+                        Context.ClassContext = x.Type.Value.ToString();
+                        break;
+                    }
+                }
+                if (Context.ClassContext.Length == 0)
+                    throw Script.DetailedErrorLog("Cannot find object", t);
                 index += 2;
                 children.Add(new MethodCallNode(ref index));
             }

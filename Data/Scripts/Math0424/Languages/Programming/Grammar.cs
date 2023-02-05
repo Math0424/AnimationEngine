@@ -91,6 +91,7 @@
         public Token Name;
         public Token[] Paramaters;
         public Function[] Funcs;
+        public int ID;
     }
 
     internal struct Function

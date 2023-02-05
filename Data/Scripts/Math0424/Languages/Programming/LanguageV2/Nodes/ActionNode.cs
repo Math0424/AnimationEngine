@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using AnimationEngine.Language;
+using AnimationEngine.Utility;
 
 namespace AnimationEngine.LanguageV2.Nodes
 {
@@ -26,6 +27,7 @@ namespace AnimationEngine.LanguageV2.Nodes
             {
                 TokenName = Tokens[index].Value.ToString().ToLower(),
                 Name = Tokens[index],
+                ID = id,
             };
             index += 2;
             act.Paramaters = StrictVector(ref index, TokenType.RPAREN);
@@ -42,6 +44,7 @@ namespace AnimationEngine.LanguageV2.Nodes
             int next = Next(TokenType.KEWRD, 0);
             while (next != -1)
             {
+                Utils.LogToFile($"Reading into {Tokens[next].Value}");
                 children.Add(new FunctionNode(ref next, $"{(action ? "act" : "term")}_{id}_"));
                 funcs.Add(Script.functions.Values.Last());
                 next = Next(TokenType.KEWRD, ++next);
@@ -70,13 +73,14 @@ namespace AnimationEngine.LanguageV2.Nodes
         public override void Compile()
         {
             foreach (var x in children)
+            {
                 x.Compile();
+                x.PostCompile();
+            }
         }
 
         public override void PostCompile()
         {
-            foreach(var x in children)
-                x.PostCompile();
         }
     }
 }

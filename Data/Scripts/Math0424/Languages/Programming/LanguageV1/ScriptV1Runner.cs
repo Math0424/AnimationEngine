@@ -2,9 +2,11 @@
 using AnimationEngine.Language;
 using AnimationEngine.LogicV1;
 using AnimationEngine.Utility;
+using Sandbox.Definitions;
 using Sandbox.ModAPI;
 using SpaceEngineers.Game.ModAPI;
 using System.Collections.Generic;
+using VRage.Game.ModAPI;
 
 namespace AnimationEngine.LanguageV1
 {
@@ -13,7 +15,10 @@ namespace AnimationEngine.LanguageV1
         private CoreScript core;
         private List<Delayed> delay;
         private Dictionary<string, ScriptLib> libraries;
-        
+
+        private bool Built;
+        private MyCubeBlockDefinition Definition;
+
         public List<ObjectDef> objectDefs;
         private List<V1ScriptAction> scriptActions;
         private Dictionary<string, Caller[]> callingArray;
@@ -46,6 +51,10 @@ namespace AnimationEngine.LanguageV1
             foreach (var x in libraries.Values)
                 if (x is Initializable)
                     ((Initializable)x).Init(script.Entity);
+
+            Call("blockaction", "create");
+            Definition = ((MyCubeBlockDefinition)((IMyCubeBlock)script.Entity).SlimBlock.BlockDefinition);
+            Built = ((IMyCubeBlock)script.Entity).SlimBlock.BuildLevelRatio < Definition.CriticalIntegrityRatio;
         }
 
         public void Tick(int time)
@@ -67,6 +76,15 @@ namespace AnimationEngine.LanguageV1
             foreach(var x in libraries.Values)
                 if (!(x is SubpartCore))
                     x.Tick(time);
+
+
+            var check = ((IMyCubeBlock)core.Entity).SlimBlock.BuildLevelRatio < Definition.CriticalIntegrityRatio;
+            if (check != Built)
+            {
+                Built = check;
+                if (Built)
+                    Call("blockaction", "built");
+            }
         }
 
         private void CallFunction(string name)
@@ -94,6 +112,18 @@ namespace AnimationEngine.LanguageV1
                             });
                         }
                     }
+                }
+            }
+        }
+
+        public void Call(string action, string function)
+        {
+            foreach (var x in scriptActions)
+            {
+                if (x.Name.Value.Equals(action))
+                {
+                    Execute($"{x.ID}_{function}");
+                    break;
                 }
             }
         }

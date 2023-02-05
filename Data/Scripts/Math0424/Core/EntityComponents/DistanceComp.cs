@@ -1,4 +1,5 @@
 ﻿using AnimationEngine.Core;
+using AnimationEngine.Language;
 using Sandbox.ModAPI;
 using System;
 using System.Collections.Generic;
@@ -12,6 +13,7 @@ namespace AnimationEngine
     internal class DistanceComp : EntityComponent
     {
 
+        public Action<SVariable> Changed;
         public Action InRange;
         public Action OutOfRange;
 
@@ -66,6 +68,7 @@ namespace AnimationEngine
                     }
                 }
 
+                Changed.Invoke(new SVariableFloat((float)lowest));
                 if (lowest < distance && !triggered)
                 {
                     InRange?.Invoke();

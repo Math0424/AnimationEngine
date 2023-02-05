@@ -75,8 +75,8 @@ namespace AnimationEngine.Core
 
         public SVariable Execute(string value, SVariable[] arr)
         {
-            if (_dir.ContainsKey(value))
-                return _dir[value].Invoke(arr);
+            if (_dir.ContainsKey(value.ToLower()))
+                return _dir[value.ToLower()].Invoke(arr);
             return null;
         }
 

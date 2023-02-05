@@ -28,6 +28,7 @@ namespace AnimationEngine.Language
             ),
 
             new SpecialAction("distance", new TokenType[] { TokenType.FLOAT },
+                new SpecialAction("changed", new TokenType[] { TokenType.KEWRD }),
                 new SpecialAction("arrive", new TokenType[0]),
                 new SpecialAction("leave", new TokenType[0])
             ),
@@ -98,8 +99,18 @@ namespace AnimationEngine.Language
 
             new ObjectDictionary("api",
                 new MethodDictionary("log", false, "Value"),
-                new MethodDictionary("startLoop", false, "FunctionName", "LoopDelay", "LoopCount"),
-                new MethodDictionary("stopLoop", false, "FunctionName")
+                new MethodDictionary("startloop", false, "FunctionName", "LoopDelay", "LoopCount"),
+                new MethodDictionary("stoploop", false, "FunctionName")
+            ),
+
+            new ObjectDictionary("subpart",
+                new MethodDictionary("spin", false, "Vector", "Speed", "Time")
+                //TODO
+            ),
+
+            new ObjectDictionary("block",
+                new MethodDictionary("spin", false, "Vector", "Speed", "Time")
+                //TODO
             ),
         };
 

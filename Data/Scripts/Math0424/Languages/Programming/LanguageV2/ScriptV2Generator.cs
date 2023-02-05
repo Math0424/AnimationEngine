@@ -66,37 +66,36 @@ namespace AnimationEngine.Language
             root.Compile();
             Log($"|  |  finalized {program.Count} lines of bytecode");
 
-
-            //Log("\n--Immediates--\n");
-            //int i = 0;
-            //foreach (var x in _immediates)
-            //    Log($"{i++:D3} {x}");
-            //
-            //Log("\n--Script--\n");
-            //i = 0;
-            //foreach (var x in program) {
-            //    string v = $"{i++:D4} {x.Arg} : ";
-            //    if (x.Arr != null)
-            //    {
-            //        foreach (var y in x.Arr)
-            //        {
-            //            v += $"{y:D4} ";
-            //        }
-            //    } 
-            //    else
-            //    {
-            //        v += "NULL";
-            //    }
-            //    Log(v);
-            //}
-            //Log("\n");
+            /*Log("\n--Immediates--");
+            int i = 0;
+            foreach (var x in _immediates)
+                Log($"{i++:D3} {x}");
+            
+            Log("\n--Script--");
+            i = 0;
+            foreach (var x in program) {
+                string v = $"{i++:D4} {x.Arg} : ";
+                if (x.Arr != null)
+                {
+                    foreach (var y in x.Arr)
+                    {
+                        v += $"{y:D4} ";
+                    }
+                } 
+                else
+                {
+                    v += "NULL";
+                }
+                Log(v);
+            }
+            Log("\n");*/
 
             List<Subpart> subparts = new List<Subpart>();
             foreach (var x in objects)
                 if (x.Type.Value.ToString() == "subpart")
                     subparts.Add(new Subpart(x.Name.Value.ToString(), x.Parent.Value.ToString()));
 
-            runner = new ScriptV2Runner(objects, globals, program.ToArray(), _immediates.ToArray(), methodLookup);
+            runner = new ScriptV2Runner(objects, actions, globals, program.ToArray(), _immediates.ToArray(), methodLookup);
             defs = subparts;
         }
 

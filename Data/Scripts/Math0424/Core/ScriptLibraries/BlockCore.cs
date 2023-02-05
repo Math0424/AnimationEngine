@@ -7,6 +7,7 @@ using System;
 using VRageMath;
 using VRage.Game.Entity;
 using AnimationEngine.Utility;
+using Sandbox.Definitions;
 
 namespace AnimationEngine.Core
 {
@@ -15,6 +16,7 @@ namespace AnimationEngine.Core
         private IMyCubeBlock Block;
         Mover pilotMover;
         Mover blockMover;
+
 
         public BlockCore(CoreScript script)
         {

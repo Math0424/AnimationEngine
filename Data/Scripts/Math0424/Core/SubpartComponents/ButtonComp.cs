@@ -9,6 +9,7 @@ namespace AnimationEngine.Core
     {
         public Action ButtonOn;
         public Action ButtonOff;
+        public Action<SVariable> Pressed;
 
         private SubpartCore core;
         private bool enabled;
@@ -46,6 +47,7 @@ namespace AnimationEngine.Core
         {
             MyVisualScriptLogicProvider.PlayHudSoundLocal();
             enabled = !enabled;
+            Pressed?.Invoke(new SVariableBool(enabled));
             if (enabled)
             {
                 ButtonOn?.Invoke();

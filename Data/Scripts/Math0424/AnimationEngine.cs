@@ -157,7 +157,7 @@ namespace AnimationEngine
                 {
                     mods += x + ", ";
                 }
-                mods = mods.Substring(0, mods.Length - 3);
+                mods = mods.Substring(0, mods.Length - 2);
                 MyAPIGateway.Utilities.ShowMessage("AnimationEngine", $"These mods have errors\n{mods}\n check logs for more info");
             }
 

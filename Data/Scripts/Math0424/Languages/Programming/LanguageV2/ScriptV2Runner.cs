@@ -1,6 +1,4 @@
-﻿//#define VERBOSE_LOG
-
-using AnimationEngine.Language;
+﻿using AnimationEngine.Language;
 using System;
 using System.Collections.Generic;
 using AnimationEngine.Language.Libs;
@@ -66,6 +64,7 @@ namespace AnimationEngine.Language
         #endregion
 
         List<Entity> _ents;
+        List<ScriptAction> _actions;
 
         public void Execute(string function, params SVariable[] args)
         {
@@ -73,7 +72,14 @@ namespace AnimationEngine.Language
             {
                 foreach(var x in args)
                     _stack.Push(x);
-                Execute(_methodLookup[function]);
+                try
+                {
+                    Execute(_methodLookup[function]);
+                } 
+                catch(Exception ex)
+                {
+                    Utils.LogToFile(ex);
+                }
             }
         }
 
@@ -85,11 +91,144 @@ namespace AnimationEngine.Language
         public void Init(CoreScript script)
         {
             core = script;
+
+            foreach (var x in _ents)
+                InitEnt(x);
+            foreach (var x in _actions)
+                InitAction(x);
+
+            foreach (var x in _libraries)
+                if (x is Initializable)
+                    ((Initializable)x).Init(script.Entity);
+
+        }
+
+        private Dictionary<string, string> nameTranslationTable = new Dictionary<string, string>();
+        private void InitEnt(Entity ent)
+        {
+            switch(ent.Type.Value.ToString())
+            {
+                case "math":
+                    _libraries.Add(new ScriptMath()); break;
+                case "api":
+                    _libraries.Add(new ScriptAPI(this)); break;
+                case "block":
+                    _libraries.Add(new BlockCore(core));
+                    break;
+
+                case "subpart":
+                    _libraries.Add(core.Subparts[ent.Args[0].Value.ToString()]);
+                    nameTranslationTable[ent.Name.Value.ToString()] = ent.Args[0].Value.ToString();
+                    break;
+                case "button":
+                    core.Subparts[ent.Args[0].Value.ToString()].AddComponent(new ButtonComp(ent.Args[0].Value.ToString()));
+                    _libraries.Add(core.Subparts[ent.Args[0].Value.ToString()]);
+                    break;
+                case "emissive":
+                    _libraries.Add(new Emissive(ent.Args[0].Value.ToString()));
+                    break;
+                case "emitter":
+                    _libraries.Add(new Emitter(ent.Args[0].Value.ToString()));
+                    break;
+                case "light":
+                    _libraries.Add(new Light(ent.Args[0].Value.ToString(), (float)ent.Args[1].Value));
+                    break;
+            }
+        }
+
+        private SubpartCore NameToSubpart(string subpart)
+        {
+            string name = nameTranslationTable[subpart];
+            foreach (var x in core.Subparts)
+            {
+                if (x.Value.Subpart.Name == name) { return x.Value; }
+            }
+            return null;
+        }
+
+        private void InitAction(ScriptAction action)
+        {
+            switch (action.TokenName)
+            {
+                case "button":
+                    if (action.Funcs.Length > 0)
+                    {
+                        var part = NameToSubpart(action.Paramaters[0].Value.ToString());
+                        if (part != null)
+                            part.GetFirstComponent<ButtonComp>().Pressed += (e) => Execute($"act_{action.ID}_pressed", e);
+                    }
+                    break;
+                case "block":
+                    foreach(var x in action.Funcs)
+                        switch (x.TokenName)
+                        {
+                            case "create": Execute($"act_{action.ID}_pressed"); break;
+                            case "build":
+
+                                break;
+                            case "working":
+                                if (!core.HasComponent<WorkingTickComp>())
+                                    core.AddComponent(new WorkingTickComp(-1));
+                                core.GetFirstComponent<WorkingTickComp>().OnIsWorking += () => Execute($"act_{action.ID}_working");
+                                break;
+                            case "notworking":
+                                if (!core.HasComponent<WorkingTickComp>())
+                                    core.AddComponent(new WorkingTickComp(-1));
+                                core.GetFirstComponent<WorkingTickComp>().OnNotWorking += () => Execute($"act_{action.ID}_notworking");
+                                break;
+                        }
+                    break;
+                case "production":
+                    if (!core.HasComponent<ProductionTickComp>())
+                        core.AddComponent(new ProductionTickComp(-1));
+                    foreach (var x in action.Funcs)
+                        switch(x.TokenName)
+                        {
+                            case "startproducing":
+                                core.GetFirstComponent<ProductionTickComp>().StartedProducing += () => Execute($"act_{action.ID}_startproducing");
+                                break;
+                            case "stopproducing":
+                                core.GetFirstComponent<ProductionTickComp>().StartedProducing += () => Execute($"act_{action.ID}_stopproducing");
+                                break;
+                        }
+                    break;
+                case "distance":
+                    if (!core.HasComponent<DistanceComp>())
+                        core.AddComponent(new DistanceComp((int)action.Paramaters[0].Value));
+                    foreach (var x in action.Funcs)
+                        switch (x.TokenName)
+                        {
+                            case "changed":
+                                core.GetFirstComponent<DistanceComp>().Changed += (e) => Execute($"act_{action.ID}_changed", e);
+                                break;
+                            case "arrive":
+                                core.GetFirstComponent<DistanceComp>().InRange += () => Execute($"act_{action.ID}_arrive");
+                                break;
+                            case "leave":
+                                core.GetFirstComponent<DistanceComp>().OutOfRange += () => Execute($"act_{action.ID}_leave");
+                                break;
+                        }
+                    break;
+                case "door":
+                    break;
+                case "cockpit":
+                    break;
+                case "landinggear":
+                    break;
+                case "thruster":
+                    break;
+            }
+        }
+
+        private void InitTerminal(ScriptAction terminal)
+        {
+            //TODO: this
         }
 
         public void Tick(int time)
         {
-            
+            foreach (var x in _libraries)
+                x.Tick(time);
         }
 
         public void Close()
@@ -97,28 +236,28 @@ namespace AnimationEngine.Language
 
         }
 
-        public ScriptV2Runner(List<Entity> ents, List<SVariable> globals, Line[] program, SVariable[] immediates, Dictionary<string, int> methods)
+        public ScriptV2Runner(List<Entity> ents, List<ScriptAction> actions, List<SVariable> globals, Line[] program, SVariable[] immediates, Dictionary<string, int> methods)
         {
             _globals = globals;
             _program = program;
             _immediates = immediates;
             _methodLookup = methods;
             _ents = ents;
+            _actions = actions;
         }
         
         public ScriptV2Runner(ScriptV2Runner copy)
         {
+            _libraries = new List<ScriptLib>();
             _stack = new RAStack<SVariable>();
             _callStack = new Stack<int>();
             _globals = new List<SVariable>(copy._globals);
 
-            _libraries = new List<ScriptLib>();
-            _libraries.Add(new ScriptMath());
-            _libraries.Add(new ScriptAPI());
-
             _program = copy._program;
             _immediates = copy._immediates;
             _methodLookup = copy._methodLookup;
+            _ents = copy._ents;
+            _actions = copy._actions;
         }
 
         private void Execute(int line)
@@ -132,18 +271,15 @@ namespace AnimationEngine.Language
                 curr = _program[line++];
 
 
-#if VERBOSE_LOG
-
-                Console.Write($"Line {line:D3}: ({_stack.Count:D3}) {curr.Arg,-4} > ");
+                string output = $"Line {(line - 1):D3}: ({_stack.Count:D3}) {curr.Arg,-4} > ";
                 if (curr.Arr != null)
                 {
                     foreach (var x in curr.Arr)
                     {
-                        Console.Write($"{x:D3} ");
+                        output += $"{x:D3} ";
                     }
                 }
-                Console.Write("\n");
-#endif
+                Utils.LogToFile(output);
 
 
                 switch (curr.Arg)
@@ -226,6 +362,7 @@ namespace AnimationEngine.Language
                         _context = curr.Arr[0];
                         break;
                     case ProgramFunc.Mth:
+                        Utils.LogToFile($"{_stack.Count} - {curr.Arr[1]} = {_stack.Count - curr.Arr[1]}");
                         SVariable[] arr = new SVariable[curr.Arr[1]];
                         _stack.CopyTo(_stack.Count - curr.Arr[1], arr, 0, curr.Arr[1]);
                         SVariable s = _libraries[_context].Execute(_immediates[curr.Arr[0]].ToString(), arr);
@@ -247,10 +384,11 @@ namespace AnimationEngine.Language
                     case ProgramFunc.End:
                         if (_callStack.Count == 0)
                         {
-                            if (_stack.Count - start != 0)
+                            if (_stack.Count - start != 1)
                             {
                                 throw new Exception($"Critical error, stack leaking ({_stack.Count - start})! Please send your script(s) to Math#0424 for analysis");
                             }
+                            _stack.Pop();
                             return;
                         }
                         line = _callStack.Pop();
