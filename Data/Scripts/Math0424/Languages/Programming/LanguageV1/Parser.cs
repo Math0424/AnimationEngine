@@ -65,7 +65,7 @@ namespace AnimationEngine.LanguageV1
                 {
                     throw compiler.DetailedLog($"Missing closing bracket", tokens[next]);
                 }
-                
+
                 int begin = next++;
                 Token[] vec = AssembleVector(tokens.ToArray(), ref next, TokenType.RSQBRC);
 
@@ -74,7 +74,7 @@ namespace AnimationEngine.LanguageV1
                     throw compiler.DetailedLog("Math vectors must be length 3", tokens[next]);
                 }
 
-                foreach(var x in vec)
+                foreach (var x in vec)
                 {
                     if (x.Type != TokenType.INT && x.Type != TokenType.FLOAT)
                     {
@@ -135,7 +135,7 @@ namespace AnimationEngine.LanguageV1
                 return new Token[0];
             }
 
-            List<Token> args = new List<Token>(); 
+            List<Token> args = new List<Token>();
             bool comma = true;
             while (index < arr.Length)
             {
@@ -167,11 +167,16 @@ namespace AnimationEngine.LanguageV1
 
         private V1Expression ParseExpression(ref int index, ref Token[] toks)
         {
-            if (toks[index].Type != TokenType.DOT) {
+            if (toks[index].Type != TokenType.DOT)
+            {
                 throw compiler.DetailedLog($"Invalid expression seperator", toks[index]);
-            } else if (toks[index + 1].Type != TokenType.KEWRD) {
+            }
+            else if (toks[index + 1].Type != TokenType.KEWRD)
+            {
                 throw compiler.DetailedLog($"Invalid expression keyword", toks[index + 1]);
-            } else if (toks[index + 2].Type != TokenType.LPAREN) {
+            }
+            else if (toks[index + 2].Type != TokenType.LPAREN)
+            {
                 throw compiler.DetailedLog($"Invalid expression opening", toks[index + 2]);
             }
             V1Expression exp = new V1Expression()
@@ -183,14 +188,14 @@ namespace AnimationEngine.LanguageV1
 
             exp.Args = AssembleVector(toks, ref index, TokenType.RPAREN);
             index++;
-            
+
             return exp;
         }
 
         private V1Call[] ParseBody(ref Token[] toks)
         {
             List<V1Call> calls = new List<V1Call>();
-            
+
             int next = 0;
             while (next < toks.Length)
             {
@@ -211,13 +216,13 @@ namespace AnimationEngine.LanguageV1
                         {
                             exprs.Add(ParseExpression(ref next, ref toks));
                         }
-                        
+
                         call.Expressions = exprs.ToArray();
                     }
                     else if (toks[next + 1].Type != TokenType.LPAREN && toks[next + 2].Type != TokenType.RPAREN)
                     {
                         throw compiler.DetailedLog($"Invalid function call", toks[next]);
-                    } 
+                    }
                     else
                     {
                         call.Type = TokenType.FUNCCALL;
@@ -304,14 +309,14 @@ namespace AnimationEngine.LanguageV1
         private void ParseFunctions()
         {
             int next = FindNext(0, TokenType.FUNC);
-            while(next != -1)
+            while (next != -1)
             {
                 if (next + 4 > tokens.Count)
                 {
                     throw compiler.DetailedLog("Unable to parse function", tokens[next]);
                 }
 
-                if (tokens[next + 1].Type != TokenType.KEWRD || tokens[next + 2].Type != TokenType.LPAREN || 
+                if (tokens[next + 1].Type != TokenType.KEWRD || tokens[next + 2].Type != TokenType.LPAREN ||
                     tokens[next + 3].Type != TokenType.RPAREN || tokens[next + 4].Type != TokenType.VECTOR)
                 {
                     throw compiler.DetailedLog($"Invalid function format", tokens[next + 1]);
@@ -345,11 +350,16 @@ namespace AnimationEngine.LanguageV1
                 arr = GrabUntil(next, TokenType.ENDL);
 
                 string name = arr[1].Value.ToString().ToLower();
-                if (arr.Count <= 4) {
+                if (arr.Count <= 4)
+                {
                     throw compiler.DetailedLog($"Invalid object format!", arr[0]);
-                } else if (arr[2].Type != TokenType.AS) {
+                }
+                else if (arr[2].Type != TokenType.AS)
+                {
                     throw compiler.DetailedLog($"Invalid object format!", arr[2]);
-                } else if (compiler.objects.ContainsKey(name)) {
+                }
+                else if (compiler.objects.ContainsKey(name))
+                {
                     throw compiler.DetailedLog($"Duplicate object declaration", arr[1]);
                 }
 

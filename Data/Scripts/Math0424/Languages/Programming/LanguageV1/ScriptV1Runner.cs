@@ -1,7 +1,6 @@
 ﻿using AnimationEngine.Core;
 using AnimationEngine.Language;
 using AnimationEngine.LogicV1;
-using AnimationEngine.Utility;
 using Sandbox.Definitions;
 using Sandbox.ModAPI;
 using SpaceEngineers.Game.ModAPI;
@@ -73,7 +72,7 @@ namespace AnimationEngine.LanguageV1
             }
             delay.RemoveAll(x => x.Executed);
 
-            foreach(var x in libraries.Values)
+            foreach (var x in libraries.Values)
                 if (!(x is SubpartCore))
                     x.Tick(time);
 
@@ -195,7 +194,8 @@ namespace AnimationEngine.LanguageV1
                     }
                     break;
                 case "dooraction":
-                    ((IMyDoor)core.Entity).DoorStateChanged += (b) => {
+                    ((IMyDoor)core.Entity).DoorStateChanged += (b) =>
+                    {
                         if (b) { CallFunction($"{act.ID}_open"); } else { CallFunction($"{act.ID}_close"); }
                     };
                     break;
@@ -213,7 +213,8 @@ namespace AnimationEngine.LanguageV1
                     }
                     break;
                 case "landinggearaction":
-                    ((IMyLandingGear)core.Entity).LockModeChanged += (e, f) => {
+                    ((IMyLandingGear)core.Entity).LockModeChanged += (e, f) =>
+                    {
                         switch (f)
                         {
                             case SpaceEngineers.Game.ModAPI.Ingame.LandingGearMode.Locked:

@@ -1,9 +1,7 @@
 ﻿using AnimationEngine.Language;
-using AnimationEngine.LanguageV1;
 using AnimationEngine.Utility;
 using Sandbox.Definitions;
 using Sandbox.Game.Lights;
-using Sandbox.ModAPI;
 using System.Collections.Generic;
 using VRage.Game;
 using VRage.Game.ModAPI;

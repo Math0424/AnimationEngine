@@ -1,9 +1,4 @@
 ﻿using AnimationEngine.Language;
-using AnimationEngine.Language;
-using System;
-using System.Collections.Generic;
-using System.Text;
-using AnimationEngine.Language;
 
 namespace AnimationEngine.LanguageV2.Nodes
 {
@@ -32,7 +27,7 @@ namespace AnimationEngine.LanguageV2.Nodes
                         return true;
                     }
                 }
-                else if(t.Type != TokenType.KEWRD && !t.Type.IsMathOperator() && !t.Type.IsMathVariable())
+                else if (t.Type != TokenType.KEWRD && !t.Type.IsMathOperator() && !t.Type.IsMathVariable())
                 {
                     throw Script.DetailedErrorLog($"Cannot parse logic token of type {t.Type}", t);
                 }
@@ -73,10 +68,10 @@ namespace AnimationEngine.LanguageV2.Nodes
                     throw Script.DetailedErrorLog("Cannot find logical symbol", Tokens[index]);
                 }
                 logicType = Tokens[index].Type;
-                
+
                 index++;
                 CreateLogOrEquasion(ref index);
-            } 
+            }
             else
             {
                 index++;
@@ -112,12 +107,12 @@ namespace AnimationEngine.LanguageV2.Nodes
             {
                 switch (logicType)
                 {
-                    case TokenType.GRT:    CompileWithBranch(ProgramFunc.BNEZ, 0, 1);    break;
-                    case TokenType.LST:    CompileWithBranch(ProgramFunc.BNEZ, 1, 0);    break;
-                    case TokenType.GRTE:   CompileWithBranch(ProgramFunc.BNE, 0, 1);   break;
-                    case TokenType.LSTE:   CompileWithBranch(ProgramFunc.BNE, 1, 0);   break;
-                    case TokenType.NOTEQ:  CompileWithBranch(ProgramFunc.BZ, 0, 1);     break;
-                    case TokenType.COMP:   CompileWithBranch(ProgramFunc.BNZ, 0, 1);    break;
+                    case TokenType.GRT: CompileWithBranch(ProgramFunc.BNEZ, 0, 1); break;
+                    case TokenType.LST: CompileWithBranch(ProgramFunc.BNEZ, 1, 0); break;
+                    case TokenType.GRTE: CompileWithBranch(ProgramFunc.BNE, 0, 1); break;
+                    case TokenType.LSTE: CompileWithBranch(ProgramFunc.BNE, 1, 0); break;
+                    case TokenType.NOTEQ: CompileWithBranch(ProgramFunc.BZ, 0, 1); break;
+                    case TokenType.COMP: CompileWithBranch(ProgramFunc.BNZ, 0, 1); break;
                 }
             }
 
@@ -197,7 +192,7 @@ namespace AnimationEngine.LanguageV2.Nodes
             Script.program.Add(new Line(ProgramFunc.Sub, 0, 0, 0));
         }
 
-        public override void PostCompile() {}
+        public override void PostCompile() { }
 
     }
 }

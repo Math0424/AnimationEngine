@@ -1,8 +1,4 @@
 ﻿using AnimationEngine.Language;
-using AnimationEngine.Language;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace AnimationEngine.LanguageV2.Nodes
 {
@@ -84,7 +80,7 @@ namespace AnimationEngine.LanguageV2.Nodes
             }
             index = Script.program.Count;
             Script.program.Add(new Line(ProgramFunc.Jmp));
-            for(int i = 0; i < variables; i++)
+            for (int i = 0; i < variables; i++)
             {
                 Context.PopStackIndex();
             }

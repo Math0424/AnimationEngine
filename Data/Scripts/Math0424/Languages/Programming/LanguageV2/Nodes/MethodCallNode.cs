@@ -1,7 +1,4 @@
 ﻿using AnimationEngine.Language;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace AnimationEngine.LanguageV2.Nodes
 {
@@ -25,11 +22,11 @@ namespace AnimationEngine.LanguageV2.Nodes
             index += 2;
 
             int balance = 1;
-            while(Tokens[index].Type != TokenType.RPAREN)
+            while (Tokens[index].Type != TokenType.RPAREN)
             {
                 if (Tokens[index].Type == TokenType.ENDL)
                     throw Script.DetailedErrorLog($"Reached end without closure", Tokens[index]);
-                
+
                 if (Tokens[index].Type == TokenType.LPAREN)
                     throw Script.DetailedErrorLog($"Too many parentheses", Tokens[index]);
 
@@ -60,11 +57,11 @@ namespace AnimationEngine.LanguageV2.Nodes
             if (!d.HasValue)
             {
                 throw Script.DetailedErrorLog($"Cannot find method of name {Context.ClassContext}.{methodName}()", Tokens[index]);
-            } 
-            else if(!match)
+            }
+            else if (!match)
             {
                 string var = "";
-                foreach(var x in d.Value.Tokens)
+                foreach (var x in d.Value.Tokens)
                 {
                     var += x + ", ";
                 }
@@ -102,7 +99,7 @@ namespace AnimationEngine.LanguageV2.Nodes
         public override void Compile()
         {
             foreach (var x in children)
-                x.Compile(); 
+                x.Compile();
             Context.IncreaseStackIndex();
             Script.program.Add(new Line(ProgramFunc.Mth, Script.AddImmediate(new SVariableString(methodName)), variables));
             next?.Compile();

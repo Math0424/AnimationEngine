@@ -7,7 +7,7 @@ namespace AnimationEngine.Language
     {
         public static SVariable Convert(Token token)
         {
-            switch(token.Type)
+            switch (token.Type)
             {
                 case TokenType.FLOAT: return new SVariableFloat((float)token.Value);
                 case TokenType.MVECTOR: return new SVariableVector((Vector3)token.Value);
@@ -124,7 +124,7 @@ namespace AnimationEngine.Language
 
         public override string ToString()
         {
-            switch(type)
+            switch (type)
             {
                 case ValType.INT:
                     return intVal.ToString();

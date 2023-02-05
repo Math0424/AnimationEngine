@@ -25,8 +25,8 @@ namespace AnimationEngine.Networking
         /// </summary>
         public static Action<Type, PacketIn> ProcessPacket;
 
-        public enum TransitType 
-        { 
+        public enum TransitType
+        {
             Final = 0,
             ToServer = 1,
             ToAll = 2,
@@ -132,7 +132,7 @@ namespace AnimationEngine.Networking
                         {
                             registry[packet.Type]?.Invoke(packetIn);
                         }
-                    } 
+                    }
                     else
                     {
                         registry[packet.Type]?.Invoke(packetIn);
@@ -149,7 +149,7 @@ namespace AnimationEngine.Networking
             {
                 MyLog.Default.WriteLineAndConsole($"Malformed packet from {id}!");
                 MyLog.Default.WriteLineAndConsole($"{e.Message}\n{e.StackTrace}\n\n{e.InnerException}\n\n{e.Source}");
-                
+
                 if (MyAPIGateway.Session?.Player != null)
                     MyAPIGateway.Utilities.ShowNotification($"[Mod critical error! | Send SpaceEngineers.Log]", 10000, MyFontEnum.Red);
             }
@@ -171,7 +171,7 @@ namespace AnimationEngine.Networking
 
             foreach (var p in tempPlayers)
             {
-                if (p.IsBot || (packet.Flag.HasFlag(TransitType.ExcludeSender) && p.SteamUserId == sender) || 
+                if (p.IsBot || (packet.Flag.HasFlag(TransitType.ExcludeSender) && p.SteamUserId == sender) ||
                     (MyAPIGateway.Session.IsServer && MyAPIGateway.Session?.Player?.SteamUserId == sender))
                     continue;
 
@@ -215,12 +215,13 @@ namespace AnimationEngine.Networking
                 Data = MyAPIGateway.Utilities.SerializeToBinary(data);
             }
         }
-        
-        public class PacketIn {
+
+        public class PacketIn
+        {
             public bool IsCancelled { protected set; get; }
             public ulong SenderId { protected set; get; }
             public bool IsFromServer { protected set; get; }
-            
+
             private readonly byte[] Data;
 
             public PacketIn(byte[] data, ulong senderId, bool isFromServer)

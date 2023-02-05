@@ -6,7 +6,7 @@
         FLOAT,
         BOOL,
         STR,
-        
+
         VECTOR,
         MVECTOR,
 
@@ -25,7 +25,7 @@
         AS,
         FUNC,
         ACTION,
-        RETURN, 
+        RETURN,
         PARENT,
         TERMINAL,
 
@@ -100,7 +100,7 @@
         public Token Name;
         public Token[] Paramaters;
     }
-    
+
     internal struct Entity
     {
         public Entity(string name)

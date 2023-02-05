@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 
 namespace AnimationEngine.Utility
 {
@@ -22,7 +20,7 @@ namespace AnimationEngine.Utility
             if (i > 1)
             {
                 RemoveRange(Count - i, i);
-            } 
+            }
             else
             {
                 RemoveAt(Count - 1);

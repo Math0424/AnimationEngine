@@ -51,7 +51,7 @@ namespace AnimationEngine.Core
             if (enabled)
             {
                 ButtonOn?.Invoke();
-            } 
+            }
             else
             {
                 ButtonOff?.Invoke();

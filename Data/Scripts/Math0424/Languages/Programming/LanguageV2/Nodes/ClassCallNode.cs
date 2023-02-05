@@ -22,7 +22,7 @@ namespace AnimationEngine.LanguageV2.Nodes
                 function = true;
                 children.Add(new FunctionCallNode(ref index));
             }
-            else if(Tokens[index + 1].Type == TokenType.DOT)
+            else if (Tokens[index + 1].Type == TokenType.DOT)
             {
                 Context.ClassContext = "";
                 foreach (var x in Script.objects)

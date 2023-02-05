@@ -44,7 +44,7 @@ namespace AnimationEngine.LogicV1
         }
         public static bool IsValidMethod(V1Expression exp)
         {
-            foreach(var x in DefinedMethods)
+            foreach (var x in DefinedMethods)
             {
                 if (x.Name.Equals(exp.Title.Value.ToString().ToLower()))
                 {
@@ -60,7 +60,7 @@ namespace AnimationEngine.LogicV1
                         return true;
                     }
                 }
-                next:;
+            next:;
             }
             return false;
         }
@@ -109,7 +109,7 @@ namespace AnimationEngine.LogicV1
             new MethodDef("setcolor", TokenType.INT, TokenType.INT, TokenType.INT, TokenType.FLOAT),
             new MethodDef("setcolor", TokenType.INT, TokenType.INT, TokenType.INT, TokenType.FLOAT, TokenType.BOOL),
             new MethodDef("setsubpartcolor", TokenType.STR, TokenType.INT, TokenType.INT, TokenType.INT, TokenType.FLOAT),
-            
+
             new MethodDef("setcolor", TokenType.INT, TokenType.INT, TokenType.INT),
 
             new MethodDef("lighton"),
@@ -180,9 +180,9 @@ namespace AnimationEngine.LogicV1
 
         private static readonly List<ActionDef> DefinedActions = new List<ActionDef>()
         {
-            { new ActionDef("buttonaction", new TokenType[] { TokenType.KEWRD }, 
-                new MethodDef("pressedon"), 
-                new MethodDef("pressedoff"), 
+            { new ActionDef("buttonaction", new TokenType[] { TokenType.KEWRD },
+                new MethodDef("pressedon"),
+                new MethodDef("pressedoff"),
                 new MethodDef("pressed"))
             },
 
@@ -222,8 +222,8 @@ namespace AnimationEngine.LogicV1
             },
         };
     }
-    
-    internal struct MethodDef 
+
+    internal struct MethodDef
     {
         public string Name;
         public TokenType[] Args;
@@ -244,7 +244,7 @@ namespace AnimationEngine.LogicV1
             this.Name = Name;
             this.Methods = Methods;
             this.Args = Args;
-        } 
+        }
     }
 
 }

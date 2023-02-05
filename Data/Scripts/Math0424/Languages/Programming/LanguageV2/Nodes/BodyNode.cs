@@ -1,8 +1,4 @@
 ﻿using AnimationEngine.Language;
-using AnimationEngine.Language;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace AnimationEngine.LanguageV2.Nodes
 {
@@ -70,7 +66,7 @@ namespace AnimationEngine.LanguageV2.Nodes
                         throw Script.DetailedErrorLog("Return statement must be at end of body", returnTok);
                     }
                     x.Compile();
-                } 
+                }
                 else
                 {
                     x.Compile();

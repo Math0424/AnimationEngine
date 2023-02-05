@@ -1,10 +1,8 @@
-﻿using AnimationEngine.Language;
-using System;
-using System.Collections.Generic;
+﻿using AnimationEngine.Core;
 using AnimationEngine.Language.Libs;
 using AnimationEngine.Utility;
-using VRageMath;
-using AnimationEngine.Core;
+using System;
+using System.Collections.Generic;
 
 /// <summary>
 /// This handles the code, its pretty much a emulator for a basic computer
@@ -13,14 +11,14 @@ namespace AnimationEngine.Language
 {
     internal enum ProgramFunc
     {
-        bXor, 
+        bXor,
 
         Add, // stack[0] = stack[1] + stack[2]
         Sub, // above
         Mul, // above
         Div, // above
         Mod, // above
-        
+
         B, // non function branch
         Cmp, // set flags about top element
         BZ,  // branch zero
@@ -70,13 +68,13 @@ namespace AnimationEngine.Language
         {
             if (_methodLookup.ContainsKey(function))
             {
-                foreach(var x in args)
+                foreach (var x in args)
                     _stack.Push(x);
                 try
                 {
                     Execute(_methodLookup[function]);
-                } 
-                catch(Exception ex)
+                }
+                catch (Exception ex)
                 {
                     Utils.LogToFile(ex);
                 }
@@ -106,7 +104,7 @@ namespace AnimationEngine.Language
         private Dictionary<string, string> nameTranslationTable = new Dictionary<string, string>();
         private void InitEnt(Entity ent)
         {
-            switch(ent.Type.Value.ToString().ToLower())
+            switch (ent.Type.Value.ToString().ToLower())
             {
                 case "math":
                     _libraries.Add(new ScriptMath()); break;
@@ -159,7 +157,7 @@ namespace AnimationEngine.Language
                     }
                     break;
                 case "block":
-                    foreach(var x in action.Funcs)
+                    foreach (var x in action.Funcs)
                         switch (x.TokenName)
                         {
                             case "create": Execute($"act_{action.ID}_pressed"); break;
@@ -182,7 +180,7 @@ namespace AnimationEngine.Language
                     if (!core.HasComponent<ProductionTickComp>())
                         core.AddComponent(new ProductionTickComp(-1));
                     foreach (var x in action.Funcs)
-                        switch(x.TokenName)
+                        switch (x.TokenName)
                         {
                             case "startproducing":
                                 core.GetFirstComponent<ProductionTickComp>().StartedProducing += () => Execute($"act_{action.ID}_startproducing");
@@ -245,7 +243,7 @@ namespace AnimationEngine.Language
             _ents = ents;
             _actions = actions;
         }
-        
+
         public ScriptV2Runner(ScriptV2Runner copy)
         {
             _libraries = new List<ScriptLib>();
@@ -335,9 +333,9 @@ namespace AnimationEngine.Language
                             line = curr.Arr[0];
                         }
                         break;
-                    
+
                     case ProgramFunc.LdI:
-                        _stack.Push(_immediates[curr.Arr[0]]); 
+                        _stack.Push(_immediates[curr.Arr[0]]);
                         break;
                     case ProgramFunc.LdG:
                         _stack.Push(_globals[curr.Arr[0]]);
@@ -345,7 +343,7 @@ namespace AnimationEngine.Language
                     case ProgramFunc.StG:
                         _globals[curr.Arr[0]] = _stack.Peek(0);
                         break;
-                    
+
                     case ProgramFunc.PopJ:
                         _stack.Pop(curr.Arr[0]);
                         line += curr.Arr[0] - 1;
@@ -357,7 +355,7 @@ namespace AnimationEngine.Language
                     case ProgramFunc.Cpy:
                         _stack.Set(curr.Arr[1], _stack.Peek(curr.Arr[0]));
                         break;
-                    
+
                     case ProgramFunc.Cxt:
                         _context = curr.Arr[0];
                         break;
@@ -376,9 +374,9 @@ namespace AnimationEngine.Language
                         break;
                     case ProgramFunc.Jmp:
                         _callStack.Push(line);
-                        line = curr.Arr[0]; 
+                        line = curr.Arr[0];
                         break;
-                    
+
                     case ProgramFunc.End:
                         if (_callStack.Count == 0)
                         {

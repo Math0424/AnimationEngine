@@ -3,7 +3,6 @@ using Sandbox.Game.EntityComponents;
 using Sandbox.ModAPI;
 using System;
 using VRage.Game;
-using VRage.Game.ModAPI;
 
 namespace AnimationEngine
 {
@@ -71,7 +70,7 @@ namespace AnimationEngine
             {
                 bool previousState = isProducing;
                 UpdateProducingState();
-                
+
                 if (previousState != isProducing)
                 {
                     if (isProducing)
@@ -79,7 +78,7 @@ namespace AnimationEngine
                     else
                         StoppedProducing?.Invoke();
                 }
-                
+
                 if (!isProducing)
                     return;
             }

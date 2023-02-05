@@ -1,5 +1,4 @@
 ﻿using AnimationEngine.Core;
-using AnimationEngine.Utility;
 using Sandbox.ModAPI;
 using System;
 using VRage.Game.ModAPI;

@@ -1,8 +1,4 @@
 ﻿using AnimationEngine.Language;
-using AnimationEngine.Language;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace AnimationEngine.LanguageV2.Nodes
 {
@@ -42,7 +38,7 @@ namespace AnimationEngine.LanguageV2.Nodes
         {
             int topJumpIndex = Script.program.Count;
             Script.program.Add(new Line(ProgramFunc.B));
-            
+
             body.Compile();
             body.PostCompile();
 
@@ -57,6 +53,6 @@ namespace AnimationEngine.LanguageV2.Nodes
             Script.program[topJumpIndex] = new Line(ProgramFunc.B, jumpInd);
         }
 
-        public override void PostCompile() {}
+        public override void PostCompile() { }
     }
 }

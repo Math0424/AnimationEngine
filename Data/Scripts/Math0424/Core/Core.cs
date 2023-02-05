@@ -1,9 +1,6 @@
 ﻿using AnimationEngine.Language;
-using AnimationEngine.Utility;
-using Sandbox.ModAPI;
 using System;
 using System.Collections.Generic;
-using VRage.Game.ModAPI;
 using VRage.ModAPI;
 
 namespace AnimationEngine.Core
@@ -67,7 +64,7 @@ namespace AnimationEngine.Core
         {
             _dir[name] = func;
         }
-        
+
         public void RemoveMethod(string name)
         {
             _dir.Remove(name);

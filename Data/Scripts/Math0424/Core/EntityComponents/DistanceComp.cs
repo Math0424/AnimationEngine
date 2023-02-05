@@ -3,7 +3,6 @@ using AnimationEngine.Language;
 using Sandbox.ModAPI;
 using System;
 using System.Collections.Generic;
-using System.Text;
 using VRage.Game.ModAPI;
 using VRage.ModAPI;
 using VRageMath;
@@ -20,7 +19,7 @@ namespace AnimationEngine
         private int tick;
         private float distance;
         private bool triggered;
-        
+
         private List<IMyPlayer> characters = new List<IMyPlayer>();
         private IMyEntity entity;
 
@@ -49,14 +48,14 @@ namespace AnimationEngine
                 if (MyAPIGateway.Multiplayer != null)
                 {
                     MyAPIGateway.Multiplayer.Players.GetPlayers(characters);
-                } 
-                else 
+                }
+                else
                 {
                     characters.Add(MyAPIGateway.Session.Player);
                 }
 
                 double lowest = double.MaxValue;
-                foreach(var p in characters)
+                foreach (var p in characters)
                 {
                     if (p.Character != null)
                     {
@@ -73,8 +72,8 @@ namespace AnimationEngine
                 {
                     InRange?.Invoke();
                     triggered = true;
-                } 
-                else if(lowest > distance && triggered)
+                }
+                else if (lowest > distance && triggered)
                 {
                     OutOfRange?.Invoke();
                     triggered = false;

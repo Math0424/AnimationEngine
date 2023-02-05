@@ -1,7 +1,5 @@
 ﻿using AnimationEngine.Core;
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace AnimationEngine.Language.Libs
 {

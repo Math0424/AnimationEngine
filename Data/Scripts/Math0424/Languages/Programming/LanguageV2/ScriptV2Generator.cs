@@ -1,7 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using AnimationEngine.Core;
 using AnimationEngine.LanguageV2.Nodes;
 using AnimationEngine.Utility;
-using AnimationEngine.Core;
+using System.Collections.Generic;
 
 namespace AnimationEngine.Language
 {
@@ -16,10 +16,10 @@ namespace AnimationEngine.Language
         public Dictionary<string, Token> headers = new Dictionary<string, Token>();
         public Dictionary<string, Function> functions = new Dictionary<string, Function>();
         public List<Entity> objects = new List<Entity>();
-        
+
         public List<ScriptAction> actions = new List<ScriptAction>();
         public List<ScriptAction> terminals = new List<ScriptAction>();
-        
+
         public int globalCount = 0;
 
         // compiler
@@ -32,7 +32,8 @@ namespace AnimationEngine.Language
 
         public int AddImmediate(SVariable var)
         {
-            for(int i = 0; i < _immediates.Count; i++) {
+            for (int i = 0; i < _immediates.Count; i++)
+            {
                 if (var.Equals(_immediates[i]))
                 {
                     return i;
@@ -102,7 +103,7 @@ namespace AnimationEngine.Language
         private int GetNodeCount(CompilationNode node)
         {
             int i = 1;
-            foreach(var x in node.children)
+            foreach (var x in node.children)
             {
                 i += GetNodeCount(x);
             }

@@ -47,7 +47,7 @@ namespace AnimationEngine.Language.Libs
 
         public SVariable StopLoop(SVariable[] var)
         {
-            foreach(var x in methodLoops)
+            foreach (var x in methodLoops)
             {
                 if (x.method == var[0].ToString())
                 {
@@ -60,7 +60,7 @@ namespace AnimationEngine.Language.Libs
 
         public override void Tick(int time)
         {
-            for(int i = 0; i < methodLoops.Count; i++)
+            for (int i = 0; i < methodLoops.Count; i++)
             {
                 MethodTick tick = methodLoops[i];
                 tick.currDelay -= time;

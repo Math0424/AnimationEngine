@@ -1,19 +1,14 @@
 ﻿using AnimationEngine.Core;
 using AnimationEngine.Language;
-using AnimationEngine.LanguageV1;
 using AnimationEngine.Utility;
 using Sandbox.Game.Entities;
 using Sandbox.ModAPI;
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Text;
 using VRage;
-using VRage.Game;
 using VRage.Game.Components;
 using VRage.Game.ModAPI;
 using VRage.ModAPI;
-using VRage.Utils;
 using VRageMath;
 
 namespace AnimationEngine
@@ -28,7 +23,7 @@ namespace AnimationEngine
 
         private static List<CoreScript> loaded = new List<CoreScript>();
         private static List<string> failed = new List<string>();
-        
+
         private static Dictionary<string, MyTuple<Subpart[], ScriptRunner>> registeredScripts = new Dictionary<string, MyTuple<Subpart[], ScriptRunner>>();
 
         public static void AddToRegisteredScripts(string id, Subpart[] subparts, ScriptRunner constant)
@@ -54,7 +49,7 @@ namespace AnimationEngine
             {
                 if (x.Entity == null || !x.Entity.InScene)
                     continue;
-                
+
                 if (MyAPIGateway.Utilities?.IsDedicated ?? false)
                 {
                     if (currentTick % 3 == 0)
@@ -95,12 +90,12 @@ namespace AnimationEngine
             }
         }
 
-        private void TickObject(CoreScript script, int time) 
-        { 
+        private void TickObject(CoreScript script, int time)
+        {
             try
             {
                 script?.Tick(time);
-            } 
+            }
             catch (Exception ex)
             {
                 Utils.LogToFile($"Error while ticking {script.Entity.Name}");
@@ -108,7 +103,7 @@ namespace AnimationEngine
                 Utils.LogToFile(ex.StackTrace);
                 Utils.LogToFile(ex.Message);
             }
-        
+
         }
 
         public override void LoadData()
@@ -124,8 +119,8 @@ namespace AnimationEngine
                     {
                         new ScriptGenerator(mod, MainPath + MainScript);
                         registered++;
-                    } 
-                    else if(MyAPIGateway.Utilities.FileExistsInModLocation(MainPath + MainInfo, mod))
+                    }
+                    else if (MyAPIGateway.Utilities.FileExistsInModLocation(MainPath + MainInfo, mod))
                     {
                         Utils.LogToFile($"Reading animation file for {mod.Name}");
                         foreach (var s in MyAPIGateway.Utilities.ReadFileInModLocation(MainPath + MainInfo, mod).ReadToEnd().Split('\n'))
@@ -153,7 +148,7 @@ namespace AnimationEngine
             if (failed.Count != 0)
             {
                 string mods = "";
-                foreach(var x in failed)
+                foreach (var x in failed)
                 {
                     mods += x + ", ";
                 }
@@ -162,8 +157,8 @@ namespace AnimationEngine
             }
 
             MyEntities.OnEntityCreate += OnEntityAdded;
-        
-            
+
+
         }
 
         public void OnEntityAdded(IMyEntity ent)

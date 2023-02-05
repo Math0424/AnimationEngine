@@ -1,8 +1,5 @@
 ﻿using AnimationEngine.Language;
-using System;
 using System.Collections.Generic;
-using System.Text;
-using AnimationEngine.Language;
 
 namespace AnimationEngine.LanguageV2.Nodes
 {
@@ -22,7 +19,7 @@ namespace AnimationEngine.LanguageV2.Nodes
 
         protected int Next(TokenType token, int startIndex)
         {
-            for(int i = startIndex; i < Tokens.Length; i++)
+            for (int i = startIndex; i < Tokens.Length; i++)
             {
                 if (Tokens[i].Type == token)
                 {

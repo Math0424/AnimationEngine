@@ -1,9 +1,4 @@
 ﻿using AnimationEngine.Language;
-using AnimationEngine.Language;
-using System;
-using System.Collections.Generic;
-using System.Text;
-using AnimationEngine.Language;
 
 namespace AnimationEngine.LanguageV2.Nodes
 {
@@ -58,7 +53,7 @@ namespace AnimationEngine.LanguageV2.Nodes
             Script.program[top] = new Line(ProgramFunc.BNZ, Script.program.Count);
         }
 
-        public override void PostCompile() {}
+        public override void PostCompile() { }
 
     }
 }

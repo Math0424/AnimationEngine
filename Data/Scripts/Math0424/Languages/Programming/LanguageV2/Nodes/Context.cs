@@ -1,7 +1,6 @@
 ﻿using AnimationEngine.Language;
 using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Linq;
 
 namespace AnimationEngine.LanguageV2.Nodes
@@ -47,7 +46,7 @@ namespace AnimationEngine.LanguageV2.Nodes
 
         public static int IncreaseStackIndex()
         {
-            for(int i = 0; i < VariableDictionary.Count; i++)
+            for (int i = 0; i < VariableDictionary.Count; i++)
             {
                 var x = VariableDictionary.ElementAt(i);
                 VariableDictionary[x.Key] = x.Value + 1;
@@ -141,7 +140,7 @@ namespace AnimationEngine.LanguageV2.Nodes
 
         public static bool IsVariable(string name)
         {
-            foreach(var x in Variables)
+            foreach (var x in Variables)
             {
                 if (x.Contains(name.ToLower()))
                     return true;

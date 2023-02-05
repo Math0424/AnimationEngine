@@ -1,6 +1,4 @@
-﻿using AnimationEngine.Core;
-using AnimationEngine.Language;
-using AnimationEngine.Utility;
+﻿using AnimationEngine.Language;
 using System;
 using System.Collections.Generic;
 using VRage.Game.Components;
@@ -176,7 +174,7 @@ namespace AnimationEngine
             base.Tick(time);
 
             Matrix matrix = core.LocalMatrixRef;
-            
+
             Vector3D temp = prev;
             prev = lerp.Lerp(ease, Vector3D.Zero, end, val);
             temp = temp - prev;
@@ -199,7 +197,7 @@ namespace AnimationEngine
             base.Tick(time);
 
             Matrix local = core.LocalMatrixRef;
-            
+
             Quaternion q = rot;
             if (time > 1)
             {
@@ -242,14 +240,14 @@ namespace AnimationEngine
             Quaternion temp = prevQ;
             prevQ = lerp.Lerp(ease, Quaternion.Identity, end, val);
             temp = temp * Quaternion.Inverse(prevQ);
-            
+
             Matrix matrix = core.LocalMatrixRef;
 
             Vector3D tempV = prevV;
             prevV = Vector3D.Transform(pivot, prevQ);
 
             Vector3D tmp = matrix.Translation + tempV - prevV;
-            
+
             matrix = MatrixD.Transform(matrix, Quaternion.Inverse(temp));
             matrix.Translation = tmp;
 

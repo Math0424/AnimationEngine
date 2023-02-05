@@ -1,10 +1,8 @@
 ﻿using AnimationEngine.Language;
 using AnimationEngine.Utility;
-using System;
 using System.Collections.Generic;
 using VRage.Game.Entity;
 using VRage.ModAPI;
-using VRage.Utils;
 using VRageMath;
 
 namespace AnimationEngine.Core
@@ -90,7 +88,7 @@ namespace AnimationEngine.Core
 
         public bool HasComponent<T>() where T : SubpartComponent
         {
-            foreach(var x in components)
+            foreach (var x in components)
                 if (x.GetType() == typeof(T))
                     return true;
             return false;

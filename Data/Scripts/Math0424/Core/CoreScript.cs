@@ -1,8 +1,4 @@
-﻿using AnimationEngine.Language;
-using AnimationEngine.Utility;
-using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 using VRage.Game.Entity;
 using VRage.ModAPI;
 
@@ -89,7 +85,7 @@ namespace AnimationEngine.Core
             if (unReadySubparts.Count != 0)
             {
                 List<string> ready = new List<string>();
-                foreach(var x in unReadySubparts)
+                foreach (var x in unReadySubparts)
                     if (InitSubpart(subpartData[x]))
                         ready.Add(x);
                 unReadySubparts.RemoveAll((e) => ready.Contains(e));
@@ -105,7 +101,7 @@ namespace AnimationEngine.Core
         private void OnClose(IMyEntity ent)
         {
             AnimationEngine.RemoveScript(this);
-            
+
             foreach (var component in components)
                 component.Close();
             Entity = null;

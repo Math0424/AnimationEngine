@@ -1,5 +1,4 @@
 ﻿using AnimationEngine.Language;
-using System;
 
 namespace AnimationEngine.LanguageV2.Nodes
 {

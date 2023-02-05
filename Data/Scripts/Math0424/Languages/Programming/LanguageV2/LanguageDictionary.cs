@@ -1,8 +1,4 @@
-﻿using AnimationEngine.Language;
-using System;
-using System.Collections.Generic;
-using System.Text;
-using VRageMath;
+﻿using System.Collections.Generic;
 
 namespace AnimationEngine.Language
 {
@@ -116,7 +112,7 @@ namespace AnimationEngine.Language
 
         public static bool IsAction(ScriptAction node, bool action, out string error)
         {
-            foreach(var x in (action ? _specialActions : _terminalActions))
+            foreach (var x in (action ? _specialActions : _terminalActions))
             {
                 if (node.TokenName == x.Name)
                 {
@@ -126,7 +122,7 @@ namespace AnimationEngine.Language
                         return false;
                     }
 
-                    for(int i = 0; i < x.Args.Length; i++)
+                    for (int i = 0; i < x.Args.Length; i++)
                     {
                         if (node.Paramaters[i].Type != x.Args[i])
                         {
@@ -178,11 +174,11 @@ namespace AnimationEngine.Language
         public static MethodDictionary? IsMethod(string context, string method, int tokens, out bool match)
         {
             MethodDictionary? result = null;
-            foreach(var o in _libDictionary)
+            foreach (var o in _libDictionary)
             {
                 if (o.Name.Equals(context.ToLower()))
                 {
-                    foreach(var m in o.Methods)
+                    foreach (var m in o.Methods)
                     {
                         if (m.Name.Equals(method.ToLower()))
                         {

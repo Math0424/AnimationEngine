@@ -22,7 +22,7 @@ namespace AnimationEngine.Language
 
         public static bool IsMathOperator(this TokenType token)
         {
-            switch (token) 
+            switch (token)
             {
                 case TokenType.ADD:
                 case TokenType.SUB:
@@ -30,14 +30,14 @@ namespace AnimationEngine.Language
                 case TokenType.DIV:
                 case TokenType.MOD:
                     return true;
-                default: 
+                default:
                     return false;
             }
         }
 
         public static bool IsLogicOperator(this TokenType token)
         {
-            switch(token)
+            switch (token)
             {
                 case TokenType.AND:
                 case TokenType.OR:
@@ -170,11 +170,11 @@ namespace AnimationEngine.Language
                     return TokenType.RSQBRC;
 
                 case '+':
-                    return TokenType.ADD;  
+                    return TokenType.ADD;
                 case '-':
-                    return TokenType.SUB;  
+                    return TokenType.SUB;
                 case '*':
-                    return TokenType.MUL;  
+                    return TokenType.MUL;
                 case '/':
                     return TokenType.DIV;
                 case '%':
@@ -241,13 +241,15 @@ namespace AnimationEngine.Language
             else if (lword.Equals("terminal")) { return TokenType.TERMINAL; }
             else if (lword.Equals("var")) { return TokenType.VAR; }
 
-            else if (lword.Equals("true")) {
+            else if (lword.Equals("true"))
+            {
                 obj = true;
-                return TokenType.BOOL; 
+                return TokenType.BOOL;
             }
-            else if (lword.Equals("false")) {
+            else if (lword.Equals("false"))
+            {
                 obj = false;
-                return TokenType.BOOL; 
+                return TokenType.BOOL;
             }
 
             else if (lword.Equals("parent")) { return TokenType.PARENT; }
@@ -259,7 +261,7 @@ namespace AnimationEngine.Language
 
             foreach (var x in Enum.GetValues(typeof(ShortHandLerp)))
             {
-                if(x.ToString().ToLower().Equals(lword))
+                if (x.ToString().ToLower().Equals(lword))
                 {
                     obj = x;
                     return TokenType.LERP;
@@ -350,11 +352,11 @@ namespace AnimationEngine.Language
                 index++;
             }
             index--;
-            
+
             if (type == TokenType.FLOAT)
             {
                 return float.Parse(value);
-            } 
+            }
             return int.Parse(value);
         }
 

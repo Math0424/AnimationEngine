@@ -33,7 +33,7 @@ namespace AnimationEngine.Language
                     Log($"|  Reading headers");
                     ParseHeaders();
                     Log($"|  |  Found {headers.Count} headers");
-                    
+
                     if (!headers.ContainsKey("version"))
                         throw new Exception("Cannot find script @version header");
                     int versionId;

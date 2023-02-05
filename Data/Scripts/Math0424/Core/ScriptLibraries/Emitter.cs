@@ -1,5 +1,4 @@
 ﻿using AnimationEngine.Language;
-using AnimationEngine.Utility;
 using Sandbox.Game.Entities;
 using System.Collections.Generic;
 using VRage.Game;

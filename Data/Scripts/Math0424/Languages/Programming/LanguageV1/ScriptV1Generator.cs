@@ -2,11 +2,7 @@
 using AnimationEngine.Language;
 using AnimationEngine.LogicV1;
 using AnimationEngine.Utility;
-using Sandbox.ModAPI;
-using System;
 using System.Collections.Generic;
-using System.IO;
-using VRage.Utils;
 
 namespace AnimationEngine.LanguageV1
 {

@@ -67,7 +67,7 @@ namespace AnimationEngine.LanguageV2.Nodes
                 Context.IncreaseStackIndex();
                 Context.AddCompileVariable(z.Value.ToString());
             }
-            foreach(var x in children)
+            foreach (var x in children)
             {
                 x.Compile();
             }
@@ -94,13 +94,13 @@ namespace AnimationEngine.LanguageV2.Nodes
         {
             int index = Script.program.Count - 1;
             int popAmount = 0;
-            while(index > top)
+            while (index > top)
             {
                 Line l = Script.program[index];
                 if (l.Arg == ProgramFunc.PopJ)
                 {
                     popAmount++;
-                } 
+                }
                 else if (popAmount != 0 && l.Arg != ProgramFunc.PopJ)
                 {
                     Script.program[index + 1].Arr[0] = popAmount;

@@ -1,7 +1,4 @@
 ﻿using AnimationEngine.Core;
-using AnimationEngine.Utility;
-using Sandbox.Game.Entities;
-using Sandbox.ModAPI;
 using System;
 using VRage.Game.ModAPI;
 using VRageMath;
@@ -30,7 +27,8 @@ namespace AnimationEngine
             {
                 this.block = (IMyCubeBlock)parent.Entity;
 
-                block.IsWorkingChanged += (e) => {
+                block.IsWorkingChanged += (e) =>
+                {
                     if (e.IsWorking) { OnIsWorking?.Invoke(); } else { OnNotWorking?.Invoke(); }
                 };
 

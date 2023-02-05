@@ -1,10 +1,6 @@
 ﻿using AnimationEngine.Language;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using AnimationEngine.Language;
-using AnimationEngine.Utility;
 
 namespace AnimationEngine.LanguageV2.Nodes
 {

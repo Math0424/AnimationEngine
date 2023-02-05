@@ -1,9 +1,6 @@
 ﻿using AnimationEngine.Language;
-using AnimationEngine.Language;
 using AnimationEngine.Utility;
-using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace AnimationEngine.LanguageV2.Nodes
 {
@@ -67,7 +64,7 @@ namespace AnimationEngine.LanguageV2.Nodes
         private void AssembleGlobals()
         {
             int next = Next(TokenType.VAR, 0);
-            while(next != -1)
+            while (next != -1)
             {
                 children.Add(new GlobalNode(next));
                 next++;

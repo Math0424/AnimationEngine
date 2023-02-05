@@ -1,9 +1,5 @@
 ﻿using AnimationEngine.Language;
-using AnimationEngine.Language;
-using System;
 using System.Collections.Generic;
-using System.Text;
-using AnimationEngine.Language;
 
 namespace AnimationEngine.LanguageV2.Nodes
 {
@@ -14,7 +10,8 @@ namespace AnimationEngine.LanguageV2.Nodes
 
         private int Precedence(TokenType token)
         {
-            switch (token) {
+            switch (token)
+            {
                 case TokenType.ADD:
                 case TokenType.SUB:
                     return 1;
@@ -37,8 +34,8 @@ namespace AnimationEngine.LanguageV2.Nodes
                 if (t.Type.IsMathVariable())
                 {
                     _output.Push(t);
-                } 
-                else if(t.Type == TokenType.KEWRD)
+                }
+                else if (t.Type == TokenType.KEWRD)
                 {
                     if (Context.IsVariable(t.Value.ToString()) || Context.IsGlobalVariable(t.Value.ToString()))
                     {
@@ -50,7 +47,7 @@ namespace AnimationEngine.LanguageV2.Nodes
                     children.Add(new ClassCallNode(ref index));
                     _output.Push(new Token(TokenType.UKWN, children.Count - 1, t.Line, t.Col));
                 }
-                else if(t.Type.IsMathOperator())
+                else if (t.Type.IsMathOperator())
                 {
                     while (_operators.Count != 0)
                     {
@@ -62,11 +59,11 @@ namespace AnimationEngine.LanguageV2.Nodes
                     }
                     _operators.Push(t);
                 }
-                else if(t.Type == TokenType.LPAREN)
+                else if (t.Type == TokenType.LPAREN)
                 {
                     _operators.Push(t);
                 }
-                else if(t.Type == TokenType.RPAREN)
+                else if (t.Type == TokenType.RPAREN)
                 {
                     while (true)
                     {
@@ -102,7 +99,7 @@ namespace AnimationEngine.LanguageV2.Nodes
 
         private void AddLineOperator(TokenType t, int o, int a, int b)
         {
-            switch(t)
+            switch (t)
             {
                 case TokenType.ADD:
                     Script.program.Add(new Line(ProgramFunc.Add, o, a, b));
@@ -134,7 +131,7 @@ namespace AnimationEngine.LanguageV2.Nodes
             for (int i = 0; i < tokens.Count; i++)
             {
                 Token t = tokens[i];
-                switch(t.Type)
+                switch (t.Type)
                 {
                     case TokenType.ADD:
                     case TokenType.SUB:
@@ -181,13 +178,13 @@ namespace AnimationEngine.LanguageV2.Nodes
                                 Context.IncreaseStackIndex();
                                 Script.program.Add(new Line(ProgramFunc.LdI, Script.AddImmediate(new SVariableInt(0))));
                                 Script.program.Add(new Line(ProgramFunc.Cpy, Context.GetCompileVariableIndex(t.Value.ToString()), 0));
-                            } 
+                            }
                             else
                             {
                                 _stack.Push(t.Value.ToString());
                             }
-                        } 
-                        else if(Context.IsGlobalVariable(t.Value.ToString()))
+                        }
+                        else if (Context.IsGlobalVariable(t.Value.ToString()))
                         {
                             Context.IncreaseStackIndex();
                             Script.program.Add(new Line(ProgramFunc.LdG, Context.GetGlobalVariable(t.Value.ToString())));

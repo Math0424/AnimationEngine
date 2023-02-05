@@ -43,7 +43,7 @@ namespace AnimationEngine
 
         InExpo,
         OutExpo,
-        InOutExpo, 
+        InOutExpo,
 
         InCirc,
         OutCirc,
@@ -82,7 +82,7 @@ namespace AnimationEngine
 
         public static void ShortToLong(this ShortHandLerp shl, out LerpType lerp, out EaseType ease)
         {
-            switch(shl)
+            switch (shl)
             {
                 case ShortHandLerp.Linear:
                     lerp = LerpType.Linear;

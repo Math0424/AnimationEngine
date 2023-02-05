@@ -5,7 +5,6 @@ using Sandbox.ModAPI;
 using System;
 using System.Collections.Generic;
 using VRage.Game.ModAPI;
-using VRage.ModAPI;
 using VRageMath;
 
 namespace AnimationEngine
@@ -52,7 +51,7 @@ namespace AnimationEngine
 
         public override void Tick(int i)
         {
-            if (block != null && MyAPIGateway.Session?.Player?.Character != null && 
+            if (block != null && MyAPIGateway.Session?.Player?.Character != null &&
                 Vector3.DistanceSquared(MyAPIGateway.Session.Player.Character.GetPosition(), block.GetPosition()) < 50)
             {
                 var view = MyAPIGateway.Session.Camera.WorldMatrix;
@@ -74,11 +73,11 @@ namespace AnimationEngine
                             if (MyAPIGateway.Input.IsNewLeftMousePressed() || MyAPIGateway.Input.IsNewGameControlPressed(MyControlsSpace.USE))
                             {
                                 OnInteract?.Invoke();
-                            } 
+                            }
                         }
                     }
                 }
-                else if(IsHovering)
+                else if (IsHovering)
                 {
                     IsHovering = false;
                     OnUnHover?.Invoke();
