@@ -35,7 +35,7 @@ namespace AnimationEngine.Language.Libs
 
         public SVariable log(SVariable[] var)
         {
-            Utils.LogToFile("API Log: " + var[0].ToString());
+            Utils.LogToFile("Log: " + var[0].ToString());
             return null;
         }
 

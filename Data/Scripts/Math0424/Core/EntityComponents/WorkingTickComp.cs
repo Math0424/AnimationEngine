@@ -33,6 +33,8 @@ namespace AnimationEngine
                 block.IsWorkingChanged += (e) => {
                     if (e.IsWorking) { OnIsWorking?.Invoke(); } else { OnNotWorking?.Invoke(); }
                 };
+
+                prevColor = block.Render.ColorMaskHsv;
             }
         }
 

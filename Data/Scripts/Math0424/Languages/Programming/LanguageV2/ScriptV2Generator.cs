@@ -46,8 +46,6 @@ namespace AnimationEngine.Language
         {
             this.generator = generator;
 
-            Log($"|  Parser");
-
             Context.EnterNewContext(Tokens.ToArray());
             Context.SetScript(this);
 
@@ -92,8 +90,10 @@ namespace AnimationEngine.Language
 
             List<Subpart> subparts = new List<Subpart>();
             foreach (var x in objects)
-                if (x.Type.Value.ToString() == "subpart")
-                    subparts.Add(new Subpart(x.Name.Value.ToString(), x.Parent.Value.ToString()));
+            {
+                if (x.Type.Value.ToString().ToLower() == "subpart")
+                    subparts.Add(new Subpart(x.Args[0].Value.ToString(), x.Parent.Value == null ? null : x.Parent.Value.ToString()));
+            }
 
             runner = new ScriptV2Runner(objects, actions, globals, program.ToArray(), _immediates.ToArray(), methodLookup);
             defs = subparts;

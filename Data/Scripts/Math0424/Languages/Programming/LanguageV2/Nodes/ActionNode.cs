@@ -44,7 +44,6 @@ namespace AnimationEngine.LanguageV2.Nodes
             int next = Next(TokenType.KEWRD, 0);
             while (next != -1)
             {
-                Utils.LogToFile($"Reading into {Tokens[next].Value}");
                 children.Add(new FunctionNode(ref next, $"{(action ? "act" : "term")}_{id}_"));
                 funcs.Add(Script.functions.Values.Last());
                 next = Next(TokenType.KEWRD, ++next);

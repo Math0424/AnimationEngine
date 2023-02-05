@@ -94,7 +94,7 @@ namespace AnimationEngine.Language
             ),
 
             new ObjectDictionary("block",
-                new MethodDictionary("position", false, "Value")
+                new MethodDictionary("null", false, "Value")
             ),
 
             new ObjectDictionary("api",

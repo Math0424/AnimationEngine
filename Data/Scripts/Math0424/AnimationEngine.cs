@@ -52,10 +52,10 @@ namespace AnimationEngine
             //TODO: create a better data scructure
             foreach (var x in loaded)
             {
-                if (!x.Entity.InScene)
+                if (x.Entity == null || !x.Entity.InScene)
                     continue;
                 
-                if (MyAPIGateway.Utilities.IsDedicated)
+                if (MyAPIGateway.Utilities?.IsDedicated ?? false)
                 {
                     if (currentTick % 3 == 0)
                     {
@@ -64,7 +64,7 @@ namespace AnimationEngine
                     continue;
                 }
 
-                if (MyAPIGateway.Session.Camera != null)
+                if (MyAPIGateway.Session?.Camera != null)
                 {
                     double dist = Vector3.DistanceSquared(MyAPIGateway.Session.Camera.Position, x.Entity.GetPosition());
                     if (dist > 1000000) // 1km
@@ -186,11 +186,10 @@ namespace AnimationEngine
                     CoreScript script = new CoreScript(x.Item1);
                     script.AddComponent(x.Item2.Clone());
                     script.Init(block.FatBlock);
-                    Utils.LogToFile($"Attached script to {id} ({block.FatBlock.EntityId})");
                 }
                 else
                 {
-                    Utils.LogToFile($"Cannot attach script to {id} (Cannot attach to armor blocks)");
+                    Utils.LogToFile($"Cannot attach script to {block.FatBlock.EntityId} (Cannot attach to armor blocks)");
                 }
             }
         }

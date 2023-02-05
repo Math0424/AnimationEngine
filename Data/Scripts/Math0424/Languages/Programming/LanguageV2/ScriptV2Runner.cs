@@ -106,7 +106,7 @@ namespace AnimationEngine.Language
         private Dictionary<string, string> nameTranslationTable = new Dictionary<string, string>();
         private void InitEnt(Entity ent)
         {
-            switch(ent.Type.Value.ToString())
+            switch(ent.Type.Value.ToString().ToLower())
             {
                 case "math":
                     _libraries.Add(new ScriptMath()); break;
@@ -271,7 +271,7 @@ namespace AnimationEngine.Language
                 curr = _program[line++];
 
 
-                string output = $"Line {(line - 1):D3}: ({_stack.Count:D3}) {curr.Arg,-4} > ";
+                /*string output = $"Line {(line - 1):D3}: ({_stack.Count:D3}) {curr.Arg,-4} > ";
                 if (curr.Arr != null)
                 {
                     foreach (var x in curr.Arr)
@@ -279,7 +279,7 @@ namespace AnimationEngine.Language
                         output += $"{x:D3} ";
                     }
                 }
-                Utils.LogToFile(output);
+                Utils.LogToFile(output);*/
 
 
                 switch (curr.Arg)
@@ -362,7 +362,6 @@ namespace AnimationEngine.Language
                         _context = curr.Arr[0];
                         break;
                     case ProgramFunc.Mth:
-                        Utils.LogToFile($"{_stack.Count} - {curr.Arr[1]} = {_stack.Count - curr.Arr[1]}");
                         SVariable[] arr = new SVariable[curr.Arr[1]];
                         _stack.CopyTo(_stack.Count - curr.Arr[1], arr, 0, curr.Arr[1]);
                         SVariable s = _libraries[_context].Execute(_immediates[curr.Arr[0]].ToString(), arr);
@@ -375,7 +374,6 @@ namespace AnimationEngine.Language
                             _stack.Push(new SVariableInt(0));
                         }
                         break;
-                    
                     case ProgramFunc.Jmp:
                         _callStack.Push(line);
                         line = curr.Arr[0]; 

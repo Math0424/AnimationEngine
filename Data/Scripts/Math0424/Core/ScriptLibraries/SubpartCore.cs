@@ -22,7 +22,6 @@ namespace AnimationEngine.Core
 
             AddMethod("scale", Scale);
             AddMethod("setvisible", SetVisibility);
-            AddMethod("log", Log);
 
             mover = new Mover(Subpart.PositionComp);
             AddMethod("translate", mover.Translate);
@@ -65,12 +64,6 @@ namespace AnimationEngine.Core
         private SVariable SetVisibility(SVariable[] args)
         {
             Subpart.Render.Visible = args[0].AsBool();
-            return null;
-        }
-
-        private SVariable Log(SVariable[] args)
-        {
-            MyLog.Default.WriteLine($"{Subpart.EntityId}: {args[0]}");
             return null;
         }
 
