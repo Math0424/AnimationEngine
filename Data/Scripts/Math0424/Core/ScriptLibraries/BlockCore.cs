@@ -1,6 +1,8 @@
-﻿using Sandbox.ModAPI;
+﻿using AnimationEngine.Language;
+using Sandbox.ModAPI;
 using SpaceEngineers.Game.ModAPI;
 using VRage.Game.ModAPI;
+using VRageMath;
 
 namespace AnimationEngine.Core
 {
@@ -9,6 +11,39 @@ namespace AnimationEngine.Core
         private IMyCubeBlock Block;
         Mover pilotMover;
         Mover blockMover;
+        Quaternion quat;
+
+        //translate([x, y, z], time, lerp)
+        public SVariable TranslateTranslate(SVariable[] args)
+        {
+            args[0] = new SVariableVector(Vector3.Transform(args[0].AsVector3(), quat));
+            blockMover.Translate(args);
+            return null;
+        }
+        //rotate([x, y, z], angle, time, lerp)
+        public SVariable RotateTranslate(params SVariable[] args)
+        {
+            args[0] = new SVariableVector(Vector3.Transform(args[0].AsVector3(), quat));
+            blockMover.Rotate(args);
+            return null;
+        }
+
+        //rotate([x, y, z], [x, y, z] pivot angle, time, lerp)
+        public SVariable RotateAroundTranslate(SVariable[] args)
+        {
+            args[0] = new SVariableVector(Vector3.Transform(args[0].AsVector3(), quat));
+            args[1] = new SVariableVector(Vector3.Transform(args[1].AsVector3(), quat));
+            blockMover.RotateAround(args);
+            return null;
+        }
+
+        //spin([x, y, z], speed, time)
+        public SVariable SpinTranslate(SVariable[] args)
+        {
+            args[0] = new SVariableVector(Vector3.Transform(args[0].AsVector3(), quat));
+            blockMover.Spin(args);
+            return null;
+        }
 
         public BlockCore(CoreScript script)
         {
@@ -35,11 +70,12 @@ namespace AnimationEngine.Core
                 }
             }
 
+            Block.Orientation.GetQuaternion(out quat);
             blockMover = new Mover(Block.PositionComp);
-            AddMethod("translate", blockMover.Translate);
-            AddMethod("rotate", blockMover.Rotate);
-            AddMethod("rotatearound", blockMover.RotateAround);
-            AddMethod("spin", blockMover.Spin);
+            AddMethod("translate", TranslateTranslate);
+            AddMethod("rotate", RotateTranslate);
+            AddMethod("rotatearound", RotateAroundTranslate);
+            AddMethod("spin", SpinTranslate);
             AddMethod("vibrate", blockMover.Vibrate);
             AddMethod("reset", blockMover.Reset);
             AddMethod("resetpos", blockMover.ResetPos);

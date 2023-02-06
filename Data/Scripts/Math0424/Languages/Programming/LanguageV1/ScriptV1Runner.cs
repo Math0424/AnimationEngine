@@ -53,7 +53,7 @@ namespace AnimationEngine.LanguageV1
 
             Call("blockaction", "create");
             Definition = ((MyCubeBlockDefinition)((IMyCubeBlock)script.Entity).SlimBlock.BlockDefinition);
-            Built = ((IMyCubeBlock)script.Entity).SlimBlock.BuildLevelRatio < Definition.CriticalIntegrityRatio;
+            Built = ((IMyCubeBlock)core.Entity).SlimBlock.BuildLevelRatio > Definition.CriticalIntegrityRatio;
         }
 
         public void Tick(int time)
@@ -76,7 +76,7 @@ namespace AnimationEngine.LanguageV1
                 if (!(x is SubpartCore))
                     x.Tick(time);
 
-            var check = ((IMyCubeBlock)core.Entity).SlimBlock.BuildLevelRatio < Definition.CriticalIntegrityRatio;
+            var check = ((IMyCubeBlock)core.Entity).SlimBlock.BuildLevelRatio > Definition.CriticalIntegrityRatio;
             if (check != Built)
             {
                 Built = check;

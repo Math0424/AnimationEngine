@@ -1,4 +1,5 @@
 ﻿using AnimationEngine.Language;
+using AnimationEngine.Utility;
 
 namespace AnimationEngine.LanguageV2.Nodes
 {
@@ -65,6 +66,7 @@ namespace AnimationEngine.LanguageV2.Nodes
                 {
                     var += x + ", ";
                 }
+                var = var.Length == 0 ? "NA" : var;
                 throw Script.DetailedErrorLog($"Error at {Context.ClassContext}.{methodName}({var.Trim().Substring(0, var.Length - 2)}), expected {d.Value.TokenCount} tokens, found {variables}", Tokens[index]);
             }
 
@@ -102,19 +104,19 @@ namespace AnimationEngine.LanguageV2.Nodes
                 x.Compile();
             Context.IncreaseStackIndex();
             Script.program.Add(new Line(ProgramFunc.Mth, Script.AddImmediate(new SVariableString(methodName)), variables));
-            foreach (var x in children)
+            for (int i = 0; i < children.Count; i++)
                 Context.PopStackIndex();
             next?.Compile();
         }
 
         public override void PostCompile()
         {
-            next?.PostCompile();
             if (!Context.RequireReturn)
             {
                 Context.PopStackIndex();
                 Script.program.Add(new Line(ProgramFunc.PopJ, 1));
             }
+            next?.PostCompile();
         }
 
     }

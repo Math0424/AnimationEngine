@@ -25,9 +25,16 @@ namespace AnimationEngine.LanguageV2.Nodes
                         break;
                     case TokenType.KEWRD:
                         if (Tokens[c + 1].Type == TokenType.EQL)
+                        {
+                            Context.RequireReturn = true;
                             children.Add(new SetNode(ref c));
+                            Context.RequireReturn = false;
+                        }
                         else
+                        {
+                            Context.RequireReturn = false;
                             children.Add(new ClassCallNode(ref c));
+                        }
                         break;
                     case TokenType.IF:
                         children.Add(new IfNode(ref c));

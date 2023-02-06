@@ -166,6 +166,7 @@ namespace AnimationEngine.LanguageV2.Nodes
                     case TokenType.BOOL:
                     case TokenType.MVECTOR:
                     case TokenType.STR:
+                    case TokenType.LERP:
                         Context.IncreaseStackIndex();
                         Script.program.Add(new Line(ProgramFunc.LdI, Script.AddImmediate(SVarUtil.Convert(t))));
                         _stack.Push("");
@@ -201,6 +202,8 @@ namespace AnimationEngine.LanguageV2.Nodes
                         children[(int)t.Value].PostCompile();
                         _stack.Push("");
                         break;
+                    default:
+                        throw Script.DetailedErrorLog($"Canot read token of this type in equasion", t);
                 }
             }
 

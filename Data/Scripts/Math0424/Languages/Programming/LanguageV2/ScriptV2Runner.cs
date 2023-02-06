@@ -63,9 +63,11 @@ namespace AnimationEngine.Language
         private List<ScriptLib> _libraries;
         #endregion
 
-        List<Entity> _ents;
-        List<ScriptAction> _actions;
-
+        private int _delay;
+        private List<Delay> _delays;
+        private List<Entity> _ents;
+        private List<ScriptAction> _actions;
+        
         private bool Built;
         private MyCubeBlockDefinition Definition;
         private string buildId;
@@ -106,7 +108,7 @@ namespace AnimationEngine.Language
                     ((Initializable)x).Init(script.Entity);
 
             Definition = ((MyCubeBlockDefinition)((IMyCubeBlock)script.Entity).SlimBlock.BlockDefinition);
-            Built = ((IMyCubeBlock)script.Entity).SlimBlock.BuildLevelRatio < Definition.CriticalIntegrityRatio;
+            Built = ((IMyCubeBlock)script.Entity).SlimBlock.BuildLevelRatio > Definition.CriticalIntegrityRatio;
         }
 
         private Dictionary<string, string> nameTranslationTable = new Dictionary<string, string>();
@@ -119,9 +121,7 @@ namespace AnimationEngine.Language
                 case "api":
                     _libraries.Add(new ScriptAPI(this)); break;
                 case "block":
-                    _libraries.Add(new BlockCore(core));
-                    break;
-
+                    _libraries.Add(new BlockCore(core)); break;
                 case "subpart":
                     _libraries.Add(core.Subparts[ent.Args[0].Value.ToString()]);
                     nameTranslationTable[ent.Name.Value.ToString()] = ent.Args[0].Value.ToString();
@@ -200,7 +200,7 @@ namespace AnimationEngine.Language
                     break;
                 case "distance":
                     if (!core.HasComponent<DistanceComp>())
-                        core.AddComponent(new DistanceComp((int)action.Paramaters[0].Value));
+                        core.AddComponent(new DistanceComp((float)action.Paramaters[0].Value));
                     foreach (var x in action.Funcs)
                         switch (x.TokenName)
                         {
@@ -233,11 +233,21 @@ namespace AnimationEngine.Language
 
         public void Tick(int time)
         {
+            for (int i = 0; i < _delays.Count; i++)
+            {
+                Delay d = _delays[i];
+                d.DelayTime -= time;
+                if (d.DelayTime <= 0)
+                    _libraries[d.Context].Execute(d.Method, d.Args);
+                _delays[i] = d;
+            }
+            _delays.RemoveAll((e) => e.DelayTime <= 0);
+
             foreach (var x in _libraries)
                 if (!(x is SubpartCore))
                     x.Tick(time);
 
-            var check = ((IMyCubeBlock)core.Entity).SlimBlock.BuildLevelRatio < Definition.CriticalIntegrityRatio;
+            var check = ((IMyCubeBlock)core.Entity).SlimBlock.BuildLevelRatio > Definition.CriticalIntegrityRatio;
             if (check != Built)
             {
                 Built = check;
@@ -267,6 +277,7 @@ namespace AnimationEngine.Language
             _stack = new RAStack<SVariable>();
             _callStack = new Stack<int>();
             _globals = new List<SVariable>(copy._globals);
+            _delays = new List<Delay>();
 
             _program = copy._program;
             _immediates = copy._immediates;
@@ -374,20 +385,27 @@ namespace AnimationEngine.Language
                         break;
 
                     case ProgramFunc.Cxt:
+                        _delay = 0;
                         _context = curr.Arr[0];
                         break;
                     case ProgramFunc.Mth:
                         SVariable[] arr = new SVariable[curr.Arr[1]];
                         _stack.CopyTo(_stack.Count - curr.Arr[1], arr, 0, curr.Arr[1]);
                         _stack.RemoveRange(_stack.Count - curr.Arr[1], curr.Arr[1]);
-                        SVariable s = _libraries[_context].Execute(_immediates[curr.Arr[0]].ToString(), arr);
-                        if (s != null)
+                        if (_immediates[curr.Arr[0]].ToString() == "delay")
                         {
-                            _stack.Push(s);
+                            _delay += arr[0].AsInt();
+                            _stack.Push(new SVariableInt(0));
+                        }
+                        else if(_delay != 0)
+                        {
+                            _delays.Add(new Delay(_delay, _context, _immediates[curr.Arr[0]].ToString(), arr));
+                            _stack.Push(new SVariableInt(0));
                         }
                         else
                         {
-                            _stack.Push(new SVariableInt(0));
+                            SVariable s = _libraries[_context].Execute(_immediates[curr.Arr[0]].ToString(), arr);
+                            _stack.Push(s ?? new SVariableInt(0));
                         }
                         break;
                     case ProgramFunc.Jmp:
@@ -400,7 +418,7 @@ namespace AnimationEngine.Language
                         {
                             if (_stack.Count - start != 1)
                             {
-                                throw new Exception($"Critical error, stack leaking ({_stack.Count - start})! Please send your script(s) to Math#0424 for analysis");
+                                throw new Exception($"Critical error, stack leaking ({_stack.Count - start})! Please send your script(s) to Math#0424");
                             }
                             _stack.Pop();
                             return;
@@ -410,10 +428,10 @@ namespace AnimationEngine.Language
                 }
                 if (_stack.Count > 1000)
                 {
-                    throw new Exception("Script too complex, large stack detected (this is not a bug)");
+                    throw new Exception("Script too complex, large stack (this is not a bug)");
                 }
             }
-            throw new Exception("Script too complex, large loop detected (this is not a bug)");
+            throw new Exception("Script too complex, large loop (this is not a bug)");
         }
 
     }
@@ -432,6 +450,21 @@ namespace AnimationEngine.Language
         }
         public ProgramFunc Arg;
         public int[] Arr;
+    }
+
+    internal struct Delay
+    {
+        public Delay(int delay, int context, string method, SVariable[] args)
+        {
+            this.DelayTime = delay;
+            this.Context = context;
+            this.Method = method;
+            this.Args = args;
+        }
+        public int Context;
+        public string Method;
+        public SVariable[] Args;
+        public int DelayTime;
     }
 
 

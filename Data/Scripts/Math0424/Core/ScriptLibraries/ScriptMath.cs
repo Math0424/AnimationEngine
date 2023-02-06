@@ -16,12 +16,17 @@ namespace AnimationEngine.Language.Libs
             AddMethod("floor", floor);
             AddMethod("ceiling", ceiling);
 
+            AddMethod("makevector", makeVector);
             //("cross", 1, true, "Vector", "Vector"),
             //("distance", 1, true, "Vector", "Vector"),
             //("dot", 1, true, "Vector", "Vector"),
             //("magnitude", 1, true, "Vector")
         }
 
+        public SVariable makeVector(SVariable[] var)
+        {
+            return new SVariableVector(new VRageMath.Vector3(var[0].AsFloat(), var[1].AsFloat(), var[2].AsFloat()));
+        }
 
         public SVariable sin(SVariable[] var)
         {

@@ -1,4 +1,5 @@
 ﻿using AnimationEngine.Language;
+using AnimationEngine.Utility;
 
 namespace AnimationEngine.LanguageV2.Nodes
 {
@@ -68,22 +69,19 @@ namespace AnimationEngine.LanguageV2.Nodes
                 Context.AddCompileVariable(z.Value.ToString());
             }
             foreach (var x in children)
-            {
                 x.Compile();
-            }
         }
 
         public override void PostCompile()
         {
             foreach (var x in children)
-            {
                 x.PostCompile();
-            }
             foreach (var z in func.Paramaters)
             {
                 Context.RemoveCompileVariable(z.Value.ToString());
                 Context.PopStackIndex();
-                Script.program.Add(new Line(ProgramFunc.Pop, 1));
+                //removing this fixes a stack underflow, dunno why
+                //Script.program.Add(new Line(ProgramFunc.PopJ, 1));
             }
             Optimize();
             Script.program.Add(new Line(ProgramFunc.LdI, Script.AddImmediate(new SVariableInt(0))));

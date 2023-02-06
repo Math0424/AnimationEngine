@@ -89,7 +89,6 @@ namespace AnimationEngine.Core
                     if (InitSubpart(subpartData[x]))
                         ready.Add(x);
                 unReadySubparts.RemoveAll((e) => ready.Contains(e));
-                return;
             }
 
             foreach (var component in components)

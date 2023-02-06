@@ -20,9 +20,10 @@ namespace AnimationEngine.LanguageV2.Nodes
             }
 
             index += 1;
+            bool before = Context.RequireReturn;
             Context.RequireReturn = true;
             children.Add(new SetNode(ref index, true));
-            Context.RequireReturn = false;
+            Context.RequireReturn = before;
             Context.AddVariable(Name);
         }
 

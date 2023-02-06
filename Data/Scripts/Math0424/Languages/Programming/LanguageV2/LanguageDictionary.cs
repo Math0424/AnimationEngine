@@ -86,11 +86,17 @@ namespace AnimationEngine.Language
                 new MethodDictionary("min", true, "a", "b"),
 
                 new MethodDictionary("floor", true, "Value"),
-                new MethodDictionary("ceiling", true, "Value")
+                new MethodDictionary("ceiling", true, "Value"),
+
+                new MethodDictionary("makevector", true, "x", "y", "z")
             ),
 
             new ObjectDictionary("block",
-                new MethodDictionary("null", false, "Value")
+                new MethodDictionary("delay", false, "Value"),
+
+                new MethodDictionary("null", false, "Value"),
+                new MethodDictionary("poweron", false),
+                new MethodDictionary("poweroff", false)
             ),
 
             new ObjectDictionary("api",
@@ -100,6 +106,8 @@ namespace AnimationEngine.Language
             ),
 
             new ObjectDictionary("subpart",
+                new MethodDictionary("delay", false, "Value"),
+
                 new MethodDictionary("translate", false, "PositionVector", "Time", "Lerp"),
                 new MethodDictionary("rotate", false, "AxisVector", "Speed", "Time"),
                 new MethodDictionary("rotatearound", false, "AxisVector", "PivotVector", "Time", "Lerp"),
@@ -112,6 +120,8 @@ namespace AnimationEngine.Language
             ),
 
             new ObjectDictionary("block",
+                new MethodDictionary("delay", false, "Value"),
+
                 new MethodDictionary("translate", false, "PositionVector", "Time", "Lerp"),
                 new MethodDictionary("rotate", false, "AxisVector", "Speed", "Time"),
                 new MethodDictionary("rotatearound", false, "AxisVector", "PivotVector", "Time", "Lerp"),

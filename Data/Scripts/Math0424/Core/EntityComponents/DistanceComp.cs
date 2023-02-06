@@ -61,13 +61,11 @@ namespace AnimationEngine
                     {
                         double dist = Vector3D.DistanceSquared(p.Character.GetPosition(), entity.WorldMatrix.Translation);
                         if (dist < lowest)
-                        {
                             lowest = dist;
-                        }
                     }
                 }
 
-                Changed.Invoke(new SVariableFloat((float)lowest));
+                Changed?.Invoke(new SVariableFloat((float)lowest));
                 if (lowest < distance && !triggered)
                 {
                     InRange?.Invoke();
