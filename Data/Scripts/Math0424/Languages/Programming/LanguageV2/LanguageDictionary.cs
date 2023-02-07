@@ -1,9 +1,74 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Text;
 
 namespace AnimationEngine.Language
 {
     internal static class LanguageDictionary
     {
+        /*
+        public static void Main(string[] args)
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine("# Actions\n");
+            foreach (var x in _specialActions)
+            {
+                string o = "";
+                foreach(var y in x.Args)
+                    o += y + ", ";
+                if (o.Length > 0)
+                    o = o.Substring(0, o.Length - 2);
+                sb.AppendLine($"#### **{x.Name}({o})**");
+                foreach(var y in x.Children)
+                {
+                    o = "";
+                    foreach (var z in y.Args)
+                        o += z + ", ";
+                    if (o.Length > 0)
+                        o = o.Substring(0, o.Length - 2);
+                    sb.AppendLine($"* {y.Name}({o})");
+                }
+                sb.AppendLine();
+            }
+            sb.AppendLine("# Terminals\n");
+            foreach (var x in _terminalActions)
+            {
+                string o = "";
+                foreach (var y in x.Args)
+                    o += y + ", ";
+                if (o.Length > 0)
+                    o = o.Substring(0, o.Length - 2);
+                sb.AppendLine($"#### **{x.Name}({o})**");
+                foreach (var y in x.Children)
+                {
+                    o = "";
+                    foreach (var z in y.Args)
+                        o += z + ", ";
+                    if (o.Length > 0)
+                        o = o.Substring(0, o.Length - 2);
+                    sb.AppendLine($"* {y.Name}({o})");
+                }
+                sb.AppendLine();
+            }
+            sb.AppendLine("# Libraries\n");
+            foreach (var x in _libDictionary)
+            {
+                sb.AppendLine($"#### **{x.Name}**");
+                foreach (var y in x.Methods)
+                {
+                    string o = "";
+                    foreach (var z in y.Tokens)
+                        o += "**" + z + "**, ";
+                    if (o.Length > 0)
+                        o = o.Substring(0, o.Length - 2);
+                    sb.AppendLine($"* .{y.Name}({o})");
+                }
+                sb.AppendLine();
+            }
+
+            Console.WriteLine(sb.ToString());
+        }
+        */
 
         private static List<SpecialAction> _specialActions = new List<SpecialAction>()
         {
@@ -91,37 +156,51 @@ namespace AnimationEngine.Language
                 new MethodDictionary("makevector", true, "x", "y", "z")
             ),
 
-            new ObjectDictionary("block",
-                new MethodDictionary("delay", false, "Value"),
-
-                new MethodDictionary("null", false, "Value"),
-                new MethodDictionary("poweron", false),
-                new MethodDictionary("poweroff", false)
-            ),
-
             new ObjectDictionary("api",
                 new MethodDictionary("log", false, "Value"),
                 new MethodDictionary("startloop", false, "FunctionName", "LoopDelay", "LoopCount"),
                 new MethodDictionary("stoploop", false, "FunctionName")
             ),
 
-            new ObjectDictionary("subpart",
-                new MethodDictionary("delay", false, "Value"),
-
-                new MethodDictionary("translate", false, "PositionVector", "Time", "Lerp"),
-                new MethodDictionary("rotate", false, "AxisVector", "Speed", "Time"),
-                new MethodDictionary("rotatearound", false, "AxisVector", "PivotVector", "Time", "Lerp"),
-                new MethodDictionary("spin", false, "Vector", "Speed", "Time"),
-                new MethodDictionary("vibrate", false, "Scale", "Time"),
-                new MethodDictionary("reset", false),
-                new MethodDictionary("resetpos", false),
-                new MethodDictionary("setresetpos", false)
-                //TODO
-            ),
-
             new ObjectDictionary("block",
                 new MethodDictionary("delay", false, "Value"),
 
+                new MethodDictionary("poweron", false),
+                new MethodDictionary("poweroff", false),
+
+                new MethodDictionary("translate", false, "PositionVector", "Time", "Lerp"),
+                new MethodDictionary("rotate", false, "AxisVector", "Speed", "Time"),
+                new MethodDictionary("rotatearound", false, "AxisVector", "PivotVector", "Time", "Lerp"),
+                new MethodDictionary("spin", false, "Vector", "Speed", "Time"),
+                new MethodDictionary("vibrate", false, "Scale", "Time"),
+                new MethodDictionary("reset", false),
+                new MethodDictionary("resetpos", false),
+                new MethodDictionary("setresetpos", false),
+
+                new MethodDictionary("toggledoor", false),
+                new MethodDictionary("closedoor", false),
+                new MethodDictionary("opendoor", false),
+
+                new MethodDictionary("togglelock", false),
+                new MethodDictionary("lockoff", false),
+                new MethodDictionary("lockon", false),
+
+                new MethodDictionary("pilottranslate", false, "PositionVector", "Time", "Lerp"),
+                new MethodDictionary("pilotrotate", false, "AxisVector", "Speed", "Time"),
+                new MethodDictionary("pilotrotatearound", false, "AxisVector", "PivotVector", "Time", "Lerp"),
+                new MethodDictionary("pilotspin", false, "Vector", "Speed", "Time"),
+                new MethodDictionary("pilotvibrate", false, "Scale", "Time"),
+                new MethodDictionary("pilotreset", false),
+                new MethodDictionary("pilotresetpos", false),
+                new MethodDictionary("pilotsetresetpos", false)
+            ),
+
+            new ObjectDictionary("subpart",
+                new MethodDictionary("delay", false, "Value"),
+
+                new MethodDictionary("scale", false, "Vector"),
+                new MethodDictionary("setvisible", false, "bool"),
+
                 new MethodDictionary("translate", false, "PositionVector", "Time", "Lerp"),
                 new MethodDictionary("rotate", false, "AxisVector", "Speed", "Time"),
                 new MethodDictionary("rotatearound", false, "AxisVector", "PivotVector", "Time", "Lerp"),
@@ -130,7 +209,32 @@ namespace AnimationEngine.Language
                 new MethodDictionary("reset", false),
                 new MethodDictionary("resetpos", false),
                 new MethodDictionary("setresetpos", false)
-                //TODO
+            ),
+
+            new ObjectDictionary("emitter",
+                new MethodDictionary("playparticle", false, "particleName", "scale", "life", "vectorScale", "r", "g", "b"),
+                new MethodDictionary("playparticle", false, "particleName", "scale", "life", "vectorScale"),
+                new MethodDictionary("playparticle", false, "particleName", "scale", "life"),
+
+                new MethodDictionary("stopparticle", false),
+                new MethodDictionary("playsound", false, "soundID"),
+                new MethodDictionary("stopsound", false)
+            ),
+
+            new ObjectDictionary("button",
+                new MethodDictionary("enabled", false, "bool"),
+                new MethodDictionary("interactable", false, "bool")
+            ),
+
+            new ObjectDictionary("emissive",
+                new MethodDictionary("setcolor", false, "r", "g", "b", "brightness")
+            ),
+
+            new ObjectDictionary("light",
+                new MethodDictionary("setcolor", false, "r", "g", "b"),
+                new MethodDictionary("togglelight", false),
+                new MethodDictionary("lightoff", false),
+                new MethodDictionary("lighton", false)
             ),
         };
 

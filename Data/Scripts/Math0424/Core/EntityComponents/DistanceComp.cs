@@ -41,7 +41,7 @@ namespace AnimationEngine
         public void Tick(int time)
         {
             tick += time;
-            if (tick % 60 == 0 || tick > 60)
+            if (tick > 60)
             {
                 tick = 0;
                 characters.Clear();

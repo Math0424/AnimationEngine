@@ -2,6 +2,8 @@
 using AnimationEngine.Language.Libs;
 using AnimationEngine.Utility;
 using Sandbox.Definitions;
+using Sandbox.ModAPI;
+using SpaceEngineers.Game.ModAPI;
 using System;
 using System.Collections.Generic;
 using VRage.Game.ModAPI;
@@ -216,12 +218,44 @@ namespace AnimationEngine.Language
                         }
                     break;
                 case "door":
+                    ((IMyDoor)core.Entity).DoorStateChanged += (b) =>
+                    {
+                        if (b) { Execute($"act_{action.ID}_open"); } else { Execute($"act_{action.ID}_close"); }
+                    };
                     break;
                 case "cockpit":
+                    if (!core.HasComponent<CockpitComp>())
+                        core.AddComponent(new CockpitComp());
+                    foreach (var x in action.Funcs)
+                    {
+                        switch (x.Name.Value.ToString())
+                        {
+                            case "enter": core.GetFirstComponent<CockpitComp>().EnteredSeat += () => Execute($"act_{action.ID}_enter"); break;
+                            case "exit": core.GetFirstComponent<CockpitComp>().ExitedSeat += () => Execute($"act_{action.ID}_exit"); break;
+                        }
+                    }
                     break;
                 case "landinggear":
+                    ((IMyLandingGear)core.Entity).LockModeChanged += (e, f) =>
+                    {
+                        switch (f)
+                        {
+                            case SpaceEngineers.Game.ModAPI.Ingame.LandingGearMode.Locked:
+                                Execute($"act_{action.ID}_lock");
+                                break;
+                            case SpaceEngineers.Game.ModAPI.Ingame.LandingGearMode.Unlocked:
+                                Execute($"act_{action.ID}_unlock");
+                                break;
+                            case SpaceEngineers.Game.ModAPI.Ingame.LandingGearMode.ReadyToLock:
+                                Execute($"act_{action.ID}_readylock");
+                                break;
+                        }
+                    };
                     break;
                 case "thruster":
+                    if (!core.HasComponent<ThrustComp>())
+                        core.AddComponent(new ThrustComp());
+                    core.GetFirstComponent<ThrustComp>().ThrustChanged += (v) => Execute($"act_{action.ID}_thrust", new SVariableFloat(v));
                     break;
             }
         }
