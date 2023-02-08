@@ -1,5 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using AnimationEngine.Utility;
+using Sandbox.Game.Components;
+using System.Collections.Generic;
 using VRage.Game.Entity;
+using VRage.Game.ModAPI;
 using VRage.ModAPI;
 
 namespace AnimationEngine.Core
@@ -63,9 +66,32 @@ namespace AnimationEngine.Core
             MyEntitySubpart part;
             if (!Entity.TryGetSubpart(subpart.Name, out part) || (subpart.Parent != null && !Subparts[subpart.Parent].Subpart.TryGetSubpart(subpart.Name, out part)))
             {
-                //Utils.LogToFile($"Cannot find subpart '{subpart.Name}:{subpart.Parent}'");
+                Utils.LogToFile($"Cannot find subpart '{subpart.Name}:{subpart.Parent}'");
+                foreach (var x in ((MyEntity)Entity).Subparts)
+                    Utils.LogToFile($"Found '{x.Key}'");
+
                 return false;
             }
+
+            if (Entity.InScene && part.Render.GetType() != typeof(MyRenderComponent))
+            {
+                string asset = ((IMyModel)part.Model).AssetName;
+                var model = part.Render.ModelStorage;
+                var matrix = part.PositionComp.LocalMatrixRef;
+                
+                part.Close();
+                part = new MyEntitySubpart();
+                part.Render.EnableColorMaskHsv = Entity.Render.EnableColorMaskHsv;
+                part.Render.ColorMaskHsv = Entity.Render.ColorMaskHsv;
+                part.Render.TextureChanges = Entity.Render.TextureChanges;
+                part.Render.MetalnessColorable = Entity.Render.MetalnessColorable;
+
+                part.Init(null, asset, (MyEntity)Entity, null, null);
+                part.OnAddedToScene(Entity);
+                part.PositionComp.SetLocalMatrix(ref matrix, null, true);
+                ((MyEntity)Entity).Subparts[subpart.Name] = part;
+            }
+
             part.Name = subpart.Name;
             part.OnClose += SubpartClose;
             Subparts[subpart.Name].Init(part);
@@ -74,9 +100,12 @@ namespace AnimationEngine.Core
 
         private void SubpartClose(IMyEntity ent)
         {
-            Subparts[ent.Name].Close();
-            Subparts[ent.Name].Subpart.OnClose -= SubpartClose;
-            unReadySubparts.Add(ent.Name);
+            if (ent != null && Subparts.ContainsKey(ent.Name))
+            {
+                Subparts[ent.Name].Close();
+                Subparts[ent.Name].Subpart.OnClose -= SubpartClose;
+                unReadySubparts.Add(ent.Name);
+            }
         }
 
         List<string> unReadySubparts = new List<string>();

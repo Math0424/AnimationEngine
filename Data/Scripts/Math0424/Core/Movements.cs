@@ -42,8 +42,13 @@ namespace AnimationEngine
 
         public SVariable Reset(SVariable[] args)
         {
-            Clear();
             core.SetLocalMatrix(ref originMatrix);
+            return null;
+        }
+
+        public SVariable Stop(SVariable[] args)
+        {
+            Clear();
             return null;
         }
 

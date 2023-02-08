@@ -61,7 +61,7 @@ namespace AnimationEngine.Language
         private readonly SVariable[] _immediates;
         private readonly Dictionary<string, int> _methodLookup;
 
-        private List<SVariable> _globals;
+        private SVariable[] _globals;
         private List<ScriptLib> _libraries;
         #endregion
 
@@ -69,6 +69,7 @@ namespace AnimationEngine.Language
         private List<Delay> _delays;
         private List<Entity> _ents;
         private List<ScriptAction> _actions;
+        int _stackStart;
         
         private bool Built;
         private MyCubeBlockDefinition Definition;
@@ -78,6 +79,7 @@ namespace AnimationEngine.Language
         {
             if (_methodLookup.ContainsKey(function))
             {
+                _stackStart = _stack.Count + 1;
                 foreach (var x in args)
                     _stack.Push(x);
                 try
@@ -124,13 +126,10 @@ namespace AnimationEngine.Language
                     _libraries.Add(new ScriptAPI(this)); break;
                 case "block":
                     _libraries.Add(new BlockCore(core)); break;
+                case "button":
                 case "subpart":
                     _libraries.Add(core.Subparts[ent.Args[0].Value.ToString()]);
                     nameTranslationTable[ent.Name.Value.ToString()] = ent.Args[0].Value.ToString();
-                    break;
-                case "button":
-                    core.Subparts[ent.Args[0].Value.ToString()].AddComponent(new ButtonComp(ent.Args[0].Value.ToString()));
-                    _libraries.Add(core.Subparts[ent.Args[0].Value.ToString()]);
                     break;
                 case "emissive":
                     _libraries.Add(new Emissive(ent.Args[0].Value.ToString()));
@@ -159,12 +158,14 @@ namespace AnimationEngine.Language
             switch (action.TokenName)
             {
                 case "button":
-                    if (action.Funcs.Length > 0)
-                    {
-                        var part = NameToSubpart(action.Paramaters[0].Value.ToString());
-                        if (part != null)
-                            part.GetFirstComponent<ButtonComp>().Pressed += (e) => Execute($"act_{action.ID}_pressed", e);
-                    }
+                    var part = NameToSubpart(action.Paramaters[0].Value.ToString());
+                    var dummy = action.Paramaters[1].Value.ToString();
+
+                    if (!part.HasComponent<ButtonComp>())
+                        part.AddComponent(new ButtonComp(dummy));
+
+                    part.GetFirstComponent<ButtonComp>().Init(part);
+                    part.GetFirstComponent<ButtonComp>().Pressed += (e) => Execute($"act_{action.ID}_pressed", e);
                     break;
                 case "block":
                     foreach (var x in action.Funcs)
@@ -295,7 +296,7 @@ namespace AnimationEngine.Language
 
         }
 
-        public ScriptV2Runner(List<Entity> ents, List<ScriptAction> actions, List<SVariable> globals, Line[] program, SVariable[] immediates, Dictionary<string, int> methods)
+        public ScriptV2Runner(List<Entity> ents, List<ScriptAction> actions, SVariable[] globals, Line[] program, SVariable[] immediates, Dictionary<string, int> methods)
         {
             _globals = globals;
             _program = program;
@@ -310,7 +311,9 @@ namespace AnimationEngine.Language
             _libraries = new List<ScriptLib>();
             _stack = new RAStack<SVariable>();
             _callStack = new Stack<int>();
-            _globals = new List<SVariable>(copy._globals);
+            SVariable[] cpy = new SVariable[copy._globals.Length];
+            Array.Copy(copy._globals, cpy, cpy.Length);
+            _globals = cpy;
             _delays = new List<Delay>();
 
             _program = copy._program;
@@ -322,7 +325,6 @@ namespace AnimationEngine.Language
 
         private void Execute(int line)
         {
-            int start = _stack.Count;
             Line curr;
 
             int count = 0;
@@ -331,15 +333,15 @@ namespace AnimationEngine.Language
                 curr = _program[line++];
 
 
-                /*string output = $"Line {(line - 1):D3}: ({_stack.Count:D3}) {curr.Arg,-4} > ";
-                if (curr.Arr != null)
-                {
-                    foreach (var x in curr.Arr)
-                    {
-                        output += $"{x:D3} ";
-                    }
-                }
-                Utils.LogToFile(output);*/
+                //string output = $"Line {(line - 1):D3}: ({_stack.Count:D3}) {curr.Arg,-4} > ";
+                //if (curr.Arr != null)
+                //{
+                //    foreach (var x in curr.Arr)
+                //    {
+                //        output += $"{x:D3} ";
+                //    }
+                //}
+                //Utils.LogToFile(output);
 
 
                 switch (curr.Arg)
@@ -450,9 +452,11 @@ namespace AnimationEngine.Language
                     case ProgramFunc.End:
                         if (_callStack.Count == 0)
                         {
-                            if (_stack.Count - start != 1)
+                            //if an action is called with more than 1 input this will fasely trigger 
+                            //TODO: if adding more then 1 action fix this method
+                            if (_stack.Count - _stackStart != 0)
                             {
-                                throw new Exception($"Critical error, stack leaking ({_stack.Count - start})! Please send your script(s) to Math#0424");
+                                throw new Exception($"Critical error, stack leaking ({_stack.Count - _stackStart})! Please send your script(s) to Math#0424");
                             }
                             _stack.Pop();
                             return;

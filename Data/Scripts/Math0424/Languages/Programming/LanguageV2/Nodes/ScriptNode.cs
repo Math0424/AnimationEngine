@@ -153,6 +153,7 @@ namespace AnimationEngine.LanguageV2.Nodes
             }
             foreach (var x in children)
                 x.Cleanup();
+            Context.Reset();
         }
 
         public override void PostCompile() { }

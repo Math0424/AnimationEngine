@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using VRage;
 using VRage.Game.Components;
+using VRage.Game.Entity;
 using VRage.Game.ModAPI;
 using VRage.ModAPI;
 using VRageMath;
@@ -26,6 +27,8 @@ namespace AnimationEngine
 
         private static Dictionary<string, MyTuple<Subpart[], ScriptRunner>> registeredScripts = new Dictionary<string, MyTuple<Subpart[], ScriptRunner>>();
 
+        private static List<MyTuple<CoreScript, IMyEntity>> delayed = new List<MyTuple<CoreScript, IMyEntity>>();
+
         public static void AddToRegisteredScripts(string id, Subpart[] subparts, ScriptRunner constant)
         {
             if (registeredScripts.ContainsKey(id))
@@ -43,7 +46,26 @@ namespace AnimationEngine
         int currentTick = 0;
         public override void UpdateAfterSimulation()
         {
+            if (currentTick == 0)
+            {
+                while(delayed.Count > 0)
+                {
+                    var x = delayed[0];
+                    try
+                    {
+                        x.Item1.Init(x.Item2);
+                    }
+                    catch (Exception ex)
+                    {
+                        Utils.LogToFile($"Entity INIT: Error while attaching to {x.Item2.DisplayName}");
+                        Utils.LogToFile(ex.Message + ex.StackTrace);
+                        Utils.LogToFile(ex.InnerException);
+                    }
+                    delayed.RemoveAt(0);
+                }
+            }
             currentTick++;
+
             //TODO: create a better data scructure
             foreach (var x in loaded)
             {
@@ -103,7 +125,6 @@ namespace AnimationEngine
                 Utils.LogToFile(ex.StackTrace);
                 Utils.LogToFile(ex.Message);
             }
-
         }
 
         public override void LoadData()
@@ -157,8 +178,6 @@ namespace AnimationEngine
             }
 
             MyEntities.OnEntityCreate += OnEntityAdded;
-
-
         }
 
         public void OnEntityAdded(IMyEntity ent)
@@ -180,7 +199,19 @@ namespace AnimationEngine
                     var x = registeredScripts[id];
                     CoreScript script = new CoreScript(x.Item1);
                     script.AddComponent(x.Item2.Clone());
-                    script.Init(block.FatBlock);
+                    try
+                    {
+                        if (currentTick == 0)
+                            delayed.Add(new MyTuple<CoreScript, IMyEntity>(script, block.FatBlock));
+                        else
+                            script.Init(block.FatBlock);
+                    }
+                    catch(Exception ex)
+                    {
+                        Utils.LogToFile($"Entity INIT: Error while attaching to {id}");
+                        Utils.LogToFile(ex.Message + ex.StackTrace);
+                        Utils.LogToFile(ex.InnerException);
+                    }
                 }
                 else
                 {

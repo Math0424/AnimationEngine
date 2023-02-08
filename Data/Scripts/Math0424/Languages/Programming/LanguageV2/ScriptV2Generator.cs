@@ -25,9 +25,8 @@ namespace AnimationEngine.Language
         // compiler
         public List<Line> program = new List<Line>();
         public List<SVariable> _immediates = new List<SVariable>();
-        public List<SVariable> globals = new List<SVariable>();
+        public SVariable[] globals;
 
-        public Dictionary<int, SVariable> globalVars = new Dictionary<int, SVariable>();
         public Dictionary<string, int> methodLookup = new Dictionary<string, int>();
 
         public int AddImmediate(SVariable var)
@@ -62,15 +61,28 @@ namespace AnimationEngine.Language
             Log($"|  |  |  created {functions.Count} functions");
             Log($"|  |  |  created {actions.Count} actions");
             Log($"|  Compilation");
+            globals = new SVariable[globalCount];
             root.Compile();
             Log($"|  |  finalized {program.Count} lines of bytecode");
 
-            /*Log("\n--Immediates--");
-            int i = 0;
+
+            /*int i;
+            //Log("--Tokens--");
+            //i = 0;
+            //foreach (var x in Tokens)
+            //    Log($"{i++:D3} {x.Type}");
+
+            Log("--Globals--");
+            i = 0;
+            foreach (var x in globals)
+                Log($"{i++:D3} {x}");
+
+            Log("--Immediates--");
+            i = 0;
             foreach (var x in _immediates)
                 Log($"{i++:D3} {x}");
             
-            Log("\n--Script--");
+            Log("--Script--");
             i = 0;
             foreach (var x in program) {
                 string v = $"{i++:D4} {x.Arg} : ";
@@ -86,8 +98,7 @@ namespace AnimationEngine.Language
                     v += "NULL";
                 }
                 Log(v);
-            }
-            Log("\n");*/
+            }*/
 
             List<Subpart> subparts = new List<Subpart>();
             foreach (var x in objects)
@@ -112,7 +123,7 @@ namespace AnimationEngine.Language
 
         public ScriptError DetailedErrorLog(string reason, Token token)
         {
-            return Error.AppendError($"{reason} : line {token.Line}", RawScript[token.Line].Trim(), token.Col - (token.Value.ToString().Length / 2));
+            return Error.AppendError($"{reason} : line {token.Line}", RawScript[token.Line], token.Col - (token.Value.ToString().Length / 2));
         }
 
         public void Log(object msg)

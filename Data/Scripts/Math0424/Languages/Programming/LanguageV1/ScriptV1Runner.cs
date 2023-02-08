@@ -1,6 +1,7 @@
 ﻿using AnimationEngine.Core;
 using AnimationEngine.Language;
 using AnimationEngine.LogicV1;
+using AnimationEngine.Utility;
 using Sandbox.Definitions;
 using Sandbox.ModAPI;
 using SpaceEngineers.Game.ModAPI;
@@ -131,9 +132,9 @@ namespace AnimationEngine.LanguageV1
             switch (act.Name.Value.ToString())
             {
                 case "buttonaction":
-                    var subpart = act.Paramaters[0].Value.ToString().ToLower();
-                    ButtonComp btnComp = new ButtonComp(subpart);
-                    core.Subparts[subpart].AddComponent(btnComp);
+                    var subpart = act.Paramaters[0].Value.ToString();
+                    ButtonComp btnComp = core.Subparts[subpart].GetFirstComponent<ButtonComp>();
+                    btnComp.Init(core.Subparts[subpart]);
 
                     foreach (var x in act.Funcs)
                     {

@@ -7,6 +7,8 @@ namespace AnimationEngine.LanguageV2.Nodes
     {
         Token t;
         string name;
+        int index;
+
         public GlobalNode(int start)
         {
             if (start + 5 > Tokens.Length || Tokens[start + 2].Type != TokenType.EQL || Tokens[start + 3].Type == TokenType.KEWRD)
@@ -32,12 +34,13 @@ namespace AnimationEngine.LanguageV2.Nodes
             }
 
             Context.AddGlobalVariable(name);
+            index = Script.globalCount;
             Script.globalCount++;
         }
 
         public override void Compile()
         {
-            Script.globals.Add(SVarUtil.Convert(t));
+            Script.globals[index] = SVarUtil.Convert(t);
         }
 
         public override void PostCompile() { }

@@ -6,6 +6,8 @@ namespace AnimationEngine.Language.Libs
 {
     internal class ScriptMath : ScriptLib
     {
+        private static Random _random = new Random();
+
         public ScriptMath()
         {
             AddMethod("sin", sin);
@@ -16,11 +18,17 @@ namespace AnimationEngine.Language.Libs
             AddMethod("floor", floor);
             AddMethod("ceiling", ceiling);
 
+            AddMethod("random", random);
             AddMethod("makevector", makeVector);
             //("cross", 1, true, "Vector", "Vector"),
             //("distance", 1, true, "Vector", "Vector"),
             //("dot", 1, true, "Vector", "Vector"),
             //("magnitude", 1, true, "Vector")
+        }
+
+        public SVariable random(SVariable[] var)
+        {
+            return new SVariableFloat(_random.Next());
         }
 
         public SVariable makeVector(SVariable[] var)

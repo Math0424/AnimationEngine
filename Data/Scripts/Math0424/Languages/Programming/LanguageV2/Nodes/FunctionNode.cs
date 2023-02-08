@@ -80,8 +80,7 @@ namespace AnimationEngine.LanguageV2.Nodes
             {
                 Context.RemoveCompileVariable(z.Value.ToString());
                 Context.PopStackIndex();
-                //removing this fixes a stack underflow, dunno why
-                //Script.program.Add(new Line(ProgramFunc.PopJ, 1));
+                Script.program.Add(new Line(ProgramFunc.PopJ, 1));
             }
             Optimize();
             Script.program.Add(new Line(ProgramFunc.LdI, Script.AddImmediate(new SVariableInt(0))));

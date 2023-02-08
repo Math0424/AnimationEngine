@@ -16,7 +16,7 @@ namespace AnimationEngine.Core
 
         public void Init(MyEntitySubpart subpart)
         {
-            this.Subpart = subpart;
+            Subpart = subpart;
 
             AddMethod("scale", Scale);
             AddMethod("setvisible", SetVisibility);
@@ -30,6 +30,7 @@ namespace AnimationEngine.Core
             AddMethod("reset", mover.Reset);
             AddMethod("resetpos", mover.ResetPos);
             AddMethod("setresetpos", mover.SetResetPos);
+            AddMethod("stop", mover.Stop);
             Subpart.OnClose += Close;
         }
 
@@ -46,6 +47,9 @@ namespace AnimationEngine.Core
             foreach (var c in components)
                 c.Tick(tick);
             mover.Tick(tick);
+
+            foreach (var x in components)
+                x.Tick(tick);
 
             MatrixD parentMat = Subpart.Parent.PositionComp.WorldMatrixRef;
             Subpart.PositionComp.UpdateWorldMatrix(ref parentMat);

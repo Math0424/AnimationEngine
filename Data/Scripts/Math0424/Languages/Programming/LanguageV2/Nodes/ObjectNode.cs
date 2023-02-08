@@ -59,6 +59,12 @@ namespace AnimationEngine.LanguageV2.Nodes
                 throw Script.DetailedErrorLog($"Extra values at end", Tokens[c]);
             }
 
+            string error;
+            if (!LanguageDictionary.IsObject(obj, out error))
+            {
+                throw Script.DetailedErrorLog(error, obj.Name);
+            }
+
             Script.objects.Add(obj);
         }
 

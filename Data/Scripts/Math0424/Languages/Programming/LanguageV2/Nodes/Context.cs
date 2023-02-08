@@ -1,4 +1,5 @@
 ﻿using AnimationEngine.Language;
+using AnimationEngine.Utility;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,6 +19,17 @@ namespace AnimationEngine.LanguageV2.Nodes
         private static List<Token[]> ContextArray = new List<Token[]>();
         private static List<List<string>> Variables = new List<List<string>>();
         private static ScriptV2Generator Creator;
+
+        public static void Reset()
+        {
+            GlobalDictionary.Clear();
+            VariableDictionary.Clear();
+            StackIndex = 0;
+            RequireReturn = false;
+            ClassContext = "";
+            ContextArray.Clear();
+            Variables.Clear();
+        }
 
         public static void ResetStack()
         {
@@ -66,7 +78,8 @@ namespace AnimationEngine.LanguageV2.Nodes
 
         public static void AddGlobalVariable(string name)
         {
-            GlobalDictionary[name.ToLower()] = GlobalDictionary.Count;
+            int c = GlobalDictionary.Count;
+            GlobalDictionary[name.ToLower()] = c;
         }
 
 

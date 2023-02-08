@@ -10,7 +10,7 @@ namespace AnimationEngine.Language
         public ScriptError AppendError(string error, string line, int index)
         {
             StringBuilder.AppendLine(error);
-            StringBuilder.AppendLine(line.Replace('\n', ' '));
+            StringBuilder.AppendLine(line.Replace('\n', ' ').Replace('\r', ' '));
             for (int i = 1; i < index; i++)
             {
                 StringBuilder.Append(" ");
