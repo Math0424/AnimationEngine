@@ -71,7 +71,7 @@ namespace AnimationEngine.Core
             _dir.Remove(name);
         }
 
-        public SVariable Execute(string value, SVariable[] arr)
+        public virtual SVariable Execute(string value, SVariable[] arr)
         {
             if (_dir.ContainsKey(value.ToLower()))
                 return _dir[value.ToLower()].Invoke(arr);

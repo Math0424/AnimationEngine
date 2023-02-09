@@ -77,7 +77,7 @@ namespace AnimationEngine.Language
 
         public void Execute(string function, params SVariable[] args)
         {
-            if (_methodLookup.ContainsKey(function))
+            if (function != null && _methodLookup.ContainsKey(function))
             {
                 _stackStart = _stack.Count + 1;
                 foreach (var x in args)
@@ -252,11 +252,6 @@ namespace AnimationEngine.Language
                                 break;
                         }
                     };
-                    break;
-                case "thruster":
-                    if (!core.HasComponent<ThrustComp>())
-                        core.AddComponent(new ThrustComp());
-                    core.GetFirstComponent<ThrustComp>().ThrustChanged += (v) => Execute($"act_{action.ID}_thrust", new SVariableFloat(v));
                     break;
             }
         }

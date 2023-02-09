@@ -60,25 +60,28 @@ namespace AnimationEngine.Core
 
         private bool InitSubpart(Subpart subpart)
         {
+            if (!Subparts.ContainsKey(subpart.Name))
+                return false;
+
             if (Subparts[subpart.Name].Subpart != null && !Subparts[subpart.Name].Subpart.MarkedForClose)
                 return true;
 
             MyEntitySubpart part;
             if (!Entity.TryGetSubpart(subpart.Name, out part) || (subpart.Parent != null && !Subparts[subpart.Parent].Subpart.TryGetSubpart(subpart.Name, out part)))
             {
-                Utils.LogToFile($"Cannot find subpart '{subpart.Name}:{subpart.Parent}'");
-                foreach (var x in ((MyEntity)Entity).Subparts)
-                    Utils.LogToFile($"Found '{x.Key}'");
-
+                //Utils.LogToFile($"Cannot find subpart '{subpart.Name}:{subpart.Parent}'");
+                //foreach (var x in ((MyEntity)Entity).Subparts)
+                //    Utils.LogToFile($"Found '{x.Key}'");
                 return false;
             }
 
-            if (Entity.InScene && part.Render.GetType() != typeof(MyRenderComponent))
+            if (part.Render.GetType() != typeof(MyRenderComponent))
             {
                 string asset = ((IMyModel)part.Model).AssetName;
                 var model = part.Render.ModelStorage;
                 var matrix = part.PositionComp.LocalMatrixRef;
-                
+
+                part.OnClose -= SubpartClose;
                 part.Close();
                 part = new MyEntitySubpart();
                 part.Render.EnableColorMaskHsv = Entity.Render.EnableColorMaskHsv;
@@ -118,6 +121,7 @@ namespace AnimationEngine.Core
                     if (InitSubpart(subpartData[x]))
                         ready.Add(x);
                 unReadySubparts.RemoveAll((e) => ready.Contains(e));
+                return;
             }
 
             foreach (var component in components)

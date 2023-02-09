@@ -94,12 +94,31 @@ namespace AnimationEngine.Core
                 AddMethod("poweroff", (e) => { PowerOff(); return null; });
                 AddMethod("togglepower", (e) => { TogglePower(); return null; });
             }
+
+            AddMethod("currentthrustpercent", CurrentThrustPercent);
+            AddMethod("isoccupied", IsOccupied);
         }
 
         public override void Tick(int tick)
         {
             pilotMover?.Tick(tick);
             blockMover?.Tick(tick);
+        }
+
+        private SVariable IsOccupied(SVariable[] arr)
+        {
+            if (Block is IMyShipController)
+            {
+                return new SVariableBool(((IMyShipController)Block).Pilot is IMyCharacter);
+            }
+            return null;
+        }
+
+        private SVariable CurrentThrustPercent(SVariable[] var)
+        {
+            if (Block is IMyThrust)
+                return new SVariableFloat(((IMyThrust)Block).CurrentThrust / ((IMyThrust)Block).MaxEffectiveThrust);
+            return null;
         }
 
         private void ControlAquired()

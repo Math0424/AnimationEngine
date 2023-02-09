@@ -22,12 +22,11 @@ namespace AnimationEngine
         private static readonly string MainInfo = "main.info";
         private static readonly string MainScript = "main.bsl";
 
+        private static Dictionary<string, MyTuple<Subpart[], ScriptRunner>> registeredScripts = new Dictionary<string, MyTuple<Subpart[], ScriptRunner>>();
         private static List<CoreScript> loaded = new List<CoreScript>();
         private static List<string> failed = new List<string>();
-
-        private static Dictionary<string, MyTuple<Subpart[], ScriptRunner>> registeredScripts = new Dictionary<string, MyTuple<Subpart[], ScriptRunner>>();
-
         private static List<MyTuple<CoreScript, IMyEntity>> delayed = new List<MyTuple<CoreScript, IMyEntity>>();
+
 
         public static void AddToRegisteredScripts(string id, Subpart[] subparts, ScriptRunner constant)
         {
@@ -46,23 +45,20 @@ namespace AnimationEngine
         int currentTick = 0;
         public override void UpdateAfterSimulation()
         {
-            if (currentTick == 0)
+            while(delayed.Count > 0)
             {
-                while(delayed.Count > 0)
+                var x = delayed[0];
+                try
                 {
-                    var x = delayed[0];
-                    try
-                    {
-                        x.Item1.Init(x.Item2);
-                    }
-                    catch (Exception ex)
-                    {
-                        Utils.LogToFile($"Entity INIT: Error while attaching to {x.Item2.DisplayName}");
-                        Utils.LogToFile(ex.Message + ex.StackTrace);
-                        Utils.LogToFile(ex.InnerException);
-                    }
-                    delayed.RemoveAt(0);
+                    x.Item1.Init(x.Item2);
                 }
+                catch (Exception ex)
+                {
+                    Utils.LogToFile($"Entity INIT: Error while attaching to {x.Item2.DisplayName}");
+                    Utils.LogToFile(ex.Message + ex.StackTrace);
+                    Utils.LogToFile(ex.InnerException);
+                }
+                delayed.RemoveAt(0);
             }
             currentTick++;
 
@@ -199,23 +195,11 @@ namespace AnimationEngine
                     var x = registeredScripts[id];
                     CoreScript script = new CoreScript(x.Item1);
                     script.AddComponent(x.Item2.Clone());
-                    try
-                    {
-                        if (currentTick == 0)
-                            delayed.Add(new MyTuple<CoreScript, IMyEntity>(script, block.FatBlock));
-                        else
-                            script.Init(block.FatBlock);
-                    }
-                    catch(Exception ex)
-                    {
-                        Utils.LogToFile($"Entity INIT: Error while attaching to {id}");
-                        Utils.LogToFile(ex.Message + ex.StackTrace);
-                        Utils.LogToFile(ex.InnerException);
-                    }
+                    delayed.Add(new MyTuple<CoreScript, IMyEntity>(script, block.FatBlock));
                 }
                 else
                 {
-                    Utils.LogToFile($"Cannot attach script to {block.FatBlock.EntityId} (Cannot attach to armor blocks)");
+                    Utils.LogToFile($"Cannot attach script to {id} (Cannot attach to armor blocks)");
                 }
             }
         }

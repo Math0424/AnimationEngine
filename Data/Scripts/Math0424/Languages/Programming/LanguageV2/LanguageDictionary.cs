@@ -6,7 +6,7 @@ namespace AnimationEngine.Language
 {
     internal static class LanguageDictionary
     {
-        
+        /*
         //I am lazy and dont like writing out the documentation. have it do it for me
         public static void Main(string[] args)
         {
@@ -81,7 +81,7 @@ namespace AnimationEngine.Language
 
             Console.WriteLine(sb.ToString());
         }
-        
+        */
 
         private static List<SpecialObject> _objects = new List<SpecialObject>()
         {
@@ -131,10 +131,6 @@ namespace AnimationEngine.Language
                 new SpecialAction("lock", new TokenType[0]),
                 new SpecialAction("unlock", new TokenType[0]),
                 new SpecialAction("readylock", new TokenType[0])
-            ),
-
-            new SpecialAction("thruster", new TokenType[0],
-                new SpecialAction("thrust", new TokenType[] { TokenType.KEWRD })
             ),
         };
 
@@ -215,7 +211,10 @@ namespace AnimationEngine.Language
                 new MethodDictionary("pilotvibrate", false, "Scale", "Time"),
                 new MethodDictionary("pilotreset", false),
                 new MethodDictionary("pilotresetpos", false),
-                new MethodDictionary("pilotsetresetpos", false)
+                new MethodDictionary("pilotsetresetpos", false),
+
+                new MethodDictionary("currentthrustpercent", true),
+                new MethodDictionary("isoccupied", true)
             ),
 
             new LibraryDictionary("subpart",
