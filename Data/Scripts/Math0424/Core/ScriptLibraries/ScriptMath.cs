@@ -19,6 +19,8 @@ namespace AnimationEngine.Language.Libs
             AddMethod("ceiling", ceiling);
 
             AddMethod("random", random);
+            AddMethod("randomrange", randomRange);
+
             AddMethod("makevector", makeVector);
             //("cross", 1, true, "Vector", "Vector"),
             //("distance", 1, true, "Vector", "Vector"),
@@ -26,9 +28,14 @@ namespace AnimationEngine.Language.Libs
             //("magnitude", 1, true, "Vector")
         }
 
+        public SVariable randomRange(SVariable[] var)
+        {
+            return new SVariableInt((int)(_random.NextDouble() % (var[1].AsInt() - var[0].AsInt() + 1) - var[0].AsInt()));
+        }
+
         public SVariable random(SVariable[] var)
         {
-            return new SVariableFloat(_random.Next());
+            return new SVariableFloat((float)_random.NextDouble());
         }
 
         public SVariable makeVector(SVariable[] var)

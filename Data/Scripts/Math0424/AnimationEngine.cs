@@ -1,5 +1,6 @@
 ﻿using AnimationEngine.Core;
 using AnimationEngine.Language;
+using AnimationEngine.LanguageXML;
 using AnimationEngine.Utility;
 using Sandbox.Game.Entities;
 using Sandbox.ModAPI;
@@ -23,7 +24,10 @@ namespace AnimationEngine
         private static readonly string MainScript = "main.bsl";
 
         private static Dictionary<string, MyTuple<Subpart[], ScriptRunner>> registeredScripts = new Dictionary<string, MyTuple<Subpart[], ScriptRunner>>();
-        private static List<CoreScript> loaded = new List<CoreScript>();
+
+        private static Dictionary<long, List<CoreScript>> loaded = new Dictionary<long, List<CoreScript>>();
+        private static List<long> HasScript = new List<long>();
+        
         private static List<string> failed = new List<string>();
         private static List<MyTuple<CoreScript, IMyEntity>> delayed = new List<MyTuple<CoreScript, IMyEntity>>();
 
@@ -45,6 +49,9 @@ namespace AnimationEngine
         int currentTick = 0;
         public override void UpdateAfterSimulation()
         {
+            if (MyAPIGateway.Utilities == null || MyAPIGateway.Session == null)
+                return;
+
             while(delayed.Count > 0)
             {
                 var x = delayed[0];
@@ -65,44 +72,52 @@ namespace AnimationEngine
             //TODO: create a better data scructure
             foreach (var x in loaded)
             {
-                if (x == null || x.Entity == null || !x.Entity.InScene)
+                MyEntity ent = MyEntities.GetEntityById(x.Key);
+                if (ent == null || !ent.InScene)
                     continue;
 
-                if (MyAPIGateway.Utilities?.IsDedicated ?? false)
+
+                if (MyAPIGateway.Utilities.IsDedicated)
                 {
                     if (currentTick % 3 == 0)
                     {
-                        TickObject(x, 3);
+                        foreach(var y in x.Value)
+                            TickObject(y, 3);
                     }
                     continue;
                 }
 
-                if (MyAPIGateway.Session?.Camera != null && MyAPIGateway.Session.Camera.Position != null)
+                if (MyAPIGateway.Session.Camera != null && MyAPIGateway.Session.Camera.Position != null)
                 {
-                    double dist = Vector3.DistanceSquared(MyAPIGateway.Session.Camera.Position, x.Entity.GetPosition());
-                    if (dist > 1000000) // 1km
+                    double dist = ent.GetDistanceBetweenCameraAndBoundingSphere();
+                    if (dist > 5000)
                     {
-                        if (currentTick % 30 == 0)
-                            TickObject(x, 30);
+                        if (currentTick % 45 == 0) 
+                            foreach (var y in x.Value)
+                                TickObject(y, 45);
                     }
-                    if (dist > 100000) // 316 meters
+                    else if (dist > 2500)
                     {
-                        if (currentTick % 10 == 0)
-                            TickObject(x, 10);
+                        if (currentTick % 20 == 0)
+                            foreach (var y in x.Value)
+                                TickObject(y, 20);
                     }
-                    else if (dist > 10000) // 100 meters
+                    else if (dist > 1000)
                     {
-                        if (currentTick % 4 == 0)
-                            TickObject(x, 4);
+                        if (currentTick % 5 == 0)
+                            foreach (var y in x.Value)
+                                TickObject(y, 5);
                     }
-                    else if (dist > 1000) //31 meters
+                    else if (dist > 200)
                     {
                         if (currentTick % 2 == 0)
-                            TickObject(x, 2);
+                            foreach (var y in x.Value)
+                                TickObject(y, 2);
                     }
-                    else // otherwise 60 fps
+                    else
                     {
-                        TickObject(x, 1);
+                        foreach (var y in x.Value)
+                            TickObject(y, 1);
                     }
                 }
             }
@@ -116,7 +131,7 @@ namespace AnimationEngine
             }
             catch (Exception ex)
             {
-                Utils.LogToFile($"Error while ticking {script.Entity.Name}");
+                Utils.LogToFile($"Error while ticking {script.Entity?.Name ?? "null"}");
                 Utils.LogToFile(ex.TargetSite);
                 Utils.LogToFile(ex.StackTrace);
                 Utils.LogToFile(ex.Message);
@@ -147,6 +162,11 @@ namespace AnimationEngine
                                 new ScriptGenerator(mod, MainPath + s.ToLower().Substring(10).Trim() + ".bsl");
                                 registered++;
                             }
+                            else if (s.ToLower().StartsWith("xmlanimation "))
+                            {
+                                new XMLScriptGenerator(mod, MainPath + s.ToLower().Substring(13).Trim() + ".xml");
+                                registered++;
+                            }
                         }
                     }
                 }
@@ -173,45 +193,98 @@ namespace AnimationEngine
                 MyAPIGateway.Utilities.ShowMessage("AnimationEngine", $"These mods have errors\n{mods}\n check logs for more info");
             }
 
-            MyEntities.OnEntityCreate += OnEntityAdded;
+            MyEntities.OnEntityAdd += OnEntityAdded;
         }
 
         public void OnEntityAdded(IMyEntity ent)
         {
             if (ent is IMyCubeGrid)
             {
+                foreach (var x in ((MyCubeGrid)ent).GetFatBlocks())
+                    OnBlockAdded(x.SlimBlock);
+
                 ((IMyCubeGrid)ent).OnBlockAdded -= OnBlockAdded;
                 ((IMyCubeGrid)ent).OnBlockAdded += OnBlockAdded;
+
+                ((IMyCubeGrid)ent).OnGridSplit += OnGridSplit;
+                ((IMyCubeGrid)ent).OnGridMerge += OnGridMeger;
             }
         }
 
-        public void OnBlockAdded(IMySlimBlock block)
+        //transfer fatblocks from one to another
+        //this is really slow, figure a faster way
+        private void OnGridMeger(IMyCubeGrid newGrid, IMyCubeGrid originalGrid)
+        {
+            if (loaded.ContainsKey(originalGrid.EntityId))
+            {
+                long newId = newGrid.EntityId;
+                long originalId = originalGrid.EntityId;
+                MyAPIGateway.Utilities.InvokeOnGameThread(() =>
+                {
+                    if (!loaded.ContainsKey(originalId))
+                        return;
+                    if (!loaded.ContainsKey(newId))
+                        loaded[newId] = new List<CoreScript>();
+                    loaded[newId].AddList(loaded[originalId]);
+                    loaded.Remove(originalId);
+                });
+            }
+        }
+
+        //transfer fatblocks from one to another
+        //this is really slow, figure a faster way
+        private void OnGridSplit(IMyCubeGrid originalGrid, IMyCubeGrid newGrid)
+        {
+            if (loaded.ContainsKey(originalGrid.EntityId))
+            {
+                List<CoreScript> toRemove = new List<CoreScript>();
+                foreach (var x in loaded[originalGrid.EntityId])
+                {
+                    foreach(var y in ((MyCubeGrid)newGrid).GetFatBlocks())
+                    {
+                        if (x.Entity.EntityId == y.EntityId)
+                            toRemove.Add(x);
+                    }
+                }
+
+                long newId = newGrid.EntityId;
+                long originalId = originalGrid.EntityId;
+                MyAPIGateway.Utilities.InvokeOnGameThread(() =>
+                {
+                    loaded[originalId].RemoveAll((e) => toRemove.Contains(e));
+                    if (!loaded.ContainsKey(newId))
+                        loaded[newId] = new List<CoreScript>();
+                    loaded[newId].AddList(toRemove);
+                });
+            }
+        }
+
+        private void OnBlockAdded(IMySlimBlock block)
         {
             string id = block.BlockDefinition.Id.SubtypeId.String;
-            if (block.FatBlock != null && registeredScripts.ContainsKey(id))
+            if (block.FatBlock != null && registeredScripts.ContainsKey(id) && !HasScript.Contains(block.FatBlock.EntityId))
             {
-                if (block.FatBlock is IMyCubeBlock)
-                {
-                    var x = registeredScripts[id];
-                    CoreScript script = new CoreScript(x.Item1);
-                    script.AddComponent(x.Item2.Clone());
-                    delayed.Add(new MyTuple<CoreScript, IMyEntity>(script, block.FatBlock));
-                }
-                else
-                {
-                    Utils.LogToFile($"Cannot attach script to {id} (Cannot attach to armor blocks)");
-                }
+                var x = registeredScripts[id];
+                CoreScript script = new CoreScript(x.Item1);
+                script.AddComponent(x.Item2.Clone());
+                delayed.Add(new MyTuple<CoreScript, IMyEntity>(script, block.FatBlock));
             }
         }
 
         public static void RemoveScript(CoreScript script)
         {
-            loaded.Remove(script);
+            loaded[script.Entity.Parent.EntityId].Remove(script);
+            HasScript.Remove(script.Entity.EntityId);
         }
 
         public static void AddScript(CoreScript script)
         {
-            loaded.Add(script);
+            long pid = script.Entity.Parent.EntityId;
+            if (!loaded.ContainsKey(pid))
+                loaded[pid] = new List<CoreScript>();
+            loaded[pid].Add(script);
+
+            HasScript.Add(script.Entity.EntityId);
         }
 
     }

@@ -24,13 +24,9 @@ namespace AnimationEngine.Core
 
         private SVariable SetColor(SVariable[] arr)
         {
-            if (arr.Length == 4)
+            ent.SetEmissiveParts(materialID, new Color(arr[0].AsInt(), arr[1].AsInt(), arr[2].AsInt()), arr[3].AsFloat());
+            if (arr.Length == 5 && arr[4].AsBool())
             {
-                ent.SetEmissiveParts(materialID, new Color(arr[0].AsInt(), arr[1].AsInt(), arr[2].AsInt()), arr[3].AsFloat());
-            }
-            else if (arr.Length == 5 && arr[4].AsBool())
-            {
-                ent.SetEmissiveParts(materialID, new Color(arr[0].AsInt(), arr[1].AsInt(), arr[2].AsInt()), arr[3].AsFloat());
                 ent.SetEmissivePartsForSubparts(materialID, new Color(arr[0].AsInt(), arr[1].AsInt(), arr[2].AsInt()), arr[3].AsFloat());
             }
             return null;

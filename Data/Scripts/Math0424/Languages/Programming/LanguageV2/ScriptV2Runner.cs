@@ -228,13 +228,11 @@ namespace AnimationEngine.Language
                     if (!core.HasComponent<CockpitComp>())
                         core.AddComponent(new CockpitComp());
                     foreach (var x in action.Funcs)
-                    {
-                        switch (x.Name.Value.ToString())
+                        switch (x.TokenName)
                         {
                             case "enter": core.GetFirstComponent<CockpitComp>().EnteredSeat += () => Execute($"act_{action.ID}_enter"); break;
                             case "exit": core.GetFirstComponent<CockpitComp>().ExitedSeat += () => Execute($"act_{action.ID}_exit"); break;
                         }
-                    }
                     break;
                 case "landinggear":
                     ((IMyLandingGear)core.Entity).LockModeChanged += (e, f) =>

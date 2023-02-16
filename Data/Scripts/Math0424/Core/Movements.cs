@@ -40,17 +40,21 @@ namespace AnimationEngine
             return null;
         }
 
+        public SVariable ResetRot(SVariable[] args)
+        {
+            Matrix m = originMatrix;
+            m.Translation = core.WorldMatrixRef.Translation;
+            core.SetLocalMatrix(ref m);
+            return null;
+        }
+
         public SVariable Reset(SVariable[] args)
         {
+            Clear();
             core.SetLocalMatrix(ref originMatrix);
             return null;
         }
 
-        public SVariable Stop(SVariable[] args)
-        {
-            Clear();
-            return null;
-        }
 
         //translate([x, y, z], time, lerp)
         public SVariable Translate(SVariable[] args)

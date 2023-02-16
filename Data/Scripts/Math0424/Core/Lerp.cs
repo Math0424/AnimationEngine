@@ -6,75 +6,73 @@ namespace AnimationEngine
 
     public enum ShortHandLerp
     {
-        Instant,
-        Linear,
+        Instant = 1 << 3,
+        Linear =  1 << 4,
 
-        InBack,
-        OutBack,
-        InOutBack,
+        InBack = 1 << 5,
+        OutBack = InBack | 1,
+        InOutBack = InBack | 2,
 
-        InBounce,
-        OutBounce,
-        InOutBounce,
+        InBounce = 1 << 6,
+        OutBounce = InBounce | 1,
+        InOutBounce = InBounce | 2,
 
-        InElastic,
-        OutElastic,
-        InOutElastic,
+        InElastic = 1 << 7,
+        OutElastic = InElastic | 1,
+        InOutElastic = InElastic | 2,
 
-        InSine,
-        OutSine,
-        InOutSine,
+        InSine = 1 << 8,
+        OutSine = InSine | 1,
+        InOutSine = InSine | 2,
 
-        InQuad,
-        OutQuad,
-        InOutQuad,
+        InQuad = 1 << 9,
+        OutQuad = InQuad | 1,
+        InOutQuad = InQuad | 2,
 
-        InCubic,
-        OutCubic,
-        InOutCubic,
+        InCubic = 1 << 10,
+        OutCubic = InCubic | 1,
+        InOutCubic = InCubic | 2,
 
-        InQuart,
-        OutQuart,
-        InOutQuart,
+        InQuart = 1 << 11,
+        OutQuart = InQuart | 1,
+        InOutQuart = InQuart | 2,
 
-        InQuint,
-        OutQuint,
-        InOutQuint,
+        InQuint = 1 << 12,
+        OutQuint = InQuint | 1,
+        InOutQuint = InQuint | 2,
 
-        InExpo,
-        OutExpo,
-        InOutExpo,
+        InExpo = 1 << 13,
+        OutExpo = InExpo | 1,
+        InOutExpo = InExpo | 2,
 
-        InCirc,
-        OutCirc,
-        InOutCirc,
-
+        InCirc = 1 << 14,
+        OutCirc = InCirc | 1,
+        InOutCirc = InCirc | 2,
     }
-
 
     public enum LerpType
     {
-        Instant,
-        Linear,
+        Instant = 1 << 3,
+        Linear = 1 << 4,
 
-        Back,
-        Bounce,
-        Elastic,
+        Back = 1 << 5,
+        Bounce = 1 << 6,
+        Elastic = 1 << 7,
 
-        Sine,
-        Quad,
-        Cubic,
-        Quart,
-        Quint,
-        Expo,
-        Circ,
+        Sine = 1 << 8,
+        Quad = 1 << 9,
+        Cubic = 1 << 10,
+        Quart = 1 << 11,
+        Quint = 1 << 12,
+        Expo = 1 << 13,
+        Circ = 1 << 14,
     }
 
     public enum EaseType
     {
-        In,
-        Out,
-        InOut,
+        In = 0,
+        Out = 1,
+        InOut = 2,
     }
 
     public static class LerpExtensions

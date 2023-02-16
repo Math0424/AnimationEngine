@@ -172,6 +172,7 @@ namespace AnimationEngine.Language
                 new MethodDictionary("ceiling", true, "Value"),
 
                 new MethodDictionary("random", true),
+                new MethodDictionary("randomrange", true, "minVal", "maxVal"),
                 new MethodDictionary("makevector", true, "x", "y", "z")
             ),
 
@@ -192,9 +193,10 @@ namespace AnimationEngine.Language
                 new MethodDictionary("rotatearound", false, "AxisVector", "PivotVector", "Time", "Lerp"),
                 new MethodDictionary("spin", false, "Vector", "Speed", "Time"),
                 new MethodDictionary("vibrate", false, "Scale", "Time"),
-                new MethodDictionary("reset", false),
-                new MethodDictionary("resetpos", false),
                 new MethodDictionary("setresetpos", false),
+                new MethodDictionary("resetpos", false),
+                new MethodDictionary("resetrot", false),
+                new MethodDictionary("reset", false),
 
                 new MethodDictionary("toggledoor", false),
                 new MethodDictionary("closedoor", false),
@@ -214,7 +216,8 @@ namespace AnimationEngine.Language
                 new MethodDictionary("pilotsetresetpos", false),
 
                 new MethodDictionary("currentthrustpercent", true),
-                new MethodDictionary("isoccupied", true)
+                new MethodDictionary("isoccupied", true),
+                new MethodDictionary("productionitemmodel", true)
             ),
 
             new LibraryDictionary("subpart",
@@ -222,16 +225,17 @@ namespace AnimationEngine.Language
 
                 new MethodDictionary("scale", false, "Vector"),
                 new MethodDictionary("setvisible", false, "bool"),
+                new MethodDictionary("setmodel", false, "modelFilePath"),
 
                 new MethodDictionary("translate", false, "PositionVector", "Time", "Lerp"),
                 new MethodDictionary("rotate", false, "AxisVector", "Speed", "Time", "Lerp"),
                 new MethodDictionary("rotatearound", false, "AxisVector", "PivotVector", "Time", "Lerp"),
                 new MethodDictionary("spin", false, "Vector", "Speed", "Time"),
                 new MethodDictionary("vibrate", false, "Scale", "Time"),
-                new MethodDictionary("reset", false),
-                new MethodDictionary("resetpos", false),
                 new MethodDictionary("setresetpos", false),
-                new MethodDictionary("stop", false)
+                new MethodDictionary("resetpos", false),
+                new MethodDictionary("resetrot", false),
+                new MethodDictionary("reset", false)
             ),
 
             new LibraryDictionary("button",
@@ -248,13 +252,15 @@ namespace AnimationEngine.Language
                 new MethodDictionary("rotatearound", false, "AxisVector", "PivotVector", "Time", "Lerp"),
                 new MethodDictionary("spin", false, "Vector", "Speed", "Time"),
                 new MethodDictionary("vibrate", false, "Scale", "Time"),
-                new MethodDictionary("reset", false),
-                new MethodDictionary("resetpos", false),
                 new MethodDictionary("setresetpos", false),
-                new MethodDictionary("stop", false)
+                new MethodDictionary("resetpos", false),
+                new MethodDictionary("resetrot", false),
+                new MethodDictionary("reset", false)
             ),
 
             new LibraryDictionary("emitter",
+                new MethodDictionary("delay", false, "Value"),
+
                 new MethodDictionary("playparticle", false, "particleName", "scale", "life", "vectorScale", "r", "g", "b"),
                 new MethodDictionary("playparticle", false, "particleName", "scale", "life", "vectorScale"),
                 new MethodDictionary("playparticle", false, "particleName", "scale", "life"),
@@ -265,10 +271,15 @@ namespace AnimationEngine.Language
             ),
 
             new LibraryDictionary("emissive",
-                new MethodDictionary("setcolor", false, "r", "g", "b", "brightness")
+                new MethodDictionary("delay", false, "Value"),
+
+                new MethodDictionary("setcolor", false, "r", "g", "b", "brightness", "setAllSubpartColors"),
+                new MethodDictionary("setsubpartcolor", false, "actualSubpartName", "r", "g", "b", "brightness")
             ),
 
             new LibraryDictionary("light",
+                new MethodDictionary("delay", false, "Value"),
+
                 new MethodDictionary("setcolor", false, "r", "g", "b"),
                 new MethodDictionary("togglelight", false),
                 new MethodDictionary("lightoff", false),

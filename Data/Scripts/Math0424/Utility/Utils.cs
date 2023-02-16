@@ -50,12 +50,13 @@ namespace AnimationEngine.Utility
 
         public static void MessagePlayer(object msg)
         {
-            MyAPIGateway.Utilities.ShowMessage($"AnimationEngine", $"{(msg ?? "null").ToString()}");
+            log.WriteLine($"AnimationEngine MessagePlayer: {msg ?? "null"}");
+            MyAPIGateway.Utilities.ShowMessage($"AnimationEngine", $"{msg ?? "null"}");
         }
 
         public static void LogToFile(object msg)
         {
-            log.WriteLine($"AnimationEngine: {(msg ?? "null").ToString()}");
+            log.WriteLine($"AnimationEngine: {msg ?? "null"}");
         }
 
         public static void DrawDebugLine(Vector3D pos, Vector3D dir, int r, int g, int b)

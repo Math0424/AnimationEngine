@@ -19,7 +19,7 @@ namespace AnimationEngine.LanguageV1
         private bool Built;
         private MyCubeBlockDefinition Definition;
 
-        public List<ObjectDef> objectDefs;
+        private List<ObjectDef> objectDefs;
         private List<V1ScriptAction> scriptActions;
         private Dictionary<string, Caller[]> callingArray;
 
@@ -52,9 +52,9 @@ namespace AnimationEngine.LanguageV1
                 if (x is Initializable)
                     ((Initializable)x).Init(script.Entity);
 
-            Call("blockaction", "create");
             Definition = ((MyCubeBlockDefinition)((IMyCubeBlock)script.Entity).SlimBlock.BlockDefinition);
             Built = ((IMyCubeBlock)core.Entity).SlimBlock.BuildLevelRatio > Definition.CriticalIntegrityRatio;
+            Call("blockaction", "create");
         }
 
         public void Tick(int time)
@@ -65,7 +65,7 @@ namespace AnimationEngine.LanguageV1
                 if (delayed.Delay <= 0)
                 {
                     if (libraries.ContainsKey(delayed.Object))
-                        libraries[delayed.Object.ToLower()].Execute(delayed.Name, delayed.Args);
+                        libraries[delayed.Object].Execute(delayed.Name, delayed.Args);
                     delayed.Executed = true;
                 }
                 delayed.Delay -= time;
@@ -84,10 +84,12 @@ namespace AnimationEngine.LanguageV1
                 if (Built)
                     Call("blockaction", "built");
             }
+
         }
 
         private void CallFunction(string name)
         {
+            //Utils.LogToFile($"{Definition?.DisplayNameText ?? "null"} is callign {name} contains = {callingArray.ContainsKey(name)}");
             if (callingArray.ContainsKey(name))
             {
                 Caller[] callz = callingArray[name];
@@ -121,7 +123,7 @@ namespace AnimationEngine.LanguageV1
             {
                 if (x.Name.Value.Equals(action))
                 {
-                    Execute($"{x.ID}_{function}");
+                    CallFunction($"{x.ID}_{function}");
                     break;
                 }
             }

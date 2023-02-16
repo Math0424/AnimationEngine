@@ -1,4 +1,6 @@
 ﻿using AnimationEngine.Language;
+using Sandbox.Definitions;
+using Sandbox.Game;
 using Sandbox.ModAPI;
 using SpaceEngineers.Game.ModAPI;
 using VRage.Game.ModAPI;
@@ -77,9 +79,10 @@ namespace AnimationEngine.Core
             AddMethod("rotatearound", RotateAroundTranslate);
             AddMethod("spin", SpinTranslate);
             AddMethod("vibrate", blockMover.Vibrate);
-            AddMethod("reset", blockMover.Reset);
-            AddMethod("resetpos", blockMover.ResetPos);
             AddMethod("setresetpos", blockMover.SetResetPos);
+            AddMethod("resetpos", blockMover.ResetPos);
+            AddMethod("resetrot", blockMover.ResetRot);
+            AddMethod("reset", blockMover.Reset);
 
             if (Block is IMyLandingGear)
             {
@@ -95,6 +98,11 @@ namespace AnimationEngine.Core
                 AddMethod("togglepower", (e) => { TogglePower(); return null; });
             }
 
+            if (Block is IMyProductionBlock)
+            {
+                AddMethod("productionitemmodel", GetProductionItemModel);
+            }
+
             AddMethod("currentthrustpercent", CurrentThrustPercent);
             AddMethod("isoccupied", IsOccupied);
         }
@@ -103,6 +111,20 @@ namespace AnimationEngine.Core
         {
             pilotMover?.Tick(tick);
             blockMover?.Tick(tick);
+        }
+
+        private SVariable GetProductionItemModel(SVariable[] arr)
+        {
+            if (Block is IMyProductionBlock && !((IMyProductionBlock)Block).IsQueueEmpty)
+            {
+                var id = ((IMyProductionBlock)Block).GetQueue()[0].Blueprint.Id;
+                MyPhysicalItemDefinition myPhysicalItemDefinition;
+                if (MyDefinitionManager.Static.TryGetDefinition(id, out myPhysicalItemDefinition))
+                {
+                    return new SVariableString(myPhysicalItemDefinition.Model);
+                }
+            }
+            return null;
         }
 
         private SVariable IsOccupied(SVariable[] arr)

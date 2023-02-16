@@ -1,7 +1,11 @@
 ﻿using AnimationEngine.Language;
 using AnimationEngine.Utility;
+using Sandbox.Game.Components;
 using System.Collections.Generic;
+using System.Text;
 using VRage.Game.Entity;
+using VRage.Game.ModAPI;
+using VRage.Game.Models;
 using VRage.ModAPI;
 using VRageMath;
 
@@ -20,6 +24,7 @@ namespace AnimationEngine.Core
 
             AddMethod("scale", Scale);
             AddMethod("setvisible", SetVisibility);
+            AddMethod("setmodel", SetModel);
 
             mover = new Mover(Subpart.PositionComp);
             AddMethod("translate", mover.Translate);
@@ -27,10 +32,10 @@ namespace AnimationEngine.Core
             AddMethod("rotatearound", mover.RotateAround);
             AddMethod("spin", mover.Spin);
             AddMethod("vibrate", mover.Vibrate);
-            AddMethod("reset", mover.Reset);
-            AddMethod("resetpos", mover.ResetPos);
             AddMethod("setresetpos", mover.SetResetPos);
-            AddMethod("stop", mover.Stop);
+            AddMethod("resetpos", mover.ResetPos);
+            AddMethod("resetrot", mover.ResetRot);
+            AddMethod("reset", mover.Reset);
             Subpart.OnClose += Close;
         }
 
@@ -60,6 +65,15 @@ namespace AnimationEngine.Core
             Vector3 scale = args[0].AsVector3();
             Matrix x = Subpart.PositionComp.LocalMatrixRef.Scale(scale);
             Subpart.PositionComp.SetLocalMatrix(ref x, null, false, ref x);
+            return null;
+        }
+
+        private SVariable SetModel(SVariable[] args)
+        {
+            if (Subpart.Render != null && Subpart.Render is MyRenderComponent)
+            {
+                Subpart.RefreshModels(args[0].ToString(), null);
+            }
             return null;
         }
 
