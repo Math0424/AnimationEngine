@@ -97,7 +97,7 @@ namespace AnimationEngine.LogicV1
             new MethodDef("spin", TokenType.MVECTOR, TokenType.FLOAT, TokenType.INT),
             new MethodDef("vibrate", TokenType.FLOAT, TokenType.INT),
 
-            new MethodDef("scale", TokenType.MVECTOR),
+            new MethodDef("scale", TokenType.MVECTOR, TokenType.INT, TokenType.LERP),
             new MethodDef("setvisible", TokenType.BOOL),
             new MethodDef("reset"),
             new MethodDef("resetpos"),

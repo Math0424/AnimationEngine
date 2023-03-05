@@ -2,10 +2,13 @@
 using AnimationEngine.Language;
 using AnimationEngine.LanguageXML;
 using AnimationEngine.Utility;
+using Sandbox.Definitions;
 using Sandbox.Game.Entities;
 using Sandbox.ModAPI;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 using VRage;
 using VRage.Game.Components;
 using VRage.Game.Entity;
@@ -44,6 +47,85 @@ namespace AnimationEngine
         protected override void UnloadData()
         {
             Utils.CloseLog();
+        }
+
+        private void PrintSubparts(MyEntity ent, int index)
+        {
+            foreach (var x in ent.Subparts.Keys)
+            {
+                Utils.LogToFile($"{string.Concat(Enumerable.Repeat("|  ", index))}{x}");
+                PrintSubparts(ent.Subparts[x], index + 1);
+            }
+        }
+
+        private bool HasSubpart(MyEntity ent, string name)
+        {
+            if (ent == null || ent.Subparts.Count == 0)
+                return false;
+
+            foreach(var x in ent.Subparts)
+            {
+                if (x.Key.Equals(name))
+                    return true;
+                if (HasSubpart(x.Value, name))
+                    return true;
+            }
+
+            return false;
+        }
+
+        public override void BeforeStart()
+        {
+            MyEntity testEnt = new MyEntity();
+            foreach (var x in registeredScripts.Keys)
+            {
+                bool contains = false;
+                foreach(var y in MyDefinitionManager.Static.GetAllDefinitions())
+                {
+                    if (y.Id.SubtypeId.ToString().Equals(x))
+                    {
+                        contains = true;
+
+                        if (y is MyCubeBlockDefinition)
+                        {
+                            testEnt.Init(new StringBuilder("ModelTester"), ((MyCubeBlockDefinition)y).Model, null, 1);
+                            foreach (var z in registeredScripts[x].Item1)
+                            {
+                                if (!HasSubpart(testEnt, z.Name))
+                                {
+                                    Utils.LogToFile($"Error at {x}: Cannot find subpart '{z.Name}' - '{z.Parent ?? "main"}'");
+                                    if (!failed.Contains(x))
+                                    {
+                                        failed.Add(x);
+                                    }
+                                }
+                            }
+                            if (failed.Contains(x))
+                            {
+                                Utils.LogToFile($"Valid subpart ID's of {x}");
+                                PrintSubparts(testEnt, 1);
+                            }
+                        }
+                    }
+                }
+                if (!contains)
+                {
+                    Utils.LogToFile($"Error: Cannot find block with name of '{x}'");
+                    failed.Add(x);
+                } 
+            }
+            testEnt.Close();
+
+            if (failed.Count != 0)
+            {
+                string failedEnts = "";
+                foreach (var x in failed)
+                {
+                    failedEnts += x + ", ";
+                }
+                failedEnts = failedEnts.Substring(0, failedEnts.Length - 2);
+                MyAPIGateway.Utilities.ShowMessage("AnimationEngine", $"These blocks have errors\n{failedEnts}\n check logs for more info");
+            }
         }
 
         int currentTick = 0;
@@ -131,7 +213,7 @@ namespace AnimationEngine
             }
             catch (Exception ex)
             {
-                Utils.LogToFile($"Error while ticking {script.Entity?.Name ?? "null"}");
+                Utils.LogToFile($"Error while ticking {script.Entity?.Name ?? script.Entity?.DisplayName ?? "null"}");
                 Utils.LogToFile(ex.TargetSite);
                 Utils.LogToFile(ex.StackTrace);
                 Utils.LogToFile(ex.Message);

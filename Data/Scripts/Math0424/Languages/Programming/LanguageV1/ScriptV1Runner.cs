@@ -249,10 +249,10 @@ namespace AnimationEngine.LanguageV1
                     libraries[def.Name.ToLower()] = new Emissive(def.Values[0].ToString());
                     break;
                 case "emitter":
-                    libraries[def.Name.ToLower()] = new Emitter(def.Values[0].ToString());
+                    libraries[def.Name.ToLower()] = new Emitter(def.Values[0].ToString(), null);
                     break;
                 case "light":
-                    libraries[def.Name.ToLower()] = new Light(def.Values[0].ToString(), (float)def.Values[1]);
+                    libraries[def.Name.ToLower()] = new Light(def.Values[0].ToString(), (float)def.Values[1], null);
                     break;
             }
         }

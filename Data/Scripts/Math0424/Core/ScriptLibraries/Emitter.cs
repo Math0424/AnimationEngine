@@ -1,4 +1,5 @@
 ﻿using AnimationEngine.Language;
+using AnimationEngine.Utility;
 using Sandbox.Game.Entities;
 using System.Collections.Generic;
 using VRage.Game;
@@ -9,16 +10,23 @@ using VRageMath;
 
 namespace AnimationEngine.Core
 {
-    internal class Emitter : ScriptLib, Initializable
+    internal class Emitter : ScriptLib, Initializable, Parentable
     {
         private string dummyName;
         private IMyEntity ent;
         private IMyModelDummy dum;
         private MyEntity3DSoundEmitter soundEmitter;
         private List<MyParticleEffect> effects;
+        private string parentSubpart;
 
-        public Emitter(string dummyName)
+        public string GetParent()
         {
+            return parentSubpart;
+        }
+
+        public Emitter(string dummyName, string parentSubpart)
+        {
+            this.parentSubpart = parentSubpart;
             effects = new List<MyParticleEffect>();
             this.dummyName = dummyName;
             AddMethod("playparticle", PlayParticle);
@@ -53,7 +61,13 @@ namespace AnimationEngine.Core
                     return true;
                 }
             }
-            //Utils.LogToFile($"Emitter failed to spawn, could not find dummy '{dummyName}'");
+
+            //Utils.LogToFile($"Emitter failed to spawn. dummy: '{dummyName}' model: '{Path.GetFileName(ent.Model.AssetName)}'");
+            //foreach (var dum in dummies)
+            //{
+            //    Utils.LogToFile($"|  '{dum.Value.Name}'");
+            //}
+
             return false;
         }
 
@@ -70,7 +84,7 @@ namespace AnimationEngine.Core
                 soundEmitter = new MyEntity3DSoundEmitter((MyEntity)ent);
                 soundEmitter.Force2D = true;
             }
-            soundEmitter.PlaySoundWithDistance(MySoundPair.GetCueId(arr[0].ToString()));
+            soundEmitter.PlaySoundWithDistance(MySoundPair.GetCueId(arr[0].ToString()), true);
             return null;
         }
 
@@ -127,8 +141,8 @@ namespace AnimationEngine.Core
             {
                 return effect;
             }
+            Utils.LogToFile($"Cannot file particle with name '{particle}'");
             return null;
         }
-
     }
 }

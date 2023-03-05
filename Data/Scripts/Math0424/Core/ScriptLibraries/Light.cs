@@ -11,16 +11,23 @@ using VRageRender.Lights;
 
 namespace AnimationEngine.Core
 {
-    internal class Light : ScriptLib, Initializable
+    internal class Light : ScriptLib, Initializable, Parentable
     {
         private string dummyName;
         private float radius;
         private IMyModelDummy dum;
         private MyLight light;
         private IMyEntity parent;
+        private string parentSubpart;
 
-        public Light(string dummyName, float radius)
+        public string GetParent()
         {
+            return parentSubpart;
+        }
+
+        public Light(string dummyName, float radius, string parentSubpart)
+        {
+            this.parentSubpart = parentSubpart;
             this.radius = radius;
             this.dummyName = dummyName;
             AddMethod("setcolor", SetColor);

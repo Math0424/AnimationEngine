@@ -18,6 +18,19 @@ namespace AnimationEngine.Utility
             log.Init("AnimationEngine.log", new System.Text.StringBuilder("0.1A"));
         }
 
+        public static float Angle(this Vector3 one, Vector3 two)
+        {
+            return (float)(Math.Acos((one.Dot(two) / Math.Sqrt(one.LengthSquared()) * two.LengthSquared())) * 57.2957795131);
+        }
+
+        public static Vector3 FromAnglesToVector(this Vector3 me)
+        {
+            //x = yaw
+            //y = pitch
+            //z = roll
+            return new Vector3(Math.Cos(me.X) * Math.Cos(me.Y), Math.Sin(me.X) * Math.Cos(me.Y), Math.Sin(me.Y));
+        }
+
         public static Matrix Scale(this Matrix matrix, Vector3 vector)
         {
             matrix.M11 *= vector.X;

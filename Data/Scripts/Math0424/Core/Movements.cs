@@ -1,4 +1,6 @@
-﻿using AnimationEngine.Language;
+﻿using AnimationEngine.Core;
+using AnimationEngine.Language;
+using AnimationEngine.Utility;
 using System;
 using System.Collections.Generic;
 using VRage.Game.Components;
@@ -12,6 +14,36 @@ namespace AnimationEngine
         private MyPositionComponentBase core;
         private List<BaseAction> movements = new List<BaseAction>();
         private Matrix originMatrix;
+
+        public void AddToScriptLib(ScriptLib library, string prefix)
+        {
+            library.AddMethod(prefix + "translate", Translate);
+            library.AddMethod(prefix + "rotate", Rotate);
+            library.AddMethod(prefix + "rotatearound", RotateAround);
+            library.AddMethod(prefix + "scale", Scale);
+            library.AddMethod(prefix + "spin", Spin);
+            library.AddMethod(prefix + "vibrate", Vibrate);
+            library.AddMethod(prefix + "setresetpos", SetResetPos);
+            library.AddMethod(prefix + "resetpos", ResetPos);
+            library.AddMethod(prefix + "resetrot", ResetRot);
+            library.AddMethod(prefix + "reset", Reset);
+            library.AddMethod(prefix + "movetoorigin", OriginReset);
+        }
+
+        public void RemoveFromScriptLib(ScriptLib library, string prefix)
+        {
+            library.RemoveMethod(prefix + "translate");
+            library.RemoveMethod(prefix + "rotate");
+            library.RemoveMethod(prefix + "rotatearound");
+            library.RemoveMethod(prefix + "scale");
+            library.RemoveMethod(prefix + "spin");
+            library.RemoveMethod(prefix + "vibrate");
+            library.RemoveMethod(prefix + "setresetpos");
+            library.RemoveMethod(prefix + "resetpos");
+            library.RemoveMethod(prefix + "resetrot");
+            library.RemoveMethod(prefix + "reset");
+            library.RemoveMethod(prefix + "movetoorigin");
+        }
 
         public Mover(MyPositionComponentBase core)
         {
@@ -55,6 +87,28 @@ namespace AnimationEngine
             return null;
         }
 
+        public SVariable OriginReset(SVariable[] args)
+        {
+            int time = args[0].AsInt();
+            LerpType lerp;
+            EaseType ease;
+            ((ShortHandLerp)args[1].AsInt()).ShortToLong(out lerp, out ease);
+
+            movements.Add(new TranslateMatrixAction(core, time, originMatrix, lerp, ease));
+            return null;
+        }
+
+        //scale([x, y, z], time, lerp)
+        public SVariable Scale(SVariable[] args)
+        {
+            Vector3 val = args[0].AsVector3();
+            int time = args[1].AsInt();
+            LerpType lerp;
+            EaseType ease;
+            ((ShortHandLerp)args[2].AsInt()).ShortToLong(out lerp, out ease);
+            movements.Add(new ScaleAction(core, time, val, lerp, ease));
+            return null;
+        }
 
         //translate([x, y, z], time, lerp)
         public SVariable Translate(SVariable[] args)
@@ -167,6 +221,60 @@ namespace AnimationEngine
         public MoveAction(MyPositionComponentBase core, int time, LerpType lerp, EaseType ease) : base(time, lerp, ease)
         {
             this.core = core;
+        }
+    }
+
+    internal class TranslateMatrixAction : MoveAction
+    {
+        private Vector3 Vstart, Vend;
+        private Quaternion Qstart, Qend, Qprev;
+        public TranslateMatrixAction(MyPositionComponentBase core, int time, Matrix end, LerpType lerp, EaseType ease) : base(core, time, lerp, ease)
+        {
+            Qstart = Quaternion.CreateFromRotationMatrix(core.LocalMatrixRef);
+            Qend = Quaternion.CreateFromRotationMatrix(end);
+            Qprev = Qstart;
+
+            Vstart = core.LocalMatrixRef.Translation;
+            Vend = end.Translation;
+        }
+        public override void Tick(int time)
+        {
+            base.Tick(time);
+
+            Quaternion quat = lerp.Lerp(ease, Qstart, Qend, val);
+            Quaternion temp = quat;
+
+            quat /= Qprev;
+            Qprev = temp;
+
+            Matrix local = core.LocalMatrixRef;
+            Matrix matrix = Matrix.Transform(local, quat);
+
+            matrix.Translation = lerp.Lerp(ease, Vstart, Vend, val);
+
+            core.SetLocalMatrix(ref matrix, null, false, ref matrix);
+        }
+    }
+
+    internal class ScaleAction : MoveAction
+    {
+        private Vector3D prev, end;
+        public ScaleAction(MyPositionComponentBase core, int time, Vector3D end, LerpType lerp, EaseType ease) : base(core, time, lerp, ease)
+        {
+            this.prev = Vector3D.One;
+            this.end = end;
+        }
+        public override void Tick(int time)
+        {
+            base.Tick(time);
+
+            Vector3D temp = prev;
+            prev = lerp.Lerp(ease, Vector3D.One, end, val);
+            temp = Vector3D.One + (prev - temp);
+
+            Matrix x = core.LocalMatrixRef.Scale(temp);
+
+            core.SetLocalMatrix(ref x, null, false, ref x);
         }
     }
 

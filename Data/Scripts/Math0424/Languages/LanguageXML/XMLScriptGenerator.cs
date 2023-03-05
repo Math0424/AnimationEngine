@@ -125,24 +125,40 @@ namespace AnimationEngine.LanguageXML
             {
                 foreach (var x in animation.Triggers.StateTriggers)
                 {
+                    List<V1Function> funcs = new List<V1Function>();
                     V1ScriptAction act;
                     switch (x.type.ToLower())
                     {
                         case "working":
                             act = GetOrAddActionType("blockaction");
+                            if (x.loop)
+                            {
+                                funcs.Add(new V1Function() { Name = new Token(TokenType.KEWRD, "workingloop", 0, 0) });
+                                callingArray.Add($"{act.ID}_workingloop", null);
+                            }
+                            else
+                            {
+                                funcs.Add(new V1Function(){ Name = new Token(TokenType.KEWRD, "working", 0, 0) });
+                                callingArray.Add($"{act.ID}_working", null);
+                            }
                             break;
                         case "producing":
                             act = GetOrAddActionType("productionaction");
+                            if (x.loop)
+                            {
+                                funcs.Add(new V1Function() { Name = new Token(TokenType.KEWRD, "producingloop", 0, 0) });
+                                callingArray.Add($"{act.ID}_producingloop", null);
+                            }
+                            else
+                            {
+                                funcs.Add(new V1Function() { Name = new Token(TokenType.KEWRD, "producing", 0, 0) });
+                                callingArray.Add($"{act.ID}_producing", null);
+                            }
                             break;
                         default:
                             throw new Exception($"cannot parse state trigger '{x.type}'");
                     }
-                    callingArray.Add($"{act.ID}_{x.type.ToLower()}", null);
-                    var funcs = new List<V1Function>(act.Funcs);
-                    funcs.Add(new V1Function()
-                    {
-                        Name = new Token(TokenType.KEWRD, x.type.ToLower(), 0, 0)
-                    });
+                    funcs.Union(act.Funcs);
                     for (int i = 0; i < actions.Count; i++)
                     {
                         if (actions[i].ID == act.ID)
@@ -171,7 +187,7 @@ namespace AnimationEngine.LanguageXML
                     throw new Exception($"Subpart '{x.empty.Substring(8)}' has no Animation?");
 
                 Log($"|  |  |  Reading '{x.empty.Substring(8)}' {x.Keyframes.Length} animations");
-                subparts.Add(new Subpart(x.empty.Substring(8), null));
+                subparts.Add(new Subpart(x.empty.Substring(8), x.empty.Substring(8), null));
 
                 objects.Add(new ObjectDef()
                 {
@@ -184,7 +200,7 @@ namespace AnimationEngine.LanguageXML
                     var y = x.Keyframes[m];
                     if (y.Anims == null)
                         throw new Exception($"Subpart '{x.empty.Substring(8)}' frame {y.frame} has no data?");
-                    int start = y.frame;
+
                     foreach(var z in y.Anims)
                     {
                         if (y.frame > animationLength)
@@ -198,43 +214,57 @@ namespace AnimationEngine.LanguageXML
                         int ease = 0;
                         foreach (var a in Enum.GetValues(typeof(EaseType)))
                             if (a.ToString().ToLower().Equals((z.easing ?? "in").ToLower()))
-                                lerp = (int)a;
+                                ease = (int)a;
 
-                        if (z.scale != null) // 0
+                        var arr = x.Keyframes;
+                        if (z.rotation != null) // 1
                         {
+                            //Vector3 cross;
+                            //int changedFrame = GetNextFrameChange(ref arr, m, 1, out cross);
+                            //if (changedFrame == -1)
+                            //    continue;
+                            //float angle = (float)StringToVector(z.rotation).FromAnglesToVector().Angle(cross.FromAnglesToVector());
+                            //
+                            //if (float.IsNaN(angle))
+                            //    angle = 0;
+                            //
+                            //Utils.LogToFile(angle);
+                            //cross = Vector3.Cross(cross, StringToVector(z.rotation));
+                            //
+                            //int timetaken = x.Keyframes[changedFrame].frame - y.frame;
                             //method.Add(new Caller()
                             //{
-                            //    Args = new Argument[] { 
+                            //    Args = new Argument[] {
                             //        new Argument()
                             //        {
                             //            Delay = y.frame,
-                            //            Name = "scale",
-                            //            Value = new SVariable[] { 
-                            //                new SVariableVector(StringToVector(z.scale)),
+                            //            Name = "rotate",
+                            //            Value = new SVariable[] {
+                            //                new SVariableVector(Vector3.Normalize(cross)),
+                            //                new SVariableFloat(angle),
+                            //                new SVariableInt(timetaken),
+                            //                new SVariableInt(ease | lerp),
                             //            }
                             //        }
                             //    },
                             //    Object = x.empty.Substring(8).ToLower()
                             //});
                         }
-                        else if (z.rotation != null) // 1
-                        {
-                            // dunno yet
-                        } 
-                        else if (z.location != null) // 2
+                        else if (z.location != null || z.scale != null) // 2 : 0
                         {
                             Vector3 change;
-                            int nextChange;
-                            var arr = x.Keyframes;
-                            getNextFrameChange(ref arr, StringToVector(z.location), m + 1, 2, out nextChange, out change);
-                            int timetaken = x.Keyframes[nextChange].frame - y.frame;
+                            int changedFrame = GetNextFrameChange(ref arr, m, z.location == null ? 0 : 2, out change);
+                            if (changedFrame == -1)
+                                continue;
+                            change -= StringToVector(z.location);
+                            int timetaken = x.Keyframes[changedFrame].frame - y.frame;
                             method.Add(new Caller()
                             {
                                 Args = new Argument[] {
                                     new Argument()
                                     {
                                         Delay = y.frame,
-                                        Name = "translate",
+                                        Name = z.location == null ? "scale" : "translate",
                                         Value = new SVariable[] {
                                             new SVariableVector(change),
                                             new SVariableInt(timetaken),
@@ -266,21 +296,44 @@ namespace AnimationEngine.LanguageXML
             }
             callingArray[methodCallName] = method.ToArray();
 
+
+            //work on adding the looping variables
+            if (animation.Triggers.StateTriggers != null)
+            {
+                foreach (var x in animation.Triggers.StateTriggers)
+                {
+                    if (x.loop == true)
+                    {
+                        for (int i = 0; i < actions.Count; i++)
+                        {
+                            if (actions[i].Name.Value.Equals("blockaction") || actions[i].Name.Value.Equals("productionaction"))
+                            {
+                                var y = actions[i];
+                                for(int j = 0; j < y.Funcs.Length; j++)
+                                {
+                                    if (y.Funcs[j].Name.Value.Equals("workingloop") || y.Funcs[j].Name.Value.Equals("producingloop"))
+                                        y.Funcs[j].Paramaters = new Token[] { new Token(TokenType.INT, animationLength, 0, 0) };
+                                }
+                                actions[i] = y;
+                            }
+                        }
+                    }
+                }
+            }
+
             ScriptRunner runner = new ScriptV1Runner(objects, actions, callingArray);
             Log($"|  Registering block");
             AnimationEngine.AddToRegisteredScripts(animation.subtypeId, subparts.ToArray(), runner);
             Log($"|  |  Registered script to '{animation.subtypeId}'");
         }
 
-        private void getNextFrameChange(ref XMLKeyFrame[] arr, Vector3 prev, int start, int type, out int time, out Vector3 change)
+        private int GetNextFrameChange(ref XMLKeyFrame[] arr, int start, int type, out Vector3 change)
         {
-            int count = 0;
-            Vector3 diff = Vector3.Zero;
-
+            change = Vector3.Zero;
+            start++;
             while (start < arr.Length)
             {
                 XMLKeyFrame key = arr[start];
-                count++;
                 foreach(var x in key.Anims)
                 {
                     switch(type)
@@ -289,23 +342,22 @@ namespace AnimationEngine.LanguageXML
                         case 1:
                             if (x.rotation != null)
                             {
-                                diff = prev - StringToVector(x.location);
-                                goto bot;
+                                change = StringToVector(x.rotation);
+                                return start;
                             }
                             break;
                         case 2:
                             if (x.location != null)
                             {
-                                diff = prev - StringToVector(x.location);
-                                goto bot;
+                                change = StringToVector(x.location);
+                                return start;
                             }
                             break;
                     }
                 }
+                start++;
             }
-            bot:
-            time = count;
-            change = diff;
+            return -1;
         }
 
         //assumed format [x,y,z]

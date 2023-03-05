@@ -50,6 +50,7 @@ namespace AnimationEngine.LanguageV2.Nodes
                     {
                         throw Script.DetailedErrorLog($"Cannot find parent, located below or missing?", Tokens[c + 1]);
                     }
+                    obj.Parent = Tokens[c + 1];
                     c += 2;
                 }
             }

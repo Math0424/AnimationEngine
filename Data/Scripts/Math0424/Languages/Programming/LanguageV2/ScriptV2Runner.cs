@@ -6,7 +6,9 @@ using Sandbox.ModAPI;
 using SpaceEngineers.Game.ModAPI;
 using System;
 using System.Collections.Generic;
+using VRage.Game.Entity;
 using VRage.Game.ModAPI;
+using VRage.ModAPI;
 
 /// <summary>
 /// This handles the code, its pretty much a emulator for a basic computer
@@ -90,6 +92,10 @@ namespace AnimationEngine.Language
                 {
                     Utils.LogToFile(ex);
                 }
+            } 
+            else
+            {
+                Utils.LogToFile($"Error with {Definition.Id.SubtypeName}: Cannot find method {function}");
             }
         }
 
@@ -108,14 +114,25 @@ namespace AnimationEngine.Language
                 InitAction(x);
 
             foreach (var x in _libraries)
+            {
+                IMyEntity ent = script.Entity;
+                if (x is Parentable && ((Parentable)x).GetParent() != null)
+                {
+                    //Utils.LogToFile($"Getting subpart {((Parentable)x).GetParent()}");
+                    //foreach(var z in script.Subparts)
+                    //{
+                    //    Utils.LogToFile($"{z.Key} : {z.Value}");
+                    //}
+                    ent = script.Subparts[((Parentable)x).GetParent()].Subpart;
+                } 
                 if (x is Initializable)
-                    ((Initializable)x).Init(script.Entity);
+                    ((Initializable)x).Init(ent);
+            }
 
             Definition = ((MyCubeBlockDefinition)((IMyCubeBlock)script.Entity).SlimBlock.BlockDefinition);
             Built = ((IMyCubeBlock)script.Entity).SlimBlock.BuildLevelRatio > Definition.CriticalIntegrityRatio;
         }
 
-        private Dictionary<string, string> nameTranslationTable = new Dictionary<string, string>();
         private void InitEnt(Entity ent)
         {
             switch (ent.Type.Value.ToString().ToLower())
@@ -128,29 +145,18 @@ namespace AnimationEngine.Language
                     _libraries.Add(new BlockCore(core)); break;
                 case "button":
                 case "subpart":
-                    _libraries.Add(core.Subparts[ent.Args[0].Value.ToString()]);
-                    nameTranslationTable[ent.Name.Value.ToString()] = ent.Args[0].Value.ToString();
+                    _libraries.Add(core.Subparts[ent.Name.Value.ToString().ToLower()]);
                     break;
                 case "emissive":
                     _libraries.Add(new Emissive(ent.Args[0].Value.ToString()));
                     break;
                 case "emitter":
-                    _libraries.Add(new Emitter(ent.Args[0].Value.ToString()));
+                    _libraries.Add(new Emitter(ent.Args[0].Value.ToString(), ent.Parent.Value?.ToString()));
                     break;
                 case "light":
-                    _libraries.Add(new Light(ent.Args[0].Value.ToString(), (float)ent.Args[1].Value));
+                    _libraries.Add(new Light(ent.Args[0].Value.ToString(), (float)ent.Args[1].Value, ent.Parent.Value?.ToString()));
                     break;
             }
-        }
-
-        private SubpartCore NameToSubpart(string subpart)
-        {
-            string name = nameTranslationTable[subpart];
-            foreach (var x in core.Subparts)
-            {
-                if (x.Value.Subpart.Name == name) { return x.Value; }
-            }
-            return null;
         }
 
         private void InitAction(ScriptAction action)
@@ -158,7 +164,7 @@ namespace AnimationEngine.Language
             switch (action.TokenName)
             {
                 case "button":
-                    var part = NameToSubpart(action.Paramaters[0].Value.ToString());
+                    var part = core.Subparts[action.Paramaters[0].Value.ToString()];
                     var dummy = action.Paramaters[1].Value.ToString();
 
                     if (!part.HasComponent<ButtonComp>())

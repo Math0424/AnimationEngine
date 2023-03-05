@@ -104,7 +104,9 @@ namespace AnimationEngine.Language
             foreach (var x in objects)
             {
                 if (x.Type.Value.ToString().ToLower() == "subpart")
-                    subparts.Add(new Subpart(x.Args[0].Value.ToString(), x.Parent.Value == null ? null : x.Parent.Value.ToString()));
+                {
+                    subparts.Add(new Subpart(x.Name.Value.ToString().ToLower(), x.Args[0].Value.ToString(), x.Parent.Value?.ToString().ToLower() ?? null));
+                }
             }
 
             runner = new ScriptV2Runner(objects, actions, globals, program.ToArray(), _immediates.ToArray(), methodLookup);

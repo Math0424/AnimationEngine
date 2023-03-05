@@ -1,5 +1,6 @@
 ﻿using AnimationEngine.Utility;
 using Sandbox.Game.Components;
+using Sandbox.Game.Entities;
 using System.Collections.Generic;
 using VRage.Game.Entity;
 using VRage.Game.ModAPI;
@@ -46,9 +47,9 @@ namespace AnimationEngine.Core
             Entity = ent;
             foreach (var subpart in subpartData.Values)
             {
-                Subparts[subpart.Name] = new SubpartCore();
+                Subparts[subpart.CustomName] = new SubpartCore();
                 if (!InitSubpart(subpart))
-                    unReadySubparts.Add(subpart.Name);
+                    unReadySubparts.Add(subpart.CustomName);
             }
 
             for (int i = 0; i < components.Count; i++)
@@ -60,18 +61,22 @@ namespace AnimationEngine.Core
 
         private bool InitSubpart(Subpart subpart)
         {
-            if (!Subparts.ContainsKey(subpart.Name))
+            if (!Subparts.ContainsKey(subpart.CustomName))
                 return false;
 
-            if (Subparts[subpart.Name].Subpart != null && !Subparts[subpart.Name].Subpart.MarkedForClose)
+            if (Subparts[subpart.CustomName].Subpart != null && !Subparts[subpart.CustomName].Subpart.MarkedForClose)
                 return true;
 
             MyEntitySubpart part;
-            if (!Entity.TryGetSubpart(subpart.Name, out part) || (subpart.Parent != null && !Subparts[subpart.Parent].Subpart.TryGetSubpart(subpart.Name, out part)))
+            if (subpart.Parent != null)
             {
-                //Utils.LogToFile($"Cannot find subpart '{subpart.Name}:{subpart.Parent}'");
-                //foreach (var x in ((MyEntity)Entity).Subparts)
-                //    Utils.LogToFile($"Found '{x.Key}'");
+                if (!Subparts[subpart.Parent].Subpart.TryGetSubpart(subpart.Name, out part))
+                {
+                    return false;
+                }
+            } 
+            else if(!Entity.TryGetSubpart(subpart.Name, out part))
+            {
                 return false;
             }
 
@@ -95,9 +100,9 @@ namespace AnimationEngine.Core
                 ((MyEntity)Entity).Subparts[subpart.Name] = part;
             }
 
-            part.Name = subpart.Name;
+            part.Name = subpart.CustomName;
             part.OnClose += SubpartClose;
-            Subparts[subpart.Name].Init(part);
+            Subparts[subpart.CustomName].Init(part);
             return true;
         }
 
@@ -118,8 +123,10 @@ namespace AnimationEngine.Core
             {
                 List<string> ready = new List<string>();
                 foreach (var x in unReadySubparts)
+                {
                     if (InitSubpart(subpartData[x]))
                         ready.Add(x);
+                }
                 unReadySubparts.RemoveAll((e) => ready.Contains(e));
                 return;
             }

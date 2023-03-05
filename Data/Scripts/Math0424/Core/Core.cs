@@ -8,11 +8,13 @@ namespace AnimationEngine.Core
 {
     internal struct Subpart
     {
-        public Subpart(string name, string parent)
+        public Subpart(string customname, string name, string parent)
         {
+            CustomName = customname;
             Name = name;
             Parent = parent;
         }
+        public string CustomName;
         public string Name;
         public string Parent;
     }
@@ -50,6 +52,11 @@ namespace AnimationEngine.Core
     {
         ScriptRunner Clone();
         void Execute(string function, params SVariable[] args);
+    }
+
+    internal interface Parentable
+    {
+        string GetParent();
     }
 
     internal interface Initializable

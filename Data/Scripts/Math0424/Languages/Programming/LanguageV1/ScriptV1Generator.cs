@@ -166,7 +166,7 @@ namespace AnimationEngine.LanguageV1
             {
                 case "subpart":
                     objectDefs.Add(new ObjectDef(ent.Type.Value.ToString().ToLower(), ent.Name.Value.ToString(), null));
-                    subparts.Add(new Subpart(ent.Name.Value.ToString(), null));
+                    subparts.Add(new Subpart(ent.Name.Value.ToString(), ent.Name.Value.ToString(), null));
                     break;
                 case "button":
                     if (ent.Args == null || ent.Args.Length != 1 || ent.Args[0].Type != TokenType.STR)
@@ -174,7 +174,7 @@ namespace AnimationEngine.LanguageV1
                         throw Script.DetailedErrorLog("Invalid button declaration", ent.Name);
                     }
                     objectDefs.Add(new ObjectDef(ent.Type.Value.ToString().ToLower(), ent.Name.Value.ToString(), null, ent.Args[0].Value));
-                    subparts.Add(new Subpart(ent.Name.Value.ToString(), null));
+                    subparts.Add(new Subpart(ent.Name.Value.ToString(), ent.Name.Value.ToString(), null));
                     break;
                 case "emissive":
                     if (ent.Args == null || ent.Args.Length != 1 || ent.Args[0].Type != TokenType.STR)

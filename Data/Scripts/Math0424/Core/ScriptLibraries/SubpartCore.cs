@@ -22,20 +22,11 @@ namespace AnimationEngine.Core
         {
             Subpart = subpart;
 
-            AddMethod("scale", Scale);
             AddMethod("setvisible", SetVisibility);
             AddMethod("setmodel", SetModel);
 
             mover = new Mover(Subpart.PositionComp);
-            AddMethod("translate", mover.Translate);
-            AddMethod("rotate", mover.Rotate);
-            AddMethod("rotatearound", mover.RotateAround);
-            AddMethod("spin", mover.Spin);
-            AddMethod("vibrate", mover.Vibrate);
-            AddMethod("setresetpos", mover.SetResetPos);
-            AddMethod("resetpos", mover.ResetPos);
-            AddMethod("resetrot", mover.ResetRot);
-            AddMethod("reset", mover.Reset);
+            mover.AddToScriptLib(this, "");
             Subpart.OnClose += Close;
         }
 
@@ -58,14 +49,6 @@ namespace AnimationEngine.Core
 
             MatrixD parentMat = Subpart.Parent.PositionComp.WorldMatrixRef;
             Subpart.PositionComp.UpdateWorldMatrix(ref parentMat);
-        }
-
-        private SVariable Scale(SVariable[] args)
-        {
-            Vector3 scale = args[0].AsVector3();
-            Matrix x = Subpart.PositionComp.LocalMatrixRef.Scale(scale);
-            Subpart.PositionComp.SetLocalMatrix(ref x, null, false, ref x);
-            return null;
         }
 
         private SVariable SetModel(SVariable[] args)

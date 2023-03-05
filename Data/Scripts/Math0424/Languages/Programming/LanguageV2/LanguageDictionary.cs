@@ -173,7 +173,7 @@ namespace AnimationEngine.Language
 
                 new MethodDictionary("random", true),
                 new MethodDictionary("randomrange", true, "minVal", "maxVal"),
-                new MethodDictionary("makevector", true, "x", "y", "z")
+                new MethodDictionary("createvector", true, "x", "y", "z")
             ),
 
             new LibraryDictionary("api",
@@ -189,6 +189,7 @@ namespace AnimationEngine.Language
                 new MethodDictionary("poweroff", false),
 
                 new MethodDictionary("translate", false, "PositionVector", "Time", "Lerp"),
+                new MethodDictionary("scale", false, "ScaleVector", "Time", "Lerp"),
                 new MethodDictionary("rotate", false, "AxisVector", "Speed", "Time", "Lerp"),
                 new MethodDictionary("rotatearound", false, "AxisVector", "PivotVector", "Time", "Lerp"),
                 new MethodDictionary("spin", false, "Vector", "Speed", "Time"),
@@ -207,10 +208,12 @@ namespace AnimationEngine.Language
                 new MethodDictionary("lockon", false),
 
                 new MethodDictionary("pilottranslate", false, "PositionVector", "Time", "Lerp"),
+                new MethodDictionary("pilotscale", false, "ScaleVector", "Time", "Lerp"),
                 new MethodDictionary("pilotrotate", false, "AxisVector", "Speed", "Time", "Lerp"),
                 new MethodDictionary("pilotrotatearound", false, "AxisVector", "PivotVector", "Time", "Lerp"),
                 new MethodDictionary("pilotspin", false, "Vector", "Speed", "Time"),
                 new MethodDictionary("pilotvibrate", false, "Scale", "Time"),
+                new MethodDictionary("pilotmovetoorigin", false, "Time", "Lerp"),
                 new MethodDictionary("pilotreset", false),
                 new MethodDictionary("pilotresetpos", false),
                 new MethodDictionary("pilotsetresetpos", false),
@@ -223,15 +226,16 @@ namespace AnimationEngine.Language
             new LibraryDictionary("subpart",
                 new MethodDictionary("delay", false, "Value"),
 
-                new MethodDictionary("scale", false, "Vector"),
                 new MethodDictionary("setvisible", false, "bool"),
                 new MethodDictionary("setmodel", false, "modelFilePath"),
 
                 new MethodDictionary("translate", false, "PositionVector", "Time", "Lerp"),
+                new MethodDictionary("scale", false, "ScaleVector", "Time", "Lerp"),
                 new MethodDictionary("rotate", false, "AxisVector", "Speed", "Time", "Lerp"),
                 new MethodDictionary("rotatearound", false, "AxisVector", "PivotVector", "Time", "Lerp"),
                 new MethodDictionary("spin", false, "Vector", "Speed", "Time"),
                 new MethodDictionary("vibrate", false, "Scale", "Time"),
+                new MethodDictionary("movetoorigin", false, "Time", "Lerp"),
                 new MethodDictionary("setresetpos", false),
                 new MethodDictionary("resetpos", false),
                 new MethodDictionary("resetrot", false),
@@ -244,10 +248,11 @@ namespace AnimationEngine.Language
                 new MethodDictionary("enabled", false, "bool"),
                 new MethodDictionary("interactable", false, "bool"),
 
-                new MethodDictionary("scale", false, "Vector"),
                 new MethodDictionary("setvisible", false, "bool"),
+                new MethodDictionary("setmodel", false, "modelFilePath"),
 
                 new MethodDictionary("translate", false, "PositionVector", "Time", "Lerp"),
+                new MethodDictionary("scale", false, "ScaleVector", "Time", "Lerp"),
                 new MethodDictionary("rotate", false, "AxisVector", "Speed", "Time", "Lerp"),
                 new MethodDictionary("rotatearound", false, "AxisVector", "PivotVector", "Time", "Lerp"),
                 new MethodDictionary("spin", false, "Vector", "Speed", "Time"),

@@ -238,9 +238,9 @@ namespace AnimationEngine
             return Vector3D.Lerp(one, two, (float)type.LerpVal(val, ease));
         }
 
-        public static MatrixD Lerp(this LerpType type, EaseType ease, ref MatrixD one, ref MatrixD two, double val)
+        public static Matrix Lerp(this LerpType type, EaseType ease, ref Matrix one, ref Matrix two, double val)
         {
-            return MatrixD.Slerp(one, two, (float)type.LerpVal(val, ease));
+            return Matrix.Slerp(one, two, (float)type.LerpVal(val, ease));
         }
 
         public static Quaternion Lerp(this LerpType type, EaseType ease, Quaternion one, Quaternion two, double val)

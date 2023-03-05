@@ -33,6 +33,11 @@ namespace AnimationEngine
                 };
 
                 prevColor = block.Render.ColorMaskHsv;
+
+                if (block.IsWorking)
+                    OnIsWorking?.Invoke();
+                else
+                    OnNotWorking?.Invoke();
             }
         }
 

@@ -1,6 +1,5 @@
 ﻿using AnimationEngine.Core;
 using Sandbox.Game.EntityComponents;
-using Sandbox.ModAPI;
 using System;
 using VRage.Game;
 
@@ -14,8 +13,7 @@ namespace AnimationEngine
         private int tick;
         public int LoopTime;
 
-        private bool nonProductionBlock = false;
-        private IMyProductionBlock productionBlock;
+        private MyResourceSinkComponent SinkComp;
         private MyResourceSourceComponent SourceComp;
         private bool isProducing = false;
 
@@ -28,63 +26,51 @@ namespace AnimationEngine
         private void UpdateProducingState()
         {
             isProducing = false;
-            foreach (MyDefinitionId resourceType in SourceComp.ResourceTypes)
+            if (SourceComp != null)
             {
-                isProducing |= (SourceComp.CurrentOutputByType(resourceType) > 0f);
+                foreach (MyDefinitionId resourceType in SourceComp.ResourceTypes)
+                    isProducing |= (SourceComp.CurrentOutputByType(resourceType) > 0f);
+            }
+            if (SinkComp != null) {
+                foreach (MyDefinitionId resourceType in SinkComp.AcceptedResources)
+                    isProducing |= (SinkComp.CurrentInputByType(resourceType) > 0f);
             }
         }
 
         public void Init(CoreScript parent)
         {
-            if (parent.Entity is IMyProductionBlock)
-            {
-                productionBlock = ((IMyProductionBlock)parent.Entity);
-                productionBlock.StartedProducing += StartedProducing;
-                productionBlock.StoppedProducing += StoppedProducing;
-            }
-            else if (parent.Entity.Components.Has<MyResourceSourceComponent>())
-            {
-                nonProductionBlock = true;
+            if (parent.Entity.Components.Has<MyResourceSourceComponent>())
                 SourceComp = parent.Entity.Components.Get<MyResourceSourceComponent>();
-            }
+            if (parent.Entity.Components.Has<MyResourceSinkComponent>())
+                SinkComp = parent.Entity.Components.Get<MyResourceSinkComponent>();
         }
 
-        public void Close()
-        {
-            if (productionBlock != null)
-            {
-                productionBlock.StartedProducing -= StartedProducing;
-                productionBlock.StoppedProducing -= StoppedProducing;
-            }
-        }
+        public void Close() { }
 
         public void Tick(int time)
         {
-            if (LoopTime == -1 || (!nonProductionBlock && !productionBlock.IsProducing))
+            if (SourceComp == null && SinkComp == null)
             {
                 tick = 0;
                 return;
             }
 
-            if (nonProductionBlock)
+            bool previousState = isProducing;
+            UpdateProducingState();
+
+            if (previousState != isProducing)
             {
-                bool previousState = isProducing;
-                UpdateProducingState();
-
-                if (previousState != isProducing)
-                {
-                    if (isProducing)
-                        StartedProducing?.Invoke();
-                    else
-                        StoppedProducing?.Invoke();
-                }
-
-                if (!isProducing)
-                    return;
+                if (isProducing)
+                    StartedProducing?.Invoke();
+                else
+                    StoppedProducing?.Invoke();
             }
 
+            if (!isProducing)
+                return;
+
             tick += time;
-            if (tick % LoopTime == 0 || tick > LoopTime)
+            if (LoopTime != -1 && (tick % LoopTime == 0 || tick > LoopTime))
             {
                 tick = 0;
                 Ticked?.Invoke();

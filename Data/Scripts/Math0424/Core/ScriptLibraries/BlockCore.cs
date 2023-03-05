@@ -78,6 +78,7 @@ namespace AnimationEngine.Core
             AddMethod("rotate", RotateTranslate);
             AddMethod("rotatearound", RotateAroundTranslate);
             AddMethod("spin", SpinTranslate);
+            AddMethod("scale", blockMover.Scale);
             AddMethod("vibrate", blockMover.Vibrate);
             AddMethod("setresetpos", blockMover.SetResetPos);
             AddMethod("resetpos", blockMover.ResetPos);
@@ -149,14 +150,7 @@ namespace AnimationEngine.Core
                 return;
 
             pilotMover = new Mover(((IMyCockpit)Block).Pilot.PositionComp);
-            AddMethod("pilottranslate", pilotMover.Translate);
-            AddMethod("pilotrotate", pilotMover.Rotate);
-            AddMethod("pilotrotatearound", pilotMover.RotateAround);
-            AddMethod("pilotspin", pilotMover.Spin);
-            AddMethod("pilotvibrate", pilotMover.Vibrate);
-            AddMethod("pilotreset", pilotMover.Reset);
-            AddMethod("pilotresetpos", pilotMover.ResetPos);
-            AddMethod("pilotsetresetpos", pilotMover.SetResetPos);
+            pilotMover.AddToScriptLib(this, "pilot");
         }
 
         private void ControlReleased()
@@ -165,14 +159,7 @@ namespace AnimationEngine.Core
                 return;
 
             pilotMover.Clear();
-            RemoveMethod("pilottranslate");
-            RemoveMethod("pilotrotate");
-            RemoveMethod("pilotrotatearound");
-            RemoveMethod("pilotspin");
-            RemoveMethod("pilotvibrate");
-            RemoveMethod("pilotreset");
-            RemoveMethod("pilotresetpos");
-            RemoveMethod("pilotsetresetpos");
+            pilotMover.RemoveFromScriptLib(this, "pilot");
         }
 
         private void PowerOff()
