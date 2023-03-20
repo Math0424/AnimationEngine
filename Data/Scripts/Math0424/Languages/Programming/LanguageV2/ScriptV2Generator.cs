@@ -109,7 +109,7 @@ namespace AnimationEngine.Language
                 }
             }
 
-            runner = new ScriptV2Runner(objects, actions, globals, program.ToArray(), _immediates.ToArray(), methodLookup);
+            runner = new ScriptV2Runner(generator.ModName, objects, actions, globals, program.ToArray(), _immediates.ToArray(), methodLookup);
             defs = subparts;
         }
 

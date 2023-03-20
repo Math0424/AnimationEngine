@@ -2,6 +2,7 @@
 using AnimationEngine.Language;
 using AnimationEngine.LanguageXML;
 using AnimationEngine.Utility;
+using CoreSystems.Api;
 using Sandbox.Definitions;
 using Sandbox.Game.Entities;
 using Sandbox.ModAPI;
@@ -34,6 +35,7 @@ namespace AnimationEngine
         private static List<string> failed = new List<string>();
         private static List<MyTuple<CoreScript, IMyEntity>> delayed = new List<MyTuple<CoreScript, IMyEntity>>();
 
+        public static WcApi WCApi = new WcApi();
 
         public static void AddToRegisteredScripts(string id, Subpart[] subparts, ScriptRunner constant)
         {
@@ -46,6 +48,7 @@ namespace AnimationEngine
 
         protected override void UnloadData()
         {
+            WCApi.Unload();
             Utils.CloseLog();
         }
 
@@ -76,6 +79,8 @@ namespace AnimationEngine
 
         public override void BeforeStart()
         {
+            WCApi.Load();
+
             MyEntity testEnt = new MyEntity();
             foreach (var x in registeredScripts.Keys)
             {
@@ -139,6 +144,8 @@ namespace AnimationEngine
                 var x = delayed[0];
                 try
                 {
+                    if (WCApi.IsReady && x.Item1.HasComponent<WeaponcoreScriptRunner>())
+                        x.Item1.GetFirstComponent<WeaponcoreScriptRunner>().ListenToEvents((MyEntity)x.Item2);
                     x.Item1.Init(x.Item2);
                 }
                 catch (Exception ex)
@@ -213,7 +220,7 @@ namespace AnimationEngine
             }
             catch (Exception ex)
             {
-                Utils.LogToFile($"Error while ticking {script.Entity?.Name ?? script.Entity?.DisplayName ?? "null"}");
+                Utils.LogToFile($"Error while ticking a block from mod '{script.GetModName()}'");
                 Utils.LogToFile(ex.TargetSite);
                 Utils.LogToFile(ex.StackTrace);
                 Utils.LogToFile(ex.Message);
@@ -347,7 +354,7 @@ namespace AnimationEngine
             if (block.FatBlock != null && registeredScripts.ContainsKey(id) && !HasScript.Contains(block.FatBlock.EntityId))
             {
                 var x = registeredScripts[id];
-                CoreScript script = new CoreScript(x.Item1);
+                CoreScript script = new CoreScript(x.Item2.GetModName(), x.Item1);
                 script.AddComponent(x.Item2.Clone());
                 delayed.Add(new MyTuple<CoreScript, IMyEntity>(script, block.FatBlock));
             }
@@ -368,6 +375,7 @@ namespace AnimationEngine
 
             HasScript.Add(script.Entity.EntityId);
         }
+
 
     }
 }

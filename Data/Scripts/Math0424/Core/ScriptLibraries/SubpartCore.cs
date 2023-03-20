@@ -44,9 +44,6 @@ namespace AnimationEngine.Core
                 c.Tick(tick);
             mover.Tick(tick);
 
-            foreach (var x in components)
-                x.Tick(tick);
-
             MatrixD parentMat = Subpart.Parent.PositionComp.WorldMatrixRef;
             Subpart.PositionComp.UpdateWorldMatrix(ref parentMat);
         }

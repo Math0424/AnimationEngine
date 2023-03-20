@@ -16,9 +16,11 @@ namespace AnimationEngine.LanguageXML
 {
     internal class XMLScriptGenerator
     {
+        ModItem mod;
 
         public XMLScriptGenerator(ModItem mod, string path)
         {
+            this.mod = mod;
             if (MyAPIGateway.Utilities.FileExistsInModLocation(path, mod))
             {
                 var RawScript = MyAPIGateway.Utilities.ReadFileInModLocation(path, mod).ReadToEnd();
@@ -321,7 +323,7 @@ namespace AnimationEngine.LanguageXML
                 }
             }
 
-            ScriptRunner runner = new ScriptV1Runner(objects, actions, callingArray);
+            ScriptRunner runner = new ScriptV1Runner(mod.Name, objects, actions, callingArray);
             Log($"|  Registering block");
             AnimationEngine.AddToRegisteredScripts(animation.subtypeId, subparts.ToArray(), runner);
             Log($"|  |  Registered script to '{animation.subtypeId}'");

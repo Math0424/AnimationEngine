@@ -61,13 +61,6 @@ namespace AnimationEngine.Core
                     return true;
                 }
             }
-
-            //Utils.LogToFile($"Emitter failed to spawn. dummy: '{dummyName}' model: '{Path.GetFileName(ent.Model.AssetName)}'");
-            //foreach (var dum in dummies)
-            //{
-            //    Utils.LogToFile($"|  '{dum.Value.Name}'");
-            //}
-
             return false;
         }
 

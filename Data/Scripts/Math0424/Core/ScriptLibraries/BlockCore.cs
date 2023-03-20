@@ -1,6 +1,5 @@
 ﻿using AnimationEngine.Language;
 using Sandbox.Definitions;
-using Sandbox.Game;
 using Sandbox.ModAPI;
 using SpaceEngineers.Game.ModAPI;
 using VRage.Game.ModAPI;

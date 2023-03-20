@@ -16,15 +16,19 @@ namespace AnimationEngine.LanguageV1
         private List<Delayed> delay;
         private Dictionary<string, ScriptLib> libraries;
 
-        private bool Built;
-        private MyCubeBlockDefinition Definition;
-
         private List<ObjectDef> objectDefs;
         private List<V1ScriptAction> scriptActions;
         private Dictionary<string, Caller[]> callingArray;
 
-        public ScriptV1Runner(List<ObjectDef> objectDefs, List<V1ScriptAction> scriptActions, Dictionary<string, Caller[]> callingArray)
+        private string modName;
+        public string GetModName()
         {
+            return modName;
+        }
+
+        public ScriptV1Runner(string modName, List<ObjectDef> objectDefs, List<V1ScriptAction> scriptActions, Dictionary<string, Caller[]> callingArray)
+        {
+            this.modName = modName;
             this.objectDefs = objectDefs;
             this.scriptActions = scriptActions;
             this.callingArray = callingArray;
@@ -32,7 +36,7 @@ namespace AnimationEngine.LanguageV1
 
         public ScriptRunner Clone()
         {
-            return new ScriptV1Runner(objectDefs, scriptActions, callingArray);
+            return new ScriptV1Runner(modName, objectDefs, scriptActions, callingArray);
         }
 
         public void Init(CoreScript script)
@@ -52,8 +56,6 @@ namespace AnimationEngine.LanguageV1
                 if (x is Initializable)
                     ((Initializable)x).Init(script.Entity);
 
-            Definition = ((MyCubeBlockDefinition)((IMyCubeBlock)script.Entity).SlimBlock.BlockDefinition);
-            Built = ((IMyCubeBlock)core.Entity).SlimBlock.BuildLevelRatio > Definition.CriticalIntegrityRatio;
             Call("blockaction", "create");
         }
 
@@ -77,14 +79,11 @@ namespace AnimationEngine.LanguageV1
                 if (!(x is SubpartCore))
                     x.Tick(time);
 
-            var check = ((IMyCubeBlock)core.Entity).SlimBlock.BuildLevelRatio > Definition.CriticalIntegrityRatio;
-            if (check != Built)
+            if ((core.Flags & 2) != 0)
             {
-                Built = check;
-                if (Built)
-                    Call("blockaction", "built");
+                core.Flags ^= 2;
+                Call("blockaction", "built");
             }
-
         }
 
         private void CallFunction(string name)
@@ -267,5 +266,6 @@ namespace AnimationEngine.LanguageV1
         {
 
         }
+
     }
 }

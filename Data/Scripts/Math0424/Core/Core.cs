@@ -50,6 +50,7 @@ namespace AnimationEngine.Core
 
     internal interface ScriptRunner : EntityComponent
     {
+        string GetModName();
         ScriptRunner Clone();
         void Execute(string function, params SVariable[] args);
     }

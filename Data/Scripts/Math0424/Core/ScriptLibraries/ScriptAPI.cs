@@ -49,7 +49,7 @@ namespace AnimationEngine.Language.Libs
         {
             foreach (var x in methodLoops)
             {
-                if (x.method == var[0].ToString())
+                if (x.method == ("func_" + var[0].ToString().ToLower()))
                 {
                     methodLoops.Remove(x);
                     return null;

@@ -72,10 +72,8 @@ namespace AnimationEngine.Language
         private List<Entity> _ents;
         private List<ScriptAction> _actions;
         int _stackStart;
-        
-        private bool Built;
-        private MyCubeBlockDefinition Definition;
-        private string buildId;
+
+        private string buildId, createId;
 
         public void Execute(string function, params SVariable[] args)
         {
@@ -95,7 +93,7 @@ namespace AnimationEngine.Language
             } 
             else
             {
-                Utils.LogToFile($"Error with {Definition.Id.SubtypeName}: Cannot find method {function}");
+                //Utils.LogToFile($"Error with {Definition.Id.SubtypeName}: Cannot find method {function}");
             }
         }
 
@@ -118,19 +116,11 @@ namespace AnimationEngine.Language
                 IMyEntity ent = script.Entity;
                 if (x is Parentable && ((Parentable)x).GetParent() != null)
                 {
-                    //Utils.LogToFile($"Getting subpart {((Parentable)x).GetParent()}");
-                    //foreach(var z in script.Subparts)
-                    //{
-                    //    Utils.LogToFile($"{z.Key} : {z.Value}");
-                    //}
                     ent = script.Subparts[((Parentable)x).GetParent()].Subpart;
                 } 
                 if (x is Initializable)
                     ((Initializable)x).Init(ent);
             }
-
-            Definition = ((MyCubeBlockDefinition)((IMyCubeBlock)script.Entity).SlimBlock.BlockDefinition);
-            Built = ((IMyCubeBlock)script.Entity).SlimBlock.BuildLevelRatio > Definition.CriticalIntegrityRatio;
         }
 
         private void InitEnt(Entity ent)
@@ -177,7 +167,9 @@ namespace AnimationEngine.Language
                     foreach (var x in action.Funcs)
                         switch (x.TokenName)
                         {
-                            case "create": Execute($"act_{action.ID}_create"); break;
+                            case "create": 
+                                createId = $"act_{action.ID}_create"; 
+                                break;
                             case "built":
                                 buildId = $"act_{action.ID}_built";
                                 break;
@@ -193,6 +185,20 @@ namespace AnimationEngine.Language
                                 break;
                         }
                     break;
+                case "power":
+                    if (!core.HasComponent<PowerTickComp>())
+                        core.AddComponent(new PowerTickComp());
+                    foreach (var x in action.Funcs)
+                        switch (x.TokenName)
+                        {
+                            case "consumed":
+                                core.GetFirstComponent<PowerTickComp>().Consumed += (e) => Execute($"act_{action.ID}_consumed", new SVariableFloat(e));
+                                break;
+                            case "produced":
+                                core.GetFirstComponent<PowerTickComp>().Produced += (e) => Execute($"act_{action.ID}_produced", new SVariableFloat(e));
+                                break;
+                        }
+                    break;
                 case "production":
                     if (!core.HasComponent<ProductionTickComp>())
                         core.AddComponent(new ProductionTickComp(-1));
@@ -203,7 +209,7 @@ namespace AnimationEngine.Language
                                 core.GetFirstComponent<ProductionTickComp>().StartedProducing += () => Execute($"act_{action.ID}_startproducing");
                                 break;
                             case "stopproducing":
-                                core.GetFirstComponent<ProductionTickComp>().StartedProducing += () => Execute($"act_{action.ID}_stopproducing");
+                                core.GetFirstComponent<ProductionTickComp>().StoppedProducing += () => Execute($"act_{action.ID}_stopproducing");
                                 break;
                         }
                     break;
@@ -266,7 +272,13 @@ namespace AnimationEngine.Language
         }
 
         public void Tick(int time)
-        {
+         {
+            if ((core.Flags & 1) != 0)
+            {
+                core.Flags ^= 1;
+                Execute(createId);
+            }
+
             for (int i = 0; i < _delays.Count; i++)
             {
                 Delay d = _delays[i];
@@ -281,12 +293,10 @@ namespace AnimationEngine.Language
                 if (!(x is SubpartCore))
                     x.Tick(time);
 
-            var check = ((IMyCubeBlock)core.Entity).SlimBlock.BuildLevelRatio > Definition.CriticalIntegrityRatio;
-            if (check != Built)
+            if ((core.Flags & 2) != 0)
             {
-                Built = check;
-                if (Built)
-                    Execute(buildId);
+                core.Flags ^= 2;
+                Execute(buildId);
             }
         }
 
@@ -295,8 +305,15 @@ namespace AnimationEngine.Language
 
         }
 
-        public ScriptV2Runner(List<Entity> ents, List<ScriptAction> actions, SVariable[] globals, Line[] program, SVariable[] immediates, Dictionary<string, int> methods)
+        private string modName;
+        public string GetModName()
         {
+            return modName;
+        }
+
+        public ScriptV2Runner(string modName, List<Entity> ents, List<ScriptAction> actions, SVariable[] globals, Line[] program, SVariable[] immediates, Dictionary<string, int> methods)
+        {
+            this.modName = modName;
             _globals = globals;
             _program = program;
             _immediates = immediates;
@@ -307,6 +324,7 @@ namespace AnimationEngine.Language
 
         public ScriptV2Runner(ScriptV2Runner copy)
         {
+            modName = copy.modName;
             _libraries = new List<ScriptLib>();
             _stack = new RAStack<SVariable>();
             _callStack = new Stack<int>();

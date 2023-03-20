@@ -18,6 +18,11 @@ namespace AnimationEngine.LanguageV2.Nodes
 
             id = action ? Script.actions.Count : Script.terminals.Count;
 
+            if (Tokens[index].Value.ToString().ToLower().Equals("weaponcore"))
+            {
+                id = 7749;
+            }
+
             name = id + "_" + Tokens[index].Value.ToString().ToLower();
             ScriptAction act = new ScriptAction()
             {

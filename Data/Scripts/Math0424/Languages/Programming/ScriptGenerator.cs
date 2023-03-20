@@ -11,6 +11,7 @@ namespace AnimationEngine.Language
 {
     internal class ScriptGenerator
     {
+        public string ModName;
         public ScriptError Error { get; protected set; }
         public string[] RawScript { get; protected set; }
         public List<Token> Tokens = new List<Token>();
@@ -27,6 +28,7 @@ namespace AnimationEngine.Language
                 {
                     long start = DateTime.Now.Ticks;
                     Log($"Reading script {Path.GetFileName(path)} for {mod.Name}");
+                    ModName = mod.Name;
                     Log($"|  Lexer");
                     Lexer.TokenizeScript(this);
                     Log($"|  |  Generated {Tokens.Count} tokens");
@@ -39,8 +41,9 @@ namespace AnimationEngine.Language
                     int versionId;
                     if (!int.TryParse(headers["version"], out versionId))
                         throw new Exception($"version number '{headers["version"]}' cannot be read");
+
                     if (!headers.ContainsKey("blockid"))
-                        throw new Exception("Cannot find @blockid header");
+                        throw new Exception("Cannot find block id");
 
                     ScriptRunner runner = null;
                     List<Subpart> subparts = null;
@@ -49,6 +52,16 @@ namespace AnimationEngine.Language
                         case 1: new ScriptV1Generator(this, out runner, out subparts); break;
                         case 2: new ScriptV2Generator(this, out runner, out subparts); break;
                         default: throw new Exception($"Unsupported script version number {versionId}");
+                    }
+
+                    if(headers.ContainsKey("weaponcore"))
+                    {
+                        int weaponId;
+                        if (!int.TryParse(headers["weaponcore"], out weaponId))
+                        {
+                            throw new Exception($"Unknown WeaponCore weapon ID of '{headers["weaponcore"]}'");
+                        }
+                        runner = new WeaponcoreScriptRunner(weaponId, runner);
                     }
 
                     Log($"|  Registering block");

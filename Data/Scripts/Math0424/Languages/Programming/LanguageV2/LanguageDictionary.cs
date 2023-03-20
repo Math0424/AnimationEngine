@@ -94,6 +94,30 @@ namespace AnimationEngine.Language
         
         private static List<SpecialAction> _specialActions = new List<SpecialAction>()
         {
+            new SpecialAction("weaponcore", new TokenType[0],
+                new SpecialAction("reloading", new TokenType[0]),
+                new SpecialAction("firing", new TokenType[0]),
+                new SpecialAction("tracking", new TokenType[0]),
+                new SpecialAction("overheated", new TokenType[0]),
+                new SpecialAction("turnon", new TokenType[0]),
+                new SpecialAction("turnoff", new TokenType[0]),
+                new SpecialAction("burstreload", new TokenType[0]),
+                new SpecialAction("nomagstoload", new TokenType[0]),
+                new SpecialAction("prefire", new TokenType[0]),
+                new SpecialAction("emptyongameload", new TokenType[0]),
+                new SpecialAction("stopfiring", new TokenType[0]),
+                new SpecialAction("stoptracking", new TokenType[0]),
+                new SpecialAction("lockdelay", new TokenType[0]),
+                new SpecialAction("init", new TokenType[0]),
+                new SpecialAction("homing", new TokenType[0]),
+                new SpecialAction("targetaligned", new TokenType[0]),
+                new SpecialAction("whileon", new TokenType[0]),
+                new SpecialAction("targetranged100", new TokenType[0]),
+                new SpecialAction("targetranged75", new TokenType[0]),
+                new SpecialAction("targetranged50", new TokenType[0]),
+                new SpecialAction("targetranged25", new TokenType[0])
+            ),
+
             new SpecialAction("button", new TokenType[] { TokenType.KEWRD, TokenType.KEWRD },
                 new SpecialAction("pressed", new TokenType[] { TokenType.KEWRD })
             ),
@@ -102,7 +126,15 @@ namespace AnimationEngine.Language
                 new SpecialAction("create", new TokenType[0]),
                 new SpecialAction("built", new TokenType[0]),
                 new SpecialAction("working", new TokenType[0]),
-                new SpecialAction("notworking", new TokenType[0])
+                new SpecialAction("notworking", new TokenType[0]),
+
+                new SpecialAction("powerconsumed", new TokenType[0]),
+                new SpecialAction("powerproduced", new TokenType[0])
+            ),
+
+            new SpecialAction("power", new TokenType[0],
+                new SpecialAction("consumed", new TokenType[] { TokenType.KEWRD }),
+                new SpecialAction("produced", new TokenType[] { TokenType.KEWRD })
             ),
 
             new SpecialAction("production", new TokenType[0],

@@ -30,7 +30,7 @@ namespace AnimationEngine.Language.Libs
 
         public SVariable randomRange(SVariable[] var)
         {
-            return new SVariableInt((int)(_random.NextDouble() % (var[1].AsInt() - var[0].AsInt() + 1) - var[0].AsInt()));
+            return new SVariableInt((int)(_random.NextDouble() * (var[1].AsInt() - var[0].AsInt()) + var[0].AsInt()));
         }
 
         public SVariable random(SVariable[] var)

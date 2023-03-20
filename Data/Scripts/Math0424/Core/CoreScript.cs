@@ -1,6 +1,5 @@
 ﻿using AnimationEngine.Utility;
 using Sandbox.Game.Components;
-using Sandbox.Game.Entities;
 using System.Collections.Generic;
 using VRage.Game.Entity;
 using VRage.Game.ModAPI;
@@ -15,10 +14,21 @@ namespace AnimationEngine.Core
         public Dictionary<string, SubpartCore> Subparts = new Dictionary<string, SubpartCore>();
         private Dictionary<string, Subpart> subpartData = new Dictionary<string, Subpart>();
 
-        public CoreScript(Subpart[] subparts)
+        //1 = just created
+        //2 = just ready
+        public int Flags = 0;
+
+        string modName;
+        public string GetModName()
         {
+            return modName;
+        }
+
+        public CoreScript(string name, Subpart[] subparts)
+        {
+            modName = name;
             foreach (var x in subparts)
-                subpartData[x.Name] = x;
+                subpartData[x.CustomName] = x;
         }
 
         public void AddComponent<T>(T comp) where T : EntityComponent
@@ -57,6 +67,7 @@ namespace AnimationEngine.Core
 
             ent.OnClosing += OnClose;
             AnimationEngine.AddScript(this);
+            Flags |= 1;
         }
 
         private bool InitSubpart(Subpart subpart)
@@ -64,12 +75,14 @@ namespace AnimationEngine.Core
             if (!Subparts.ContainsKey(subpart.CustomName))
                 return false;
 
-            if (Subparts[subpart.CustomName].Subpart != null && !Subparts[subpart.CustomName].Subpart.MarkedForClose)
+            if (Subparts[subpart.CustomName].Subpart != null && !Subparts[subpart.CustomName].Subpart.MarkedForClose && !Subparts[subpart.CustomName].Subpart.Closed)
                 return true;
 
             MyEntitySubpart part;
             if (subpart.Parent != null)
             {
+                if (Subparts[subpart.Parent].Subpart == null)
+                    return false;
                 if (!Subparts[subpart.Parent].Subpart.TryGetSubpart(subpart.Name, out part))
                 {
                     return false;
@@ -82,17 +95,23 @@ namespace AnimationEngine.Core
 
             if (part.Render.GetType() != typeof(MyRenderComponent))
             {
+                if (part.Model == null)
+                    return false;
+                
                 string asset = ((IMyModel)part.Model).AssetName;
                 var model = part.Render.ModelStorage;
                 var matrix = part.PositionComp.LocalMatrixRef;
+                var physics = part.Physics;
 
                 part.OnClose -= SubpartClose;
                 part.Close();
+
                 part = new MyEntitySubpart();
                 part.Render.EnableColorMaskHsv = Entity.Render.EnableColorMaskHsv;
                 part.Render.ColorMaskHsv = Entity.Render.ColorMaskHsv;
                 part.Render.TextureChanges = Entity.Render.TextureChanges;
                 part.Render.MetalnessColorable = Entity.Render.MetalnessColorable;
+                part.Physics = physics;
 
                 part.Init(null, asset, (MyEntity)Entity, null, null);
                 part.OnAddedToScene(Entity);
@@ -121,6 +140,7 @@ namespace AnimationEngine.Core
         {
             if (unReadySubparts.Count != 0)
             {
+                Flags |= 2;
                 List<string> ready = new List<string>();
                 foreach (var x in unReadySubparts)
                 {
@@ -128,9 +148,13 @@ namespace AnimationEngine.Core
                         ready.Add(x);
                 }
                 unReadySubparts.RemoveAll((e) => ready.Contains(e));
+                if (unReadySubparts.Count == 0)
+                {
+                    for (int i = 0; i < components.Count; i++)
+                        components[i].Init(this);
+                }
                 return;
             }
-
             foreach (var component in components)
                 component.Tick(time);
             foreach (var x in Subparts.Values)
