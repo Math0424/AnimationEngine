@@ -6,66 +6,66 @@ namespace AnimationEngine
 
     public enum ShortHandLerp
     {
-        Instant = 1 << 3,
-        Linear =  1 << 4,
+        Instant = 1 << 4,
+        Linear =  1 << 5,
 
-        InBack = 1 << 5,
+        InBack = 1 << 6,
         OutBack = InBack | 1,
         InOutBack = InBack | 2,
 
-        InBounce = 1 << 6,
+        InBounce = 1 << 7,
         OutBounce = InBounce | 1,
         InOutBounce = InBounce | 2,
 
-        InElastic = 1 << 7,
+        InElastic = 1 << 8,
         OutElastic = InElastic | 1,
         InOutElastic = InElastic | 2,
 
-        InSine = 1 << 8,
+        InSine = 1 << 9,
         OutSine = InSine | 1,
         InOutSine = InSine | 2,
 
-        InQuad = 1 << 9,
+        InQuad = 1 << 10,
         OutQuad = InQuad | 1,
         InOutQuad = InQuad | 2,
 
-        InCubic = 1 << 10,
+        InCubic = 1 << 11,
         OutCubic = InCubic | 1,
         InOutCubic = InCubic | 2,
 
-        InQuart = 1 << 11,
+        InQuart = 1 << 12,
         OutQuart = InQuart | 1,
         InOutQuart = InQuart | 2,
 
-        InQuint = 1 << 12,
+        InQuint = 1 << 13,
         OutQuint = InQuint | 1,
         InOutQuint = InQuint | 2,
 
-        InExpo = 1 << 13,
+        InExpo = 1 << 14,
         OutExpo = InExpo | 1,
         InOutExpo = InExpo | 2,
 
-        InCirc = 1 << 14,
+        InCirc = 1 << 15,
         OutCirc = InCirc | 1,
         InOutCirc = InCirc | 2,
     }
 
     public enum LerpType
     {
-        Instant = 1 << 3,
-        Linear = 1 << 4,
+        Instant = 1 << 4,
+        Linear = 1 << 5,
 
-        Back = 1 << 5,
-        Bounce = 1 << 6,
-        Elastic = 1 << 7,
+        Back = 1 << 6,
+        Bounce = 1 << 7,
+        Elastic = 1 << 8,
 
-        Sine = 1 << 8,
-        Quad = 1 << 9,
-        Cubic = 1 << 10,
-        Quart = 1 << 11,
-        Quint = 1 << 12,
-        Expo = 1 << 13,
-        Circ = 1 << 14,
+        Sine = 1 << 9,
+        Quad = 1 << 10,
+        Cubic = 1 << 11,
+        Quart = 1 << 12,
+        Quint = 1 << 13,
+        Expo = 1 << 14,
+        Circ = 1 << 15,
     }
 
     public enum EaseType
@@ -80,157 +80,164 @@ namespace AnimationEngine
 
         public static void ShortToLong(this ShortHandLerp shl, out LerpType lerp, out EaseType ease)
         {
-            switch (shl)
-            {
-                case ShortHandLerp.Linear:
-                    lerp = LerpType.Linear;
-                    ease = EaseType.InOut;
-                    return;
-                case ShortHandLerp.Instant:
-                    lerp = LerpType.Instant;
-                    ease = EaseType.InOut;
-                    return;
-
-                case ShortHandLerp.InBounce:
-                    lerp = LerpType.Bounce;
-                    ease = EaseType.In;
-                    return;
-                case ShortHandLerp.OutBounce:
-                    lerp = LerpType.Bounce;
-                    ease = EaseType.Out;
-                    return;
-                case ShortHandLerp.InOutBounce:
-                    lerp = LerpType.Bounce;
-                    ease = EaseType.InOut;
-                    return;
-
-                case ShortHandLerp.InElastic:
-                    lerp = LerpType.Elastic;
-                    ease = EaseType.In;
-                    return;
-                case ShortHandLerp.OutElastic:
-                    lerp = LerpType.Elastic;
-                    ease = EaseType.Out;
-                    return;
-                case ShortHandLerp.InOutElastic:
-                    lerp = LerpType.Elastic;
-                    ease = EaseType.InOut;
-                    return;
-
-                case ShortHandLerp.InExpo:
-                    lerp = LerpType.Expo;
-                    ease = EaseType.In;
-                    return;
-                case ShortHandLerp.OutExpo:
-                    lerp = LerpType.Expo;
-                    ease = EaseType.Out;
-                    return;
-                case ShortHandLerp.InOutExpo:
-                    lerp = LerpType.Expo;
-                    ease = EaseType.InOut;
-                    return;
-
-                case ShortHandLerp.InCubic:
-                    lerp = LerpType.Cubic;
-                    ease = EaseType.In;
-                    return;
-                case ShortHandLerp.OutCubic:
-                    lerp = LerpType.Cubic;
-                    ease = EaseType.Out;
-                    return;
-                case ShortHandLerp.InOutCubic:
-                    lerp = LerpType.Cubic;
-                    ease = EaseType.InOut;
-                    return;
-
-                case ShortHandLerp.InBack:
-                    lerp = LerpType.Back;
-                    ease = EaseType.In;
-                    return;
-                case ShortHandLerp.OutBack:
-                    lerp = LerpType.Back;
-                    ease = EaseType.Out;
-                    return;
-                case ShortHandLerp.InOutBack:
-                    lerp = LerpType.Back;
-                    ease = EaseType.InOut;
-                    return;
-
-                case ShortHandLerp.InSine:
-                    lerp = LerpType.Sine;
-                    ease = EaseType.In;
-                    return;
-                case ShortHandLerp.OutSine:
-                    lerp = LerpType.Sine;
-                    ease = EaseType.Out;
-                    return;
-                case ShortHandLerp.InOutSine:
-                    lerp = LerpType.Sine;
-                    ease = EaseType.InOut;
-                    return;
-
-                case ShortHandLerp.InQuad:
-                    lerp = LerpType.Quad;
-                    ease = EaseType.In;
-                    return;
-                case ShortHandLerp.OutQuad:
-                    lerp = LerpType.Quad;
-                    ease = EaseType.Out;
-                    return;
-                case ShortHandLerp.InOutQuad:
-                    lerp = LerpType.Quad;
-                    ease = EaseType.InOut;
-                    return;
-
-                case ShortHandLerp.InQuart:
-                    lerp = LerpType.Quart;
-                    ease = EaseType.In;
-                    return;
-                case ShortHandLerp.OutQuart:
-                    lerp = LerpType.Quart;
-                    ease = EaseType.Out;
-                    return;
-                case ShortHandLerp.InOutQuart:
-                    lerp = LerpType.Quart;
-                    ease = EaseType.InOut;
-                    return;
-
-                case ShortHandLerp.InQuint:
-                    lerp = LerpType.Quint;
-                    ease = EaseType.In;
-                    return;
-                case ShortHandLerp.OutQuint:
-                    lerp = LerpType.Quint;
-                    ease = EaseType.Out;
-                    return;
-                case ShortHandLerp.InOutQuint:
-                    lerp = LerpType.Quint;
-                    ease = EaseType.InOut;
-                    return;
-
-                case ShortHandLerp.InCirc:
-                    lerp = LerpType.Circ;
-                    ease = EaseType.In;
-                    return;
-                case ShortHandLerp.OutCirc:
-                    lerp = LerpType.Circ;
-                    ease = EaseType.Out;
-                    return;
-                case ShortHandLerp.InOutCirc:
-                    lerp = LerpType.Circ;
-                    ease = EaseType.InOut;
-                    return;
-
-                default:
-                    lerp = LerpType.Instant;
-                    ease = EaseType.In;
-                    return;
-            }
+            lerp = (LerpType)((int)shl & (~3));
+            ease = (EaseType)((int)shl & (3));
+            //switch (shl)
+            //{
+            //    case ShortHandLerp.Linear:
+            //        lerp = LerpType.Linear;
+            //        ease = EaseType.InOut;
+            //        return;
+            //    case ShortHandLerp.Instant:
+            //        lerp = LerpType.Instant;
+            //        ease = EaseType.InOut;
+            //        return;
+            //
+            //    case ShortHandLerp.InBounce:
+            //        lerp = LerpType.Bounce;
+            //        ease = EaseType.In;
+            //        return;
+            //    case ShortHandLerp.OutBounce:
+            //        lerp = LerpType.Bounce;
+            //        ease = EaseType.Out;
+            //        return;
+            //    case ShortHandLerp.InOutBounce:
+            //        lerp = LerpType.Bounce;
+            //        ease = EaseType.InOut;
+            //        return;
+            //
+            //    case ShortHandLerp.InElastic:
+            //        lerp = LerpType.Elastic;
+            //        ease = EaseType.In;
+            //        return;
+            //    case ShortHandLerp.OutElastic:
+            //        lerp = LerpType.Elastic;
+            //        ease = EaseType.Out;
+            //        return;
+            //    case ShortHandLerp.InOutElastic:
+            //        lerp = LerpType.Elastic;
+            //        ease = EaseType.InOut;
+            //        return;
+            //
+            //    case ShortHandLerp.InExpo:
+            //        lerp = LerpType.Expo;
+            //        ease = EaseType.In;
+            //        return;
+            //    case ShortHandLerp.OutExpo:
+            //        lerp = LerpType.Expo;
+            //        ease = EaseType.Out;
+            //        return;
+            //    case ShortHandLerp.InOutExpo:
+            //        lerp = LerpType.Expo;
+            //        ease = EaseType.InOut;
+            //        return;
+            //
+            //    case ShortHandLerp.InCubic:
+            //        lerp = LerpType.Cubic;
+            //        ease = EaseType.In;
+            //        return;
+            //    case ShortHandLerp.OutCubic:
+            //        lerp = LerpType.Cubic;
+            //        ease = EaseType.Out;
+            //        return;
+            //    case ShortHandLerp.InOutCubic:
+            //        lerp = LerpType.Cubic;
+            //        ease = EaseType.InOut;
+            //        return;
+            //
+            //    case ShortHandLerp.InBack:
+            //        lerp = LerpType.Back;
+            //        ease = EaseType.In;
+            //        return;
+            //    case ShortHandLerp.OutBack:
+            //        lerp = LerpType.Back;
+            //        ease = EaseType.Out;
+            //        return;
+            //    case ShortHandLerp.InOutBack:
+            //        lerp = LerpType.Back;
+            //        ease = EaseType.InOut;
+            //        return;
+            //
+            //    case ShortHandLerp.InSine:
+            //        lerp = LerpType.Sine;
+            //        ease = EaseType.In;
+            //        return;
+            //    case ShortHandLerp.OutSine:
+            //        lerp = LerpType.Sine;
+            //        ease = EaseType.Out;
+            //        return;
+            //    case ShortHandLerp.InOutSine:
+            //        lerp = LerpType.Sine;
+            //        ease = EaseType.InOut;
+            //        return;
+            //
+            //    case ShortHandLerp.InQuad:
+            //        lerp = LerpType.Quad;
+            //        ease = EaseType.In;
+            //        return;
+            //    case ShortHandLerp.OutQuad:
+            //        lerp = LerpType.Quad;
+            //        ease = EaseType.Out;
+            //        return;
+            //    case ShortHandLerp.InOutQuad:
+            //        lerp = LerpType.Quad;
+            //        ease = EaseType.InOut;
+            //        return;
+            //
+            //    case ShortHandLerp.InQuart:
+            //        lerp = LerpType.Quart;
+            //        ease = EaseType.In;
+            //        return;
+            //    case ShortHandLerp.OutQuart:
+            //        lerp = LerpType.Quart;
+            //        ease = EaseType.Out;
+            //        return;
+            //    case ShortHandLerp.InOutQuart:
+            //        lerp = LerpType.Quart;
+            //        ease = EaseType.InOut;
+            //        return;
+            //
+            //    case ShortHandLerp.InQuint:
+            //        lerp = LerpType.Quint;
+            //        ease = EaseType.In;
+            //        return;
+            //    case ShortHandLerp.OutQuint:
+            //        lerp = LerpType.Quint;
+            //        ease = EaseType.Out;
+            //        return;
+            //    case ShortHandLerp.InOutQuint:
+            //        lerp = LerpType.Quint;
+            //        ease = EaseType.InOut;
+            //        return;
+            //
+            //    case ShortHandLerp.InCirc:
+            //        lerp = LerpType.Circ;
+            //        ease = EaseType.In;
+            //        return;
+            //    case ShortHandLerp.OutCirc:
+            //        lerp = LerpType.Circ;
+            //        ease = EaseType.Out;
+            //        return;
+            //    case ShortHandLerp.InOutCirc:
+            //        lerp = LerpType.Circ;
+            //        ease = EaseType.InOut;
+            //        return;
+            //
+            //    default:
+            //        lerp = LerpType.Instant;
+            //        ease = EaseType.In;
+            //        return;
+            //}
         }
 
         public static float Lerp(this LerpType type, EaseType ease, float one, float two, double val)
         {
             return MathHelper.Lerp(one, two, (float)type.LerpVal(val, ease));
+        }
+
+        public static Vector4D Lerp(this LerpType type, EaseType ease, Vector4D one, Vector4D two, double val)
+        {
+            return Vector4D.Lerp(one, two, (float)type.LerpVal(val, ease));
         }
 
         public static Vector3D Lerp(this LerpType type, EaseType ease, Vector3D one, Vector3D two, double val)

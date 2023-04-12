@@ -49,8 +49,8 @@ namespace AnimationEngine.Language
             Context.EnterNewContext(Tokens.ToArray());
             Context.SetScript(this);
 
-            objects.Add(new Entity("math"));
             objects.Add(new Entity("api"));
+            objects.Add(new Entity("math"));
             objects.Add(new Entity("block"));
             ScriptNode root = new ScriptNode();
 
@@ -66,12 +66,12 @@ namespace AnimationEngine.Language
             Log($"|  |  finalized {program.Count} lines of bytecode");
 
 
-            /*int i;
+            int i;
             //Log("--Tokens--");
             //i = 0;
             //foreach (var x in Tokens)
             //    Log($"{i++:D3} {x.Type}");
-
+#if DEBUG
             Log("--Globals--");
             i = 0;
             foreach (var x in globals)
@@ -98,7 +98,8 @@ namespace AnimationEngine.Language
                     v += "NULL";
                 }
                 Log(v);
-            }*/
+            }
+#endif
 
             List<Subpart> subparts = new List<Subpart>();
             foreach (var x in objects)
@@ -109,7 +110,18 @@ namespace AnimationEngine.Language
                 }
             }
 
-            runner = new ScriptV2Runner(generator.ModName, objects, actions, globals, program.ToArray(), _immediates.ToArray(), methodLookup);
+            foreach(var y in terminals)
+            {
+                Utils.LogToFile("Terminal control " + y.Name.Value.ToString().Substring(y.Name.Value.ToString().IndexOf("_") + 1));
+                switch(y.Name.Value.ToString().Substring(y.Name.Value.ToString().IndexOf("_") + 1))
+                {
+                    case "button":
+                        TerminalControlHelper.CreateOnOffTerminal(generator.headers["blockid"], (int)y.Paramaters[0].Value, y.Paramaters[1].Value.ToString(), y.Paramaters[2].Value.ToString());
+                        break;
+                }
+            }
+
+            runner = new ScriptV2Runner(generator.ModName, objects, actions, terminals, globals, program.ToArray(), _immediates.ToArray(), methodLookup);
             defs = subparts;
         }
 

@@ -31,6 +31,27 @@ namespace AnimationEngine.Language.Libs
             AddMethod("log", log);
             AddMethod("startloop", StartLoop);
             AddMethod("stoploop", StopLoop);
+            AddMethod("stopdelays", stopDelays);
+            AddMethod("assert", assert);
+        }
+
+        public SVariable stopDelays(SVariable[] var)
+        {
+            runner.Stop();
+            return null;
+        }
+
+        public SVariable assert(SVariable[] var)
+        {
+            if (!var[0].Equals(var[1]))
+            {
+                throw new System.Exception($"assertion failed, expected {var[0].GetType()}({var[0].AsFloat()}) got {var[1].GetType()}({var[1].AsFloat()})");
+            } 
+            else
+            {
+                Utils.LogToFile($"Assert: {var[0].GetType()}({var[0].AsFloat()}) == {var[1].GetType()}({var[1].AsFloat()})");
+            }
+            return null;
         }
 
         public SVariable log(SVariable[] var)

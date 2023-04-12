@@ -135,7 +135,7 @@ namespace AnimationEngine
             return null;
         }
 
-        //rotate([x, y, z], [x, y, z] pivot angle, time, lerp)
+        //rotate([x, y, z], [x, y, z], pivot angle, time, lerp)
         public SVariable RotateAround(SVariable[] args)
         {
             Vector3 val = args[0].AsVector3();

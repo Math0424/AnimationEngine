@@ -33,6 +33,11 @@ namespace AnimationEngine.Language
             parent.Execute($"act_7749_{((EventTriggers)v).ToString().ToLower()}");
         }
 
+        public void Stop()
+        {
+            parent.Stop();
+        }
+
         public ScriptRunner Clone()
         {
             return new WeaponcoreScriptRunner(id, parent.Clone());

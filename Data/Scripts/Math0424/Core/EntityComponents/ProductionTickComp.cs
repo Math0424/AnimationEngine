@@ -85,13 +85,14 @@ namespace AnimationEngine
 
         public void Tick(int time)
         {
+            totalTime++;
+
             if (SourceComp == null && SinkComp == null)
             {
                 tick = 0;
                 return;
             }
 
-            totalTime++;
             bool previousState = isProducing;
             UpdateProducingState();
 

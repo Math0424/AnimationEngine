@@ -54,7 +54,7 @@ namespace AnimationEngine.LanguageV2.Nodes
                     case TokenType.ENDL:
                         break;
                     default:
-                        throw Script.DetailedErrorLog("Unexpected token in body", Tokens[c]);
+                        throw Script.DetailedErrorLog($"Unexpected token in body {Tokens[c].Type}", Tokens[c]);
                 }
                 c++;
             }

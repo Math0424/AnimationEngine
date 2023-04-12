@@ -71,6 +71,7 @@ namespace AnimationEngine.Language
         private List<Delay> _delays;
         private List<Entity> _ents;
         private List<ScriptAction> _actions;
+        private List<ScriptAction> _terminals;
         int _stackStart;
 
         private string buildId, createId;
@@ -91,10 +92,11 @@ namespace AnimationEngine.Language
                     Utils.LogToFile(ex);
                 }
             } 
-            else
-            {
-                //Utils.LogToFile($"Error with {Definition.Id.SubtypeName}: Cannot find method {function}");
-            }
+        }
+
+        public void Stop()
+        {
+            _delays.Clear();
         }
 
         public ScriptRunner Clone()
@@ -110,6 +112,8 @@ namespace AnimationEngine.Language
                 InitEnt(x);
             foreach (var x in _actions)
                 InitAction(x);
+            foreach (var x in _terminals)
+                InitTerminal(x);
 
             foreach (var x in _libraries)
             {
@@ -127,10 +131,10 @@ namespace AnimationEngine.Language
         {
             switch (ent.Type.Value.ToString().ToLower())
             {
-                case "math":
-                    _libraries.Add(new ScriptMath()); break;
                 case "api":
                     _libraries.Add(new ScriptAPI(this)); break;
+                case "math":
+                    _libraries.Add(new ScriptMath()); break;
                 case "block":
                     _libraries.Add(new BlockCore(core)); break;
                 case "button":
@@ -146,6 +150,14 @@ namespace AnimationEngine.Language
                 case "light":
                     _libraries.Add(new Light(ent.Args[0].Value.ToString(), (float)ent.Args[1].Value, ent.Parent.Value?.ToString()));
                     break;
+            }
+        }
+
+        private void InitTerminal(ScriptAction action)
+        {
+            switch (action.TokenName)
+            {
+
             }
         }
 
@@ -182,6 +194,17 @@ namespace AnimationEngine.Language
                                 if (!core.HasComponent<WorkingTickComp>())
                                     core.AddComponent(new WorkingTickComp(-1));
                                 core.GetFirstComponent<WorkingTickComp>().OnNotWorking += () => Execute($"act_{action.ID}_notworking");
+                                break;
+                        }
+                    break;
+                case "inventory":
+                    if (!core.HasComponent<InventoryFillComp>())
+                        core.AddComponent(new InventoryFillComp());
+                    foreach (var x in action.Funcs)
+                        switch (x.TokenName)
+                        {
+                            case "changed":
+                                core.GetFirstComponent<InventoryFillComp>().Changed += (e) => Execute($"act_{action.ID}_changed", new SVariableFloat(e));
                                 break;
                         }
                     break;
@@ -266,11 +289,6 @@ namespace AnimationEngine.Language
             }
         }
 
-        private void InitTerminal(ScriptAction terminal)
-        {
-            //TODO: this
-        }
-
         public void Tick(int time)
          {
             if ((core.Flags & 1) != 0)
@@ -311,7 +329,7 @@ namespace AnimationEngine.Language
             return modName;
         }
 
-        public ScriptV2Runner(string modName, List<Entity> ents, List<ScriptAction> actions, SVariable[] globals, Line[] program, SVariable[] immediates, Dictionary<string, int> methods)
+        public ScriptV2Runner(string modName, List<Entity> ents, List<ScriptAction> actions, List<ScriptAction> terminals, SVariable[] globals, Line[] program, SVariable[] immediates, Dictionary<string, int> methods)
         {
             this.modName = modName;
             _globals = globals;
@@ -320,6 +338,8 @@ namespace AnimationEngine.Language
             _methodLookup = methods;
             _ents = ents;
             _actions = actions;
+            _terminals = terminals;
+
         }
 
         public ScriptV2Runner(ScriptV2Runner copy)
@@ -338,6 +358,11 @@ namespace AnimationEngine.Language
             _methodLookup = copy._methodLookup;
             _ents = copy._ents;
             _actions = copy._actions;
+            _terminals = copy._terminals;
+
+#if DEBUG
+            _libraries.Add(new ScriptAPI(this));
+#endif
         }
 
         private void Execute(int line)
@@ -445,7 +470,7 @@ namespace AnimationEngine.Language
                         SVariable[] arr = new SVariable[curr.Arr[1]];
                         _stack.CopyTo(_stack.Count - curr.Arr[1], arr, 0, curr.Arr[1]);
                         _stack.RemoveRange(_stack.Count - curr.Arr[1], curr.Arr[1]);
-                        if (_immediates[curr.Arr[0]].ToString() == "delay")
+                        if (_immediates[curr.Arr[0]].ToString().ToLower() == "delay")
                         {
                             _delay += arr[0].AsInt();
                             _stack.Push(new SVariableInt(0));

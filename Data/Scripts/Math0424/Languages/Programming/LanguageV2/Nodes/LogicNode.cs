@@ -1,4 +1,5 @@
 ﻿using AnimationEngine.Language;
+using AnimationEngine.Utility;
 
 namespace AnimationEngine.LanguageV2.Nodes
 {
@@ -60,7 +61,6 @@ namespace AnimationEngine.LanguageV2.Nodes
                 isNot = true;
                 index++;
             }
-
             if (CreateLogOrEquasion(ref index))
             {
                 if (!Tokens[index].Type.IsLogic())

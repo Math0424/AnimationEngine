@@ -39,6 +39,11 @@ namespace AnimationEngine.LanguageV1
             return new ScriptV1Runner(modName, objectDefs, scriptActions, callingArray);
         }
 
+        public void Stop()
+        {
+            delay.Clear();
+        }
+
         public void Init(CoreScript script)
         {
             libraries = new Dictionary<string, ScriptLib>();

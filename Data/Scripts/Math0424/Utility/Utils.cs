@@ -15,7 +15,9 @@ namespace AnimationEngine.Utility
         static Utils()
         {
             log = new MyLog(true);
+#if !DEBUG
             log.Init("AnimationEngine.log", new System.Text.StringBuilder("0.1A"));
+#endif
         }
 
         public static float Angle(this Vector3 one, Vector3 two)
@@ -69,7 +71,11 @@ namespace AnimationEngine.Utility
 
         public static void LogToFile(object msg)
         {
+#if !DEBUG
             log.WriteLine($"AnimationEngine: {msg ?? "null"}");
+#else
+            Console.WriteLine($"AnimationEngine: {msg ?? "null"}");
+#endif
         }
 
         public static void DrawDebugLine(Vector3D pos, Vector3D dir, int r, int g, int b)
@@ -86,12 +92,12 @@ namespace AnimationEngine.Utility
 
         public static string GetLogPath()
         {
-            return log.GetFilePath();
+            return log?.GetFilePath();
         }
 
         public static void CloseLog()
         {
-            log.Close();
+            log?.Close();
         }
 
     }

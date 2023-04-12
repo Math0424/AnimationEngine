@@ -17,6 +17,7 @@ namespace AnimationEngine.Language.Libs
             AddMethod("min", min);
             AddMethod("floor", floor);
             AddMethod("ceiling", ceiling);
+            AddMethod("round", round);
 
             AddMethod("random", random);
             AddMethod("randomrange", randomRange);
@@ -70,6 +71,10 @@ namespace AnimationEngine.Language.Libs
         public SVariable ceiling(SVariable[] var)
         {
             return new SVariableFloat((float)Math.Ceiling(var[0].AsFloat()));
+        }
+        public SVariable round(SVariable[] var)
+        {
+            return new SVariableFloat((float)Math.Round(var[0].AsFloat()));
         }
     }
 }

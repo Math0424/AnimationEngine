@@ -105,10 +105,16 @@ namespace AnimationEngine.Core
 
             p.Autodelete = true;
             effects.Add(p);
-            p.OnDelete += (e) => { effects.Remove(e); };
+            p.OnDelete += OnParticleDelete;
 
             p.Play();
             return null;
+        }
+
+        private void OnParticleDelete(MyParticleEffect e)
+        {
+            effects.Remove(e);
+            e.StopLights();
         }
 
         private SVariable StopParticles(SVariable[] arr)

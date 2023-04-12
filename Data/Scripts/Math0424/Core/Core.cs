@@ -52,6 +52,7 @@ namespace AnimationEngine.Core
     {
         string GetModName();
         ScriptRunner Clone();
+        void Stop();
         void Execute(string function, params SVariable[] args);
     }
 

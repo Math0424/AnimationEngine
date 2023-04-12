@@ -2,8 +2,6 @@ This a scripting language for SE that allows modders to create block animations 
 
 This is not a mod, its more of a framework for modders
 
-
-THIS MOD IS VERY EARLY ALPHA
 If you run into any bugs or missing features please request them on the discord
 
 Documentation and how to create scripts are below

@@ -6,7 +6,7 @@ namespace AnimationEngine.Language
 {
     internal static class LanguageDictionary
     {
-        /*
+#if RELEASE
         //I am lazy and dont like writing out the documentation. have it do it for me
         public static void Main(string[] args)
         {
@@ -81,7 +81,7 @@ namespace AnimationEngine.Language
 
             Console.WriteLine(sb.ToString());
         }
-        */
+#endif
 
         private static List<SpecialObject> _objects = new List<SpecialObject>()
         {
@@ -132,6 +132,10 @@ namespace AnimationEngine.Language
                 new SpecialAction("powerproduced", new TokenType[0])
             ),
 
+            new SpecialAction("inventory", new TokenType[0],
+                new SpecialAction("changed", new TokenType[] { TokenType.KEWRD })
+            ),
+
             new SpecialAction("power", new TokenType[0],
                 new SpecialAction("consumed", new TokenType[] { TokenType.KEWRD }),
                 new SpecialAction("produced", new TokenType[] { TokenType.KEWRD })
@@ -168,19 +172,21 @@ namespace AnimationEngine.Language
 
         private static List<SpecialAction> _terminalActions = new List<SpecialAction>()
         {
-            new SpecialAction("slider", new TokenType[] { TokenType.INT, TokenType.STR, TokenType.FLOAT, TokenType.FLOAT },
+            new SpecialAction("slider", new TokenType[] { TokenType.INT, TokenType.STR, TokenType.STR, TokenType.FLOAT, TokenType.FLOAT },
                 new SpecialAction("changed", new TokenType[] { TokenType.KEWRD })
             ),
 
-            new SpecialAction("button", new TokenType[] { TokenType.INT, TokenType.STR },
+            // pos name tooltip
+            new SpecialAction("button", new TokenType[] { TokenType.INT, TokenType.STR, TokenType.STR },
                 new SpecialAction("pressed", new TokenType[0])
             ),
 
-            new SpecialAction("onoffswitch", new TokenType[] { TokenType.INT, TokenType.STR, TokenType.STR, TokenType.STR },
+            // pos name tooltip
+            new SpecialAction("onoffswitch", new TokenType[] { TokenType.INT, TokenType.STR, TokenType.STR },
                 new SpecialAction("changed", new TokenType[] { TokenType.KEWRD })
             ),
 
-            new SpecialAction("checkbox", new TokenType[] { TokenType.INT, TokenType.STR },
+            new SpecialAction("checkbox", new TokenType[] { TokenType.INT, TokenType.STR, TokenType.STR },
                 new SpecialAction("changed", new TokenType[] { TokenType.KEWRD })
             ),
 
@@ -202,6 +208,7 @@ namespace AnimationEngine.Language
 
                 new MethodDictionary("floor", true, "Value"),
                 new MethodDictionary("ceiling", true, "Value"),
+                new MethodDictionary("round", true, "Value"),
 
                 new MethodDictionary("random", true),
                 new MethodDictionary("randomrange", true, "minVal", "maxVal"),
@@ -211,7 +218,9 @@ namespace AnimationEngine.Language
             new LibraryDictionary("api",
                 new MethodDictionary("log", false, "Value"),
                 new MethodDictionary("startloop", false, "FunctionName", "LoopDelay", "LoopCount"),
-                new MethodDictionary("stoploop", false, "FunctionName")
+                new MethodDictionary("stoploop", false, "FunctionName"),
+                new MethodDictionary("stopdelays", false),
+                new MethodDictionary("assert", false, "a", "b")
             ),
 
             new LibraryDictionary("block",
@@ -222,8 +231,8 @@ namespace AnimationEngine.Language
 
                 new MethodDictionary("translate", false, "PositionVector", "Time", "Lerp"),
                 new MethodDictionary("scale", false, "ScaleVector", "Time", "Lerp"),
-                new MethodDictionary("rotate", false, "AxisVector", "Speed", "Time", "Lerp"),
-                new MethodDictionary("rotatearound", false, "AxisVector", "PivotVector", "Time", "Lerp"),
+                new MethodDictionary("rotate", false, "AxisVector", "Angle", "Time", "Lerp"),
+                new MethodDictionary("rotatearound", false, "AxisVector", "PivotVector", "Angle", "Time", "Lerp"),
                 new MethodDictionary("spin", false, "Vector", "Speed", "Time"),
                 new MethodDictionary("vibrate", false, "Scale", "Time"),
                 new MethodDictionary("setresetpos", false),
@@ -241,8 +250,8 @@ namespace AnimationEngine.Language
 
                 new MethodDictionary("pilottranslate", false, "PositionVector", "Time", "Lerp"),
                 new MethodDictionary("pilotscale", false, "ScaleVector", "Time", "Lerp"),
-                new MethodDictionary("pilotrotate", false, "AxisVector", "Speed", "Time", "Lerp"),
-                new MethodDictionary("pilotrotatearound", false, "AxisVector", "PivotVector", "Time", "Lerp"),
+                new MethodDictionary("pilotrotate", false, "AxisVector", "Angle", "Time", "Lerp"),
+                new MethodDictionary("pilotrotatearound", false, "AxisVector", "PivotVector", "Angle", "Time", "Lerp"),
                 new MethodDictionary("pilotspin", false, "Vector", "Speed", "Time"),
                 new MethodDictionary("pilotvibrate", false, "Scale", "Time"),
                 new MethodDictionary("pilotmovetoorigin", false, "Time", "Lerp"),
@@ -263,8 +272,8 @@ namespace AnimationEngine.Language
 
                 new MethodDictionary("translate", false, "PositionVector", "Time", "Lerp"),
                 new MethodDictionary("scale", false, "ScaleVector", "Time", "Lerp"),
-                new MethodDictionary("rotate", false, "AxisVector", "Speed", "Time", "Lerp"),
-                new MethodDictionary("rotatearound", false, "AxisVector", "PivotVector", "Time", "Lerp"),
+                new MethodDictionary("rotate", false, "AxisVector", "Angle", "Time", "Lerp"),
+                new MethodDictionary("rotatearound", false, "AxisVector", "PivotVector", "Angle", "Time", "Lerp"),
                 new MethodDictionary("spin", false, "Vector", "Speed", "Time"),
                 new MethodDictionary("vibrate", false, "Scale", "Time"),
                 new MethodDictionary("movetoorigin", false, "Time", "Lerp"),
@@ -285,8 +294,8 @@ namespace AnimationEngine.Language
 
                 new MethodDictionary("translate", false, "PositionVector", "Time", "Lerp"),
                 new MethodDictionary("scale", false, "ScaleVector", "Time", "Lerp"),
-                new MethodDictionary("rotate", false, "AxisVector", "Speed", "Time", "Lerp"),
-                new MethodDictionary("rotatearound", false, "AxisVector", "PivotVector", "Time", "Lerp"),
+                new MethodDictionary("rotate", false, "AxisVector", "Angle", "Time", "Lerp"),
+                new MethodDictionary("rotatearound", false, "AxisVector", "PivotVector", "Angle", "Time", "Lerp"),
                 new MethodDictionary("spin", false, "Vector", "Speed", "Time"),
                 new MethodDictionary("vibrate", false, "Scale", "Time"),
                 new MethodDictionary("setresetpos", false),
@@ -311,7 +320,10 @@ namespace AnimationEngine.Language
                 new MethodDictionary("delay", false, "Value"),
 
                 new MethodDictionary("setcolor", false, "r", "g", "b", "brightness", "setAllSubpartColors"),
-                new MethodDictionary("setsubpartcolor", false, "actualSubpartName", "r", "g", "b", "brightness")
+                new MethodDictionary("setsubpartcolor", false, "actualSubpartName", "r", "g", "b", "brightness"),
+
+                new MethodDictionary("tocolor", false, "r", "g", "b", "brightness", "setAllSubpartColors", "time", "lerp"),
+                new MethodDictionary("subparttocolor", false, "actualSubpartName", "r", "g", "b", "brightness", "time", "lerp")
             ),
 
             new LibraryDictionary("light",

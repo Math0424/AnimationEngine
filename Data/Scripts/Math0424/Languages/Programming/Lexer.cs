@@ -296,7 +296,7 @@ namespace AnimationEngine.Language
         private static string GetString(ref string line, ref int index)
         {
             string value = "";
-            while (index < line.Length)
+            while (index < line.Length - 1)
             {
                 char c = line[++index];
                 if (c == '\'' || c == '\"')

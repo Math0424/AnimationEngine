@@ -1,4 +1,5 @@
 ﻿using AnimationEngine.Language;
+using AnimationEngine.Utility;
 
 namespace AnimationEngine.LanguageV2.Nodes
 {
@@ -7,6 +8,7 @@ namespace AnimationEngine.LanguageV2.Nodes
 
         LogicNode logic;
         CompilationNode body;
+        ElseNode elseNode;
 
         public IfNode(ref int index)
         {
@@ -22,17 +24,29 @@ namespace AnimationEngine.LanguageV2.Nodes
 
             index++;
             Context.RequireReturn = true;
-            children.Add(new LogicNode(ref index));
-            logic = (LogicNode)children[children.Count - 1];
+            logic = new LogicNode(ref index);
+            children.Add(logic);
             Context.RequireReturn = false;
 
-            if (Tokens[index].Type != TokenType.VECTOR)
-            {
-                throw Script.DetailedErrorLog("Missing IF closing parentheses ", Tokens[index]);
-            }
+            if (Tokens[index].Type == TokenType.ENDL)
+                index++;
 
-            children.Add(new BodyNode(ref index));
-            body = children[children.Count - 1];
+            if (Tokens[index].Type != TokenType.VECTOR)
+                throw Script.DetailedErrorLog($"Missing IF closing parentheses", Tokens[index]);
+
+            Utils.LogToFile("ElseAFDWS");
+            body = new BodyNode(ref index);
+            children.Add(body);
+
+            if (Tokens[index+1].Type == TokenType.ENDL)
+                index++;
+
+            if (index + 1 < Tokens.Length && Tokens[index+1].Type == TokenType.ELSE) {
+                index++;
+                Utils.LogToFile("Else");
+                elseNode = new ElseNode(ref index);
+                children.Add(elseNode);
+            }
         }
 
         public override void Compile()
@@ -50,7 +64,19 @@ namespace AnimationEngine.LanguageV2.Nodes
             body.Compile();
             body.PostCompile();
 
+            int elseTop = Script.program.Count;
+            if (elseNode != null)
+                Script.program.Add(new Line(ProgramFunc.B, 0));
+
             Script.program[top] = new Line(ProgramFunc.BNZ, Script.program.Count);
+
+            if (elseNode != null)
+            {
+                elseNode.Compile();
+                elseNode.PostCompile();
+
+                Script.program[elseTop] = new Line(ProgramFunc.B, Script.program.Count);
+            }
         }
 
         public override void PostCompile() { }

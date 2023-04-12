@@ -15,15 +15,25 @@ namespace AnimationEngine.Language
         public ScriptError Error { get; protected set; }
         public string[] RawScript { get; protected set; }
         public List<Token> Tokens = new List<Token>();
-        private Dictionary<string, string> headers = new Dictionary<string, string>();
+        public Dictionary<string, string> headers = new Dictionary<string, string>();
 
+#if !DEBUG
         public ScriptGenerator(ModItem mod, string path)
         {
             if (MyAPIGateway.Utilities.FileExistsInModLocation(path, mod))
             {
                 Error = new ScriptError();
                 RawScript = MyAPIGateway.Utilities.ReadFileInModLocation(path, mod).ReadToEnd().Split('\n');
+#else
+        public ScriptGenerator(ModItem mod, string path) { }
 
+        public ScriptGenerator(ModItem mod, string path, out ScriptRunner rout)
+        { 
+            if (File.Exists(path))
+            {
+                Error = new ScriptError();
+                RawScript = File.ReadAllLines(path);
+#endif
                 try
                 {
                     long start = DateTime.Now.Ticks;
@@ -53,8 +63,9 @@ namespace AnimationEngine.Language
                         case 2: new ScriptV2Generator(this, out runner, out subparts); break;
                         default: throw new Exception($"Unsupported script version number {versionId}");
                     }
+                    rout = runner;
 
-                    if(headers.ContainsKey("weaponcore"))
+                    if (headers.ContainsKey("weaponcore"))
                     {
                         int weaponId;
                         if (!int.TryParse(headers["weaponcore"], out weaponId))
