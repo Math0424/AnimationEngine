@@ -4,6 +4,7 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <LangVersion>6</LangVersion>
     <OutputType>Exe</OutputType>
+    <Configurations>Debug;Release;Game</Configurations>
   </PropertyGroup>
 
   <ItemGroup>
@@ -74,6 +75,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="Data\Scripts\Math0424\ExampleTestScripts\AnimatedThruster.bsl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Data\Scripts\Math0424\ExampleTestScripts\ActionStatements.bsl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="Data\Scripts\Math0424\ExampleTestScripts\LogicStatements.bsl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

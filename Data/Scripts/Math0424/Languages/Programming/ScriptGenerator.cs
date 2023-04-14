@@ -63,7 +63,10 @@ namespace AnimationEngine.Language
                         case 2: new ScriptV2Generator(this, out runner, out subparts); break;
                         default: throw new Exception($"Unsupported script version number {versionId}");
                     }
+
+#if DEBUG
                     rout = runner;
+#endif
 
                     if (headers.ContainsKey("weaponcore"))
                     {

@@ -126,10 +126,7 @@ namespace AnimationEngine.Language
                 new SpecialAction("create", new TokenType[0]),
                 new SpecialAction("built", new TokenType[0]),
                 new SpecialAction("working", new TokenType[0]),
-                new SpecialAction("notworking", new TokenType[0]),
-
-                new SpecialAction("powerconsumed", new TokenType[0]),
-                new SpecialAction("powerproduced", new TokenType[0])
+                new SpecialAction("notworking", new TokenType[0])
             ),
 
             new SpecialAction("inventory", new TokenType[0],

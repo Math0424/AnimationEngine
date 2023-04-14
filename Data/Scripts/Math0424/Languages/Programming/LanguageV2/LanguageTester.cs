@@ -1,7 +1,6 @@
 ﻿using AnimationEngine.Core;
 using AnimationEngine.Language;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -14,16 +13,11 @@ namespace AnimationEngine.LanguageV2
 #if DEBUG
         public static void Main(string[] args)
         {
-            try
-            {
-                Compile("Parenting.bsl");
-                Test("Fibonacci.bsl", "func_fib", new SVariableInt(10));
-                Test("LogicStatements.bsl", "func_logic");
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex);
-            }
+            Compile("AnimatedThruster.bsl");
+            Compile("Parenting.bsl");
+            Test("Fibonacci.bsl", "func_fib", new SVariableInt(10));
+            Test("LogicStatements.bsl", "func_logic");
+            Compile("ActionStatements.bsl");
         }
 
         private static void Compile(string script)

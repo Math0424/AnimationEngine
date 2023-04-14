@@ -65,13 +65,13 @@ namespace AnimationEngine.Language
             root.Compile();
             Log($"|  |  finalized {program.Count} lines of bytecode");
 
-
+#if DEBUG
             int i;
             //Log("--Tokens--");
             //i = 0;
             //foreach (var x in Tokens)
             //    Log($"{i++:D3} {x.Type}");
-#if DEBUG
+
             Log("--Globals--");
             i = 0;
             foreach (var x in globals)
