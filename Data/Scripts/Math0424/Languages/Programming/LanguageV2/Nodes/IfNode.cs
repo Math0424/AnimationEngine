@@ -34,7 +34,6 @@ namespace AnimationEngine.LanguageV2.Nodes
             if (Tokens[index].Type != TokenType.VECTOR)
                 throw Script.DetailedErrorLog($"Missing IF closing parentheses", Tokens[index]);
 
-            Utils.LogToFile("ElseAFDWS");
             body = new BodyNode(ref index);
             children.Add(body);
 
@@ -43,7 +42,6 @@ namespace AnimationEngine.LanguageV2.Nodes
 
             if (index + 1 < Tokens.Length && Tokens[index+1].Type == TokenType.ELSE) {
                 index++;
-                Utils.LogToFile("Else");
                 elseNode = new ElseNode(ref index);
                 children.Add(elseNode);
             }

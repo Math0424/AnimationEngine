@@ -138,6 +138,12 @@ namespace AnimationEngine.Language
                 case "block":
                     _libraries.Add(new BlockCore(core)); break;
                 case "button":
+                    var btnComp = new ButtonComp(ent.Args[1].Value.ToString());
+                    var btnSubpart = core.Subparts[ent.Name.Value.ToString().ToLower()];
+                    btnSubpart.AddComponent(btnComp);
+                    btnComp.Init(btnSubpart);
+                    _libraries.Add(btnSubpart);
+                    break;
                 case "subpart":
                     _libraries.Add(core.Subparts[ent.Name.Value.ToString().ToLower()]);
                     break;
@@ -166,14 +172,10 @@ namespace AnimationEngine.Language
             switch (action.TokenName)
             {
                 case "button":
-                    var part = core.Subparts[action.Paramaters[0].Value.ToString()];
-                    var dummy = action.Paramaters[1].Value.ToString();
+                    var part = core.Subparts[action.Paramaters[0].Value.ToString().ToLower()];
 
-                    if (!part.HasComponent<ButtonComp>())
-                        part.AddComponent(new ButtonComp(dummy));
-
-                    part.GetFirstComponent<ButtonComp>().Init(part);
-                    part.GetFirstComponent<ButtonComp>().Pressed += (e) => Execute($"act_{action.ID}_pressed", e);
+                    if (part.HasComponent<ButtonComp>())
+                        part.GetFirstComponent<ButtonComp>().Pressed += (e) => Execute($"act_{action.ID}_pressed", e);
                     break;
                 case "block":
                     foreach (var x in action.Funcs)
@@ -339,7 +341,6 @@ namespace AnimationEngine.Language
             _ents = ents;
             _actions = actions;
             _terminals = terminals;
-
         }
 
         public ScriptV2Runner(ScriptV2Runner copy)

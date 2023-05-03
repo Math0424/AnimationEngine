@@ -23,6 +23,7 @@ namespace AnimationEngine
             {
                 inventory = (MyInventory)parent.Entity.GetInventory();
                 inventory.ContentsChanged += Update;
+                Changed?.Invoke(inventory.CurrentVolume.RawValue / (float)inventory.MaxVolume.RawValue);
             }
         }
 
@@ -32,8 +33,7 @@ namespace AnimationEngine
                 return;
 
             lastInvoked = lastUpdate;
-            float curr = (inventory.CurrentVolume.ToIntSafe() / inventory.MaxVolume.ToIntSafe());
-            Changed?.Invoke(curr);
+            Changed?.Invoke(inventory.CurrentVolume.RawValue / (float)inventory.MaxVolume.RawValue);
         }
 
         public void Close() { }

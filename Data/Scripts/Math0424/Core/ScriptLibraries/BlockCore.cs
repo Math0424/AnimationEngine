@@ -139,7 +139,12 @@ namespace AnimationEngine.Core
         private SVariable CurrentThrustPercent(SVariable[] var)
         {
             if (Block is IMyThrust)
-                return new SVariableFloat(((IMyThrust)Block).CurrentThrust / ((IMyThrust)Block).MaxEffectiveThrust);
+            {
+                if (((IMyThrust)Block).MaxEffectiveThrust <= 0)
+                    return new SVariableFloat(0);
+                else
+                    return new SVariableFloat(((IMyThrust)Block).CurrentThrust / ((IMyThrust)Block).MaxEffectiveThrust);
+            }
             return null;
         }
 

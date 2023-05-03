@@ -25,7 +25,14 @@ namespace AnimationEngine.Language
         public void ListenToEvents(MyEntity gun)
         {
             this.gun = gun;
-            AnimationEngine.WCApi.MonitorEvents(gun, id, triggers);
+            if (!AnimationEngine.WCApi.IsReady)
+            {
+                AnimationEngine.WCReady += () => AnimationEngine.WCApi.MonitorEvents(gun, id, triggers);
+            }
+            else
+            {
+               AnimationEngine.WCApi.MonitorEvents(gun, id, triggers);
+            }
         }
 
         private void TriggerEvent(int v, bool a)

@@ -104,7 +104,7 @@ namespace AnimationEngine.Language
             List<Subpart> subparts = new List<Subpart>();
             foreach (var x in objects)
             {
-                if (x.Type.Value.ToString().ToLower() == "subpart")
+                if (x.Type.Value.ToString().ToLower() == "subpart" || x.Type.Value.ToString().ToLower() == "button")
                 {
                     subparts.Add(new Subpart(x.Name.Value.ToString().ToLower(), x.Args[0].Value.ToString(), x.Parent.Value?.ToString().ToLower() ?? null));
                 }
@@ -115,9 +115,9 @@ namespace AnimationEngine.Language
                 Utils.LogToFile("Terminal control " + y.Name.Value.ToString().Substring(y.Name.Value.ToString().IndexOf("_") + 1));
                 switch(y.Name.Value.ToString().Substring(y.Name.Value.ToString().IndexOf("_") + 1))
                 {
-                    case "button":
-                        TerminalControlHelper.CreateOnOffTerminal(generator.headers["blockid"], (int)y.Paramaters[0].Value, y.Paramaters[1].Value.ToString(), y.Paramaters[2].Value.ToString());
-                        break;
+                    //case "button":
+                    //    TerminalControlHelper.CreateOnOffTerminal(generator.headers["blockid"], (int)y.Paramaters[0].Value, y.Paramaters[1].Value.ToString(), y.Paramaters[2].Value.ToString());
+                    //    break;
                 }
             }
 

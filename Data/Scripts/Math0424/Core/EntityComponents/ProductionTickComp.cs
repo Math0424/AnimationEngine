@@ -46,6 +46,7 @@ namespace AnimationEngine
         {
             if (prevProducingTick != totalTime)
             {
+                isProducing = true;
                 prevProducingTick = totalTime;
                 StartedProducing?.Invoke();
             }
@@ -57,6 +58,7 @@ namespace AnimationEngine
         {
             if (prevStopProducingTick != totalTime)
             {
+                isProducing = false;
                 prevStopProducingTick = totalTime;
                 StoppedProducing?.Invoke();
             }
@@ -64,13 +66,13 @@ namespace AnimationEngine
 
         public void Init(CoreScript parent)
         {
-            if (parent.Entity is IMyAssembler)
+            if (parent.Entity is IMyProductionBlock)
             {
-                (parent.Entity as IMyAssembler).StartedProducing -= CallProducing;
-                (parent.Entity as IMyAssembler).StoppedProducing -= CallStopProducing;
+                (parent.Entity as IMyProductionBlock).StartedProducing -= CallProducing;
+                (parent.Entity as IMyProductionBlock).StoppedProducing -= CallStopProducing;
 
-                (parent.Entity as IMyAssembler).StartedProducing += CallProducing;
-                (parent.Entity as IMyAssembler).StoppedProducing += CallStopProducing;
+                (parent.Entity as IMyProductionBlock).StartedProducing += CallProducing;
+                (parent.Entity as IMyProductionBlock).StoppedProducing += CallStopProducing;
             }
             else
             {
@@ -87,24 +89,21 @@ namespace AnimationEngine
         {
             totalTime++;
 
-            if (SourceComp == null && SinkComp == null)
+            if (SourceComp != null || SinkComp != null)
             {
-                tick = 0;
-                return;
-            }
+                bool previousState = isProducing;
+                UpdateProducingState();
 
-            bool previousState = isProducing;
-            UpdateProducingState();
-
-            if (previousState != isProducing)
-            {
-                if (isProducing)
+                if (previousState != isProducing)
                 {
-                    StartedProducing?.Invoke();
-                }
-                else
-                {
-                    StoppedProducing?.Invoke();
+                    if (isProducing)
+                    {
+                        StartedProducing?.Invoke();
+                    }
+                    else
+                    {
+                        StoppedProducing?.Invoke();
+                    }
                 }
             }
 

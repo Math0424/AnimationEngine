@@ -21,23 +21,25 @@ namespace AnimationEngine
             tick = -1;
         }
 
+        private void WorkingChange(IMyCubeBlock e)
+        {
+            if (e.IsWorking) 
+                OnIsWorking?.Invoke(); 
+            else 
+                OnNotWorking?.Invoke(); 
+        }
+
         public void Init(CoreScript parent)
         {
             if (parent.Entity is IMyCubeBlock)
             {
                 this.block = (IMyCubeBlock)parent.Entity;
 
-                block.IsWorkingChanged += (e) =>
-                {
-                    if (e.IsWorking) { OnIsWorking?.Invoke(); } else { OnNotWorking?.Invoke(); }
-                };
+                block.IsWorkingChanged -= WorkingChange;
+                block.IsWorkingChanged += WorkingChange;
 
                 prevColor = block.Render.ColorMaskHsv;
-
-                if (block.IsWorking)
-                    OnIsWorking?.Invoke();
-                else
-                    OnNotWorking?.Invoke();
+                WorkingChange(block);
             }
         }
 
@@ -56,7 +58,7 @@ namespace AnimationEngine
             if (prevColor != block.Render.ColorMaskHsv)
             {
                 prevColor = block.Render.ColorMaskHsv;
-                OnIsWorking?.Invoke();
+                WorkingChange(block);
             }
 
             if (LoopTime == -1)

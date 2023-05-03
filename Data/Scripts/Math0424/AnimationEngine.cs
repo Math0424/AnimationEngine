@@ -11,11 +11,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using VRage;
+using VRage.Game;
 using VRage.Game.Components;
 using VRage.Game.Entity;
 using VRage.Game.ModAPI;
 using VRage.ModAPI;
-using VRageMath;
 
 namespace AnimationEngine
 {
@@ -36,6 +36,7 @@ namespace AnimationEngine
         private static List<MyTuple<CoreScript, IMyEntity>> delayed = new List<MyTuple<CoreScript, IMyEntity>>();
 
         public static WcApi WCApi = new WcApi();
+        public static Action WCReady;
 
         public static void AddToRegisteredScripts(string id, Subpart[] subparts, ScriptRunner constant)
         {
@@ -50,6 +51,11 @@ namespace AnimationEngine
         {
             WCApi.Unload();
             Utils.CloseLog();
+        }
+
+        public override void Init(MyObjectBuilder_SessionComponent sessionComponent)
+        {
+
         }
 
         private void PrintSubparts(MyEntity ent, int index)
@@ -79,7 +85,7 @@ namespace AnimationEngine
 
         public override void BeforeStart()
         {
-            WCApi.Load();
+            WCApi.Load(WCReady);
 
             MyEntity testEnt = new MyEntity();
             foreach (var x in registeredScripts.Keys)
@@ -298,6 +304,7 @@ namespace AnimationEngine
                 ((IMyCubeGrid)ent).OnGridSplit += OnGridSplit;
                 ((IMyCubeGrid)ent).OnGridMerge += OnGridMeger;
             }
+
         }
 
         //transfer fatblocks from one to another

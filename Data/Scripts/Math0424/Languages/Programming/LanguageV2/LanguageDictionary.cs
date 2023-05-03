@@ -118,7 +118,7 @@ namespace AnimationEngine.Language
                 new SpecialAction("targetranged25", new TokenType[0])
             ),
 
-            new SpecialAction("button", new TokenType[] { TokenType.KEWRD, TokenType.KEWRD },
+            new SpecialAction("button", new TokenType[] { TokenType.KEWRD },
                 new SpecialAction("pressed", new TokenType[] { TokenType.KEWRD })
             ),
 
@@ -295,6 +295,7 @@ namespace AnimationEngine.Language
                 new MethodDictionary("rotatearound", false, "AxisVector", "PivotVector", "Angle", "Time", "Lerp"),
                 new MethodDictionary("spin", false, "Vector", "Speed", "Time"),
                 new MethodDictionary("vibrate", false, "Scale", "Time"),
+                new MethodDictionary("movetoorigin", false, "Time", "Lerp"),
                 new MethodDictionary("setresetpos", false),
                 new MethodDictionary("resetpos", false),
                 new MethodDictionary("resetrot", false),

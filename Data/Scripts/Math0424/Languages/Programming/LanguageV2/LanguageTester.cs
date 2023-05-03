@@ -13,11 +13,18 @@ namespace AnimationEngine.LanguageV2
 #if DEBUG
         public static void Main(string[] args)
         {
-            Compile("AnimatedThruster.bsl");
-            Compile("Parenting.bsl");
-            Test("Fibonacci.bsl", "func_fib", new SVariableInt(10));
-            Test("LogicStatements.bsl", "func_logic");
-            Compile("ActionStatements.bsl");
+            try
+            {
+                //Compile("AnimatedThruster.bsl");
+                //Compile("Parenting.bsl");
+                //Test("Fibonacci.bsl", "func_fib", new SVariableInt(10));
+                //Compile("ActionStatements.bsl");
+                Test("LogicStatements.bsl", "func_logic");
+            } 
+            catch(Exception e)
+            {
+                Console.WriteLine(e.ToString());
+            }
         }
 
         private static void Compile(string script)

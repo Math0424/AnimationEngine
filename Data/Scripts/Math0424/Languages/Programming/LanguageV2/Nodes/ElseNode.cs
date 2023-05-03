@@ -7,7 +7,7 @@ namespace AnimationEngine.LanguageV2.Nodes
     {
         public ElseNode(ref int index)
         {
-            if (Tokens[index].Type != TokenType.ELSE || index + 3 >= Tokens.Length)
+            if (Tokens[index].Type != TokenType.ELSE || index + 2 >= Tokens.Length)
             {
                 throw Script.DetailedErrorLog("Not an ELSE statement", Tokens[index]);
             }

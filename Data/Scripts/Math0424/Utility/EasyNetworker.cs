@@ -7,20 +7,31 @@ using VRage.Game.ModAPI;
 using VRage.Utils;
 using VRageMath;
 
-namespace AnimationEngine.Networking
+/// <summary>
+/// Example usage
+/// 
+/// Init()
+///    EasyNetworker.Init(ChannelID)
+///    EasyNetworker.RegisterPacket(typeof(PacketHere), PacketInMethod)
+/// 
+/// PacketInMethod(PacketIn e)
+///    PacketHere packet = e.UnWrap<PacketHere>();
+///    // do stuff here
+/// 
+/// </summary>
+namespace Math0424.Networking
 {
-
     /// <summary>
     /// Author: Math0424
     /// Version 1.3
     /// Feel free to use in your own projects
     /// </summary>
-    public static class EasyNetworker
+    public class EasyNetworker
     {
 
         /// <summary>
-        /// Before sending to players, serverside only
-        /// Use this method to verify packets and make 
+        /// Invoked before sending to players. serverside only.
+        /// Use this action to verify packets and make 
         /// sure no funny business is happening. 
         /// </summary>
         public static Action<Type, PacketIn> ProcessPacket;
@@ -36,13 +47,16 @@ namespace AnimationEngine.Networking
         private static ushort CommsId;
         private static List<IMyPlayer> tempPlayers;
         private static Dictionary<Type, Action<PacketIn>> registry;
+        private static Dictionary<string, Type> table;
 
         public static void Init(ushort commsId)
         {
             CommsId = commsId;
             tempPlayers = new List<IMyPlayer>();
             registry = new Dictionary<Type, Action<PacketIn>>();
+            table = new Dictionary<string, Type>();
 
+            UnRegister();
             MyAPIGateway.Multiplayer.RegisterSecureMessageHandler(CommsId, RecivedPacket);
             MyAPIGateway.Entities.OnCloseAll += UnRegister;
         }
@@ -54,9 +68,10 @@ namespace AnimationEngine.Networking
 
         public static void RegisterPacket(Type type, Action<PacketIn> callee)
         {
-            if (!registry.ContainsKey(type))
+            if (!table.ContainsKey(type.FullName))
             {
                 registry.Add(type, callee);
+                table.Add(type.FullName, type);
             }
             else
             {
@@ -66,7 +81,7 @@ namespace AnimationEngine.Networking
 
         private static bool Validate(object obj)
         {
-            if (registry.ContainsKey(obj.GetType()))
+            if (table.ContainsKey(obj.GetType().FullName))
             {
                 return true;
             }
@@ -77,12 +92,12 @@ namespace AnimationEngine.Networking
         /// Send a packet to the server
         /// </summary>
         /// <param name="obj"></param>
-        public static void SendToServer(object obj)
+        public static void SendToServer(object obj, bool reliable = true)
         {
             Validate(obj);
-            ServerPacket packet = new ServerPacket(obj.GetType(), TransitType.ToServer);
+            ServerPacket packet = new ServerPacket(obj.GetType().FullName, TransitType.ToServer);
             packet.Wrap(obj);
-            MyAPIGateway.Multiplayer.SendMessageToServer(CommsId, MyAPIGateway.Utilities.SerializeToBinary(packet));
+            MyAPIGateway.Multiplayer.SendMessageToServer(CommsId, MyAPIGateway.Utilities.SerializeToBinary(packet), reliable);
         }
 
         /// <summary>
@@ -90,14 +105,14 @@ namespace AnimationEngine.Networking
         /// </summary>
         /// <param name="obj"></param>
         /// <param name="flag"></param>
-        public static void SendToSyncRange(object obj, TransitType flag)
+        public static void SendToSyncRange(object obj, TransitType flag, bool reliable = true)
         {
             Validate(obj);
-            ServerPacket packet = new ServerPacket(obj.GetType(), flag);
+            ServerPacket packet = new ServerPacket(obj.GetType().FullName, flag);
             packet.Wrap(obj);
             packet.Range = MyAPIGateway.Session.SessionSettings.SyncDistance;
             packet.TransmitLocation = MyAPIGateway.Session.Player.GetPosition();
-            MyAPIGateway.Multiplayer.SendMessageToServer(CommsId, MyAPIGateway.Utilities.SerializeToBinary(packet));
+            MyAPIGateway.Multiplayer.SendMessageToServer(CommsId, MyAPIGateway.Utilities.SerializeToBinary(packet), reliable);
         }
 
         /// <summary>
@@ -105,12 +120,12 @@ namespace AnimationEngine.Networking
         /// </summary>
         /// <param name="obj"></param>
         /// <param name="excludeSender"></param>
-        public static void SendToAllPlayers(object obj, bool excludeSender)
+        public static void SendToAllPlayers(object obj, bool excludeSender, bool reliable = true)
         {
             Validate(obj);
-            ServerPacket packet = new ServerPacket(obj.GetType(), TransitType.ToAll | (excludeSender ? TransitType.ExcludeSender : 0));
+            ServerPacket packet = new ServerPacket(obj.GetType().FullName, TransitType.ToAll | (excludeSender ? TransitType.ExcludeSender : 0));
             packet.Wrap(obj);
-            MyAPIGateway.Multiplayer.SendMessageToServer(CommsId, MyAPIGateway.Utilities.SerializeToBinary(packet));
+            MyAPIGateway.Multiplayer.SendMessageToServer(CommsId, MyAPIGateway.Utilities.SerializeToBinary(packet), reliable);
         }
 
         private static void RecivedPacket(ushort handler, byte[] raw, ulong id, bool isFromServer)
@@ -118,9 +133,11 @@ namespace AnimationEngine.Networking
             try
             {
                 ServerPacket packet = MyAPIGateway.Utilities.SerializeFromBinary<ServerPacket>(raw);
-                PacketIn packetIn = new PacketIn(packet.Data, id, isFromServer);
+                if (!table.ContainsKey(packet.ID))
+                    return;
 
-                ProcessPacket?.Invoke(packet.Type, packetIn);
+                PacketIn packetIn = new PacketIn(packet.Data, id, isFromServer);
+                ProcessPacket?.Invoke(table[packet.ID], packetIn);
                 if (packetIn.IsCancelled)
                     return;
 
@@ -130,12 +147,12 @@ namespace AnimationEngine.Networking
                     {
                         if (!packet.Flag.HasFlag(TransitType.ExcludeSender))
                         {
-                            registry[packet.Type]?.Invoke(packetIn);
+                            registry[table[packet.ID]]?.Invoke(packetIn);
                         }
                     }
                     else
                     {
-                        registry[packet.Type]?.Invoke(packetIn);
+                        registry[table[packet.ID]]?.Invoke(packetIn);
                     }
                 }
 
@@ -175,7 +192,7 @@ namespace AnimationEngine.Networking
                     (MyAPIGateway.Session.IsServer && MyAPIGateway.Session?.Player?.SteamUserId == sender))
                     continue;
 
-                ServerPacket send = new ServerPacket(packet.Type, TransitType.Final);
+                ServerPacket send = new ServerPacket(packet.ID, TransitType.Final);
                 send.Data = packet.Data;
 
                 if (packet.Range != -1)
@@ -196,7 +213,7 @@ namespace AnimationEngine.Networking
         private class ServerPacket
         {
 
-            [ProtoMember(1)] public Type Type;
+            [ProtoMember(1)] public string ID;
             [ProtoMember(2)] public int Range = -1;
             [ProtoMember(3)] public Vector3D TransmitLocation = Vector3D.Zero;
             [ProtoMember(4)] public TransitType Flag;
@@ -204,9 +221,9 @@ namespace AnimationEngine.Networking
 
             public ServerPacket() { }
 
-            public ServerPacket(Type Type, TransitType Flag)
+            public ServerPacket(string Id, TransitType Flag)
             {
-                this.Type = Type;
+                this.ID = Id;
                 this.Flag = Flag;
             }
 
@@ -215,32 +232,32 @@ namespace AnimationEngine.Networking
                 Data = MyAPIGateway.Utilities.SerializeToBinary(data);
             }
         }
+    }
 
-        public class PacketIn
+    [ProtoContract]
+    public class PacketIn
+    {
+        [ProtoMember(1)] public bool IsCancelled { protected set; get; }
+        [ProtoMember(2)] public ulong SenderId { protected set; get; }
+        [ProtoMember(3)] public bool IsFromServer { protected set; get; }
+
+        [ProtoMember(4)] private readonly byte[] Data;
+
+        public PacketIn(byte[] data, ulong senderId, bool isFromServer)
         {
-            public bool IsCancelled { protected set; get; }
-            public ulong SenderId { protected set; get; }
-            public bool IsFromServer { protected set; get; }
-
-            private readonly byte[] Data;
-
-            public PacketIn(byte[] data, ulong senderId, bool isFromServer)
-            {
-                this.SenderId = senderId;
-                this.IsFromServer = isFromServer;
-                this.Data = data;
-            }
-
-            public T UnWrap<T>()
-            {
-                return MyAPIGateway.Utilities.SerializeFromBinary<T>(Data);
-            }
-
-            public void SetCancelled(bool value)
-            {
-                this.IsCancelled = value;
-            }
+            this.SenderId = senderId;
+            this.IsFromServer = isFromServer;
+            this.Data = data;
         }
 
+        public T UnWrap<T>()
+        {
+            return MyAPIGateway.Utilities.SerializeFromBinary<T>(Data);
+        }
+
+        public void SetCancelled(bool value)
+        {
+            this.IsCancelled = value;
+        }
     }
 }
