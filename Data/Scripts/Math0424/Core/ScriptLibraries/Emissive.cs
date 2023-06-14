@@ -27,6 +27,7 @@ namespace AnimationEngine.Core
         public Emissive(string materialID)
         {
             this.materialID = materialID;
+
             AddMethod("setcolor", SetColor);
             AddMethod("setsubpartcolor", SetSubpartColor);
 

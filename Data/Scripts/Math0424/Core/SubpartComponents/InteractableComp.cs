@@ -33,7 +33,7 @@ namespace AnimationEngine
             //Utils.LogToFile("Part core id " + core.Subpart.Parent);
             block = core?.Subpart?.Parent as IMyCubeBlock;
 
-            //if (block == null)
+            //if (block == null || MyAPIGateway.Utilities.IsDedicated)
             //    return;
             //
             //Dictionary<string, IMyModelDummy> dummies = new Dictionary<string, IMyModelDummy>();

@@ -15,16 +15,30 @@ namespace AnimationEngine.LanguageV2
         {
             try
             {
-                //Compile("AnimatedThruster.bsl");
+                Compile("AnimatedThruster.bsl");
                 //Compile("Parenting.bsl");
                 //Test("Fibonacci.bsl", "func_fib", new SVariableInt(10));
                 //Compile("ActionStatements.bsl");
-                Test("LogicStatements.bsl", "func_logic");
+                //Test("LogicStatements.bsl", "func_logic");
+
+                //ABSCompile(@"C:\Users\Math0424\AppData\Roaming\SpaceEngineers\Mods\PooPooCrewMod Alt\Data\Animation\BasicAssembler_SB.bsl");
             } 
             catch(Exception e)
             {
                 Console.WriteLine(e.ToString());
             }
+        }
+
+        private static void ABSCompile(string script)
+        {
+            var mod = new VRage.Game.MyObjectBuilder_Checkpoint.ModItem
+            {
+                FriendlyName = "Test mod",
+                Name = "Test mod",
+            };
+
+            ScriptRunner runner;
+            var gen = new ScriptGenerator(mod, script, out runner);
         }
 
         private static void Compile(string script)

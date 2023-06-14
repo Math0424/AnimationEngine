@@ -1,11 +1,11 @@
 ﻿using AnimationEngine.Language;
 using AnimationEngine.Utility;
 using Sandbox.Game.Components;
+using Sandbox.ModAPI;
 using System.Collections.Generic;
-using System.Text;
+using System.IO;
 using VRage.Game.Entity;
 using VRage.Game.ModAPI;
-using VRage.Game.Models;
 using VRage.ModAPI;
 using VRageMath;
 
@@ -22,11 +22,15 @@ namespace AnimationEngine.Core
         {
             Subpart = subpart;
 
-            AddMethod("setvisible", SetVisibility);
-            AddMethod("setmodel", SetModel);
+            if (!MyAPIGateway.Utilities.IsDedicated)
+            {
+                AddMethod("setvisible", SetVisibility);
+                AddMethod("setmodel", SetModel);
+                AddMethod("setemissive", SetEmissive);
 
-            mover = new Mover(Subpart.PositionComp);
-            mover.AddToScriptLib(this, "");
+                mover = new Mover(Subpart.PositionComp);
+                mover.AddToScriptLib(this, "");
+            }
             Subpart.OnClose += Close;
         }
 
@@ -42,10 +46,16 @@ namespace AnimationEngine.Core
 
             foreach (var c in components)
                 c.Tick(tick);
-            mover.Tick(tick);
+            mover?.Tick(tick);
 
             MatrixD parentMat = Subpart.Parent.PositionComp.WorldMatrixRef;
             Subpart.PositionComp.UpdateWorldMatrix(ref parentMat);
+        }
+
+        private SVariable SetEmissive(SVariable[] args)
+        {
+            Subpart.SetEmissiveParts(args[0].ToString(), new Color(args[1].AsFloat() / 255, args[2].AsFloat() / 255, args[3].AsFloat() / 255), args[4].AsFloat());
+            return null;
         }
 
         private SVariable SetModel(SVariable[] args)

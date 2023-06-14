@@ -1,7 +1,9 @@
 ﻿using AnimationEngine.Language;
+using AnimationEngine.Utility;
 using Sandbox.Definitions;
 using Sandbox.ModAPI;
 using SpaceEngineers.Game.ModAPI;
+using VRage.Game;
 using VRage.Game.ModAPI;
 using VRageMath;
 
@@ -115,11 +117,11 @@ namespace AnimationEngine.Core
 
         private SVariable GetProductionItemModel(SVariable[] arr)
         {
-            if (Block is IMyProductionBlock && !((IMyProductionBlock)Block).IsQueueEmpty)
+            if (!((IMyProductionBlock)Block).IsQueueEmpty)
             {
-                var id = ((IMyProductionBlock)Block).GetQueue()[0].Blueprint.Id;
-                MyPhysicalItemDefinition myPhysicalItemDefinition;
-                if (MyDefinitionManager.Static.TryGetDefinition(id, out myPhysicalItemDefinition))
+                var id = ((MyBlueprintDefinitionBase)((IMyProductionBlock)Block).GetQueue()[0].Blueprint).Results[0].Id;
+                MyPhysicalItemDefinition myPhysicalItemDefinition = MyDefinitionManager.Static.GetPhysicalItemDefinition(id);
+                if (myPhysicalItemDefinition != null)
                 {
                     return new SVariableString(myPhysicalItemDefinition.Model);
                 }

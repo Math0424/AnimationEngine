@@ -331,28 +331,45 @@ namespace AnimationEngine
         //this is really slow, figure a faster way
         private void OnGridSplit(IMyCubeGrid originalGrid, IMyCubeGrid newGrid)
         {
-            if (loaded.ContainsKey(originalGrid.EntityId))
+            if (newGrid == null || originalGrid == null)
+                return;
+            
+            try
             {
-                List<CoreScript> toRemove = new List<CoreScript>();
-                foreach (var x in loaded[originalGrid.EntityId])
+                if (loaded.ContainsKey(originalGrid.EntityId))
                 {
-                    foreach(var y in ((MyCubeGrid)newGrid).GetFatBlocks())
+                    List<CoreScript> toRemove = new List<CoreScript>();
+                    foreach (var x in loaded[originalGrid.EntityId])
                     {
-                        if (x.Entity.EntityId == y.EntityId)
-                            toRemove.Add(x);
+                        foreach (var y in ((MyCubeGrid)newGrid).GetFatBlocks())
+                        {
+                            if (x.Entity.EntityId == y.EntityId)
+                                toRemove.Add(x);
+                        }
                     }
-                }
 
-                long newId = newGrid.EntityId;
-                long originalId = originalGrid.EntityId;
-                MyAPIGateway.Utilities.InvokeOnGameThread(() =>
-                {
-                    loaded[originalId].RemoveAll((e) => toRemove.Contains(e));
-                    if (!loaded.ContainsKey(newId))
-                        loaded[newId] = new List<CoreScript>();
-                    loaded[newId].AddList(toRemove);
-                });
+                    long newId = newGrid.EntityId;
+                    long originalId = originalGrid.EntityId;
+                    MyAPIGateway.Utilities.InvokeOnGameThread(() =>
+                    {
+                        loaded[originalId].RemoveAll((e) => toRemove.Contains(e));
+                        if (!loaded.ContainsKey(newId))
+                            loaded[newId] = new List<CoreScript>();
+                        loaded[newId].AddList(toRemove);
+                    });
+                }
             }
+            catch (Exception ex)
+            {
+                Utils.LogToFile("Crash while splitting grid");
+                Utils.LogToFile(ex.StackTrace);
+                Utils.LogToFile(ex.Message);
+                Utils.LogToFile(ex.Data);
+                Utils.LogToFile(ex.TargetSite);
+                Utils.LogToFile(ex.InnerException);
+                Utils.LogToFile(ex.Source);
+            }
+            
         }
 
         private void OnBlockAdded(IMySlimBlock block)
@@ -369,12 +386,16 @@ namespace AnimationEngine
 
         public static void RemoveScript(CoreScript script)
         {
-            loaded[script.Entity.Parent.EntityId].Remove(script);
-            HasScript.Remove(script.Entity.EntityId);
+            if (loaded.ContainsKey(script.ParentId))
+                loaded[script.ParentId].Remove(script);
+            HasScript.Remove(script.EntityId);
         }
 
         public static void AddScript(CoreScript script)
         {
+            if (HasScript.Contains(script.Entity.EntityId))
+                return;
+
             long pid = script.Entity.Parent.EntityId;
             if (!loaded.ContainsKey(pid))
                 loaded[pid] = new List<CoreScript>();

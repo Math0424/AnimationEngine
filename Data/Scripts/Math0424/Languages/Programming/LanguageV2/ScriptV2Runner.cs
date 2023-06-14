@@ -238,6 +238,17 @@ namespace AnimationEngine.Language
                                 break;
                         }
                     break;
+                case "shiptool":
+                    if (!core.HasComponent<ShipToolComp>())
+                        core.AddComponent(new ShipToolComp());
+                    foreach (var x in action.Funcs)
+                        switch (x.TokenName)
+                        {
+                            case "activated":
+                                core.GetFirstComponent<ShipToolComp>().ToolActivated += (e) => Execute($"act_{action.ID}_activated", e);
+                                break;
+                        }
+                    break;
                 case "distance":
                     if (!core.HasComponent<DistanceComp>())
                         core.AddComponent(new DistanceComp((float)action.Paramaters[0].Value));

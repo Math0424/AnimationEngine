@@ -1,6 +1,9 @@
 ﻿using AnimationEngine.Core;
 using AnimationEngine.Utility;
+using Sandbox.ModAPI;
 using System.Collections.Generic;
+using VRage.Input;
+using VRageMath;
 
 namespace AnimationEngine.Language.Libs
 {
@@ -33,8 +36,22 @@ namespace AnimationEngine.Language.Libs
             AddMethod("stoploop", StopLoop);
             AddMethod("stopdelays", stopDelays);
             AddMethod("assert", assert);
+
+            AddMethod("getpositiondelta", getPositionDelta);
+            AddMethod("getrotation", getRotation);
         }
 
+        public SVariable getPositionDelta(SVariable[] var)
+        {
+            return new SVariableVector(MyAPIGateway.Input.GetPositionDelta());
+        }
+
+        public SVariable getRotation(SVariable[] var)
+        {
+            var vec = MyAPIGateway.Input.GetRotation();
+            return new SVariableVector(new Vector3(vec.X, vec.Y, MyAPIGateway.Input.GetRoll()));
+        }
+        
         public SVariable stopDelays(SVariable[] var)
         {
             runner.Stop();

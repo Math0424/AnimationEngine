@@ -1,6 +1,7 @@
 ﻿using AnimationEngine.Language;
 using AnimationEngine.Utility;
 using Sandbox.Game.Entities;
+using Sandbox.ModAPI;
 using System.Collections.Generic;
 using VRage.Game;
 using VRage.Game.Entity;
@@ -29,10 +30,13 @@ namespace AnimationEngine.Core
             this.parentSubpart = parentSubpart;
             effects = new List<MyParticleEffect>();
             this.dummyName = dummyName;
-            AddMethod("playparticle", PlayParticle);
-            AddMethod("stopparticle", StopParticles);
-            AddMethod("playsound", PlaySound);
-            AddMethod("stopsound", StopSound);
+            if (!MyAPIGateway.Utilities.IsDedicated)
+            {
+                AddMethod("playparticle", PlayParticle);
+                AddMethod("stopparticle", StopParticles);
+                AddMethod("playsound", PlaySound);
+                AddMethod("stopsound", StopSound);
+            }
         }
 
         private void Close(IMyEntity ent)
@@ -46,7 +50,8 @@ namespace AnimationEngine.Core
         {
             this.ent = ent;
             ent.OnClose += Close;
-            FindDummy(ent);
+            if (!MyAPIGateway.Utilities.IsDedicated)
+                FindDummy(ent);
         }
 
         private bool FindDummy(IMyEntity ent)
@@ -140,7 +145,7 @@ namespace AnimationEngine.Core
             {
                 return effect;
             }
-            Utils.LogToFile($"Cannot file particle with name '{particle}'");
+            Utils.LogToFile($"Cannot find particle with name '{particle}'");
             return null;
         }
     }

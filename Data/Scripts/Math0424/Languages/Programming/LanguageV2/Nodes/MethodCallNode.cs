@@ -98,16 +98,23 @@ namespace AnimationEngine.LanguageV2.Nodes
             return -1;
         }
 
-        public override void Compile()
+        public void ContextCompile(int contextId)
         {
             foreach (var x in children)
                 x.Compile();
             Context.IncreaseStackIndex();
+            if (Context.ContextId != contextId)
+            {
+                Context.ContextId = contextId;
+                Script.program.Add(new Line(ProgramFunc.Cxt, contextId));
+            }
             Script.program.Add(new Line(ProgramFunc.Mth, Script.AddImmediate(new SVariableString(methodName)), variables));
             for (int i = 0; i < children.Count; i++)
                 Context.PopStackIndex();
-            next?.Compile();
+            next?.ContextCompile(contextId);
         }
+
+        public override void Compile() {}
 
         public override void PostCompile()
         {

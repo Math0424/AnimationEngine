@@ -10,6 +10,8 @@ namespace AnimationEngine.Core
     internal class CoreScript
     {
         public IMyEntity Entity { private set; get; }
+        public long EntityId { private set; get; }
+        public long ParentId { private set; get; }
         private List<EntityComponent> components = new List<EntityComponent>();
         public Dictionary<string, SubpartCore> Subparts = new Dictionary<string, SubpartCore>();
         private Dictionary<string, Subpart> subpartData = new Dictionary<string, Subpart>();
@@ -55,6 +57,8 @@ namespace AnimationEngine.Core
         public void Init(IMyEntity ent)
         {
             Entity = ent;
+            EntityId = ent.EntityId;
+            ParentId = ent.Parent.EntityId;
             foreach (var subpart in subpartData.Values)
             {
                 Subparts[subpart.CustomName] = new SubpartCore();

@@ -63,6 +63,12 @@ namespace AnimationEngine.Utility
             );
         }
 
+        public static void NotifyPlayer(object msg)
+        {
+            log.WriteLine($"AnimationEngine MessagePlayer: {msg ?? "null"}");
+            MyAPIGateway.Utilities.ShowNotification($"AE: {msg ?? "null"}", 16, "Red");
+        }
+
         public static void MessagePlayer(object msg)
         {
             log.WriteLine($"AnimationEngine MessagePlayer: {msg ?? "null"}");

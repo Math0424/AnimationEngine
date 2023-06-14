@@ -66,8 +66,7 @@ namespace AnimationEngine.LanguageV2.Nodes
                         break;
                 }
 
-                Script.program.Add(new Line(ProgramFunc.Cxt, contextId));
-                children[0].Compile();
+                ((MethodCallNode)children[0]).ContextCompile(contextId);
             }
         }
 

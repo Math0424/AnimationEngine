@@ -149,6 +149,10 @@ namespace AnimationEngine.Language
                 new SpecialAction("leave", new TokenType[0])
             ),
 
+            new SpecialAction("shiptool", new TokenType[0],
+                new SpecialAction("activated", new TokenType[] { TokenType.KEWRD })
+            ),
+
             //special
             new SpecialAction("door", new TokenType[0],
                 new SpecialAction("open", new TokenType[0]),
@@ -217,7 +221,10 @@ namespace AnimationEngine.Language
                 new MethodDictionary("startloop", false, "FunctionName", "LoopDelay", "LoopCount"),
                 new MethodDictionary("stoploop", false, "FunctionName"),
                 new MethodDictionary("stopdelays", false),
-                new MethodDictionary("assert", false, "a", "b")
+                new MethodDictionary("assert", false, "a", "b"),
+
+                new MethodDictionary("getpositiondelta", true),
+                new MethodDictionary("getrotation", true)
             ),
 
             new LibraryDictionary("block",
@@ -266,6 +273,7 @@ namespace AnimationEngine.Language
 
                 new MethodDictionary("setvisible", false, "bool"),
                 new MethodDictionary("setmodel", false, "modelFilePath"),
+                new MethodDictionary("setemissive", false, "materialName", "r", "g", "b", "a"),
 
                 new MethodDictionary("translate", false, "PositionVector", "Time", "Lerp"),
                 new MethodDictionary("scale", false, "ScaleVector", "Time", "Lerp"),
@@ -288,6 +296,7 @@ namespace AnimationEngine.Language
 
                 new MethodDictionary("setvisible", false, "bool"),
                 new MethodDictionary("setmodel", false, "modelFilePath"),
+                new MethodDictionary("setemissive", false, "materialName", "r", "g", "b", "a"),
 
                 new MethodDictionary("translate", false, "PositionVector", "Time", "Lerp"),
                 new MethodDictionary("scale", false, "ScaleVector", "Time", "Lerp"),

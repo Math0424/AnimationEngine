@@ -2,6 +2,7 @@
 using AnimationEngine.Utility;
 using Sandbox.Definitions;
 using Sandbox.Game.Lights;
+using Sandbox.ModAPI;
 using System.Collections.Generic;
 using VRage.Game;
 using VRage.Game.ModAPI;
@@ -30,10 +31,14 @@ namespace AnimationEngine.Core
             this.parentSubpart = parentSubpart;
             this.radius = radius;
             this.dummyName = dummyName;
-            AddMethod("setcolor", SetColor);
-            AddMethod("lighton", LightOn);
-            AddMethod("lightoff", LightOff);
-            AddMethod("togglelight", ToggleLight);
+
+            if (!MyAPIGateway.Utilities.IsDedicated)
+            {
+                AddMethod("setcolor", SetColor);
+                AddMethod("lighton", LightOn);
+                AddMethod("lightoff", LightOff);
+                AddMethod("togglelight", ToggleLight);
+            }
         }
 
         public void Close(IMyEntity ent)
