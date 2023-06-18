@@ -3,6 +3,7 @@ using AnimationEngine.Utility;
 using Sandbox.Definitions;
 using Sandbox.ModAPI;
 using SpaceEngineers.Game.ModAPI;
+using System.Linq;
 using VRage.Game;
 using VRage.Game.ModAPI;
 using VRageMath;
@@ -107,12 +108,24 @@ namespace AnimationEngine.Core
 
             AddMethod("currentthrustpercent", CurrentThrustPercent);
             AddMethod("isoccupied", IsOccupied);
+
+            AddMethod("isnpcgrid", IsNPCGrid);
         }
 
         public override void Tick(int tick)
         {
             pilotMover?.Tick(tick);
             blockMover?.Tick(tick);
+        }
+
+        private SVariable IsNPCGrid(SVariable[] arr)
+        {
+            IMyFaction faction = MyAPIGateway.Session.Factions.TryGetPlayerFaction(Block.CubeGrid.BigOwners.FirstOrDefault());
+            if (faction != null)
+            {
+                return new SVariableBool(faction.IsEveryoneNpc());
+            }
+            return new SVariableBool(false);
         }
 
         private SVariable GetProductionItemModel(SVariable[] arr)

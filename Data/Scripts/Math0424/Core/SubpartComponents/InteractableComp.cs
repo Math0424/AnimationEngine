@@ -58,17 +58,17 @@ namespace AnimationEngine
                 var view = MyAPIGateway.Session.Camera.WorldMatrix;
                 var target = view.Translation + view.Forward * 5;
 
-                string raycast = block.RaycastDetectors(view.Translation, target);
-                if (interactable && raycast != null)
+                var hit = block.MyRaycastDetectors(view.Translation, target);
+                if (interactable && hit.Count != 0)
                 {
-                    if (raycast == dummy)
+                    if (hit.Contains(dummy))
                     {
                         if (!IsHovering)
                         {
                             OnHover?.Invoke();
                         }
                         IsHovering = true;
-
+                
                         if (!MyAPIGateway.Gui.IsCursorVisible && !MyAPIGateway.Gui.ChatEntryVisible && MyAPIGateway.Gui.GetCurrentScreen == MyTerminalPageEnum.None)
                         {
                             if (MyAPIGateway.Input.IsNewLeftMousePressed() || MyAPIGateway.Input.IsNewGameControlPressed(MyControlsSpace.USE))

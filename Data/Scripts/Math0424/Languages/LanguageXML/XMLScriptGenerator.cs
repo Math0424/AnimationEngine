@@ -221,36 +221,35 @@ namespace AnimationEngine.LanguageXML
                         var arr = x.Keyframes;
                         if (z.rotation != null) // 1
                         {
-                            //Vector3 cross;
-                            //int changedFrame = GetNextFrameChange(ref arr, m, 1, out cross);
-                            //if (changedFrame == -1)
-                            //    continue;
-                            //float angle = (float)StringToVector(z.rotation).FromAnglesToVector().Angle(cross.FromAnglesToVector());
-                            //
-                            //if (float.IsNaN(angle))
-                            //    angle = 0;
-                            //
-                            //Utils.LogToFile(angle);
-                            //cross = Vector3.Cross(cross, StringToVector(z.rotation));
-                            //
-                            //int timetaken = x.Keyframes[changedFrame].frame - y.frame;
-                            //method.Add(new Caller()
-                            //{
-                            //    Args = new Argument[] {
-                            //        new Argument()
-                            //        {
-                            //            Delay = y.frame,
-                            //            Name = "rotate",
-                            //            Value = new SVariable[] {
-                            //                new SVariableVector(Vector3.Normalize(cross)),
-                            //                new SVariableFloat(angle),
-                            //                new SVariableInt(timetaken),
-                            //                new SVariableInt(ease | lerp),
-                            //            }
-                            //        }
-                            //    },
-                            //    Object = x.empty.Substring(8).ToLower()
-                            //});
+                            Vector3 to;
+                            int changedFrame = GetNextFrameChange(ref arr, m, 1, out to);
+                            if (changedFrame == -1)
+                                continue;
+                            Vector3 from = StringToVector(z.rotation);
+
+                            QuaternionD diff = from.EulerToQuat() * QuaternionD.Inverse(to.EulerToQuat());
+                            Vector3D one;
+                            double angle;
+                            diff.GetAxisAngle(out one, out angle);
+
+                            int timetaken = x.Keyframes[changedFrame].frame - y.frame;
+                            method.Add(new Caller()
+                            {
+                                Args = new Argument[] {
+                                    new Argument()
+                                    {
+                                        Delay = y.frame,
+                                        Name = "rotate",
+                                        Value = new SVariable[] {
+                                            new SVariableVector(one),
+                                            new SVariableFloat((float)(angle * (180.0/Math.PI))),
+                                            new SVariableInt(timetaken),
+                                            new SVariableInt(ease | lerp),
+                                        }
+                                    }
+                                },
+                                Object = x.empty.Substring(8).ToLower()
+                            });
                         }
                         else if (z.location != null || z.scale != null) // 2 : 0
                         {

@@ -265,7 +265,9 @@ namespace AnimationEngine.Language
 
                 new MethodDictionary("currentthrustpercent", true),
                 new MethodDictionary("isoccupied", true),
-                new MethodDictionary("productionitemmodel", true)
+                new MethodDictionary("productionitemmodel", true),
+
+                new MethodDictionary("isnpcgrid", true)
             ),
 
             new LibraryDictionary("subpart",

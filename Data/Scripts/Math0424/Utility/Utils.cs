@@ -1,9 +1,13 @@
 ﻿using AnimationEngine.Language;
+using Sandbox.Game.Entities;
 using Sandbox.ModAPI;
 using System;
+using System.Collections.Generic;
 using VRage.Game;
+using VRage.Game.ModAPI;
 using VRage.Utils;
 using VRageMath;
+using Line = VRageMath.Line;
 
 namespace AnimationEngine.Utility
 {
@@ -16,21 +20,51 @@ namespace AnimationEngine.Utility
         {
             log = new MyLog(true);
 #if !DEBUG
-            log.Init("AnimationEngine.log", new System.Text.StringBuilder("0.1A"));
+            log.Init("AnimationEngine.log", new System.Text.StringBuilder("Beta"));
 #endif
         }
-
-        public static float Angle(this Vector3 one, Vector3 two)
+        public static List<string> MyRaycastDetectors(this IMyCubeBlock block, Vector3 pos1, Vector3 pos2)
         {
-            return (float)(Math.Acos((one.Dot(two) / Math.Sqrt(one.LengthSquared()) * two.LengthSquared())) * 57.2957795131);
+            List<string> returned = new List<string>();
+
+            IHitInfo hit;
+            if (MyAPIGateway.Physics.CastRay(pos1, pos2, out hit, 30))
+                pos2 = hit.Position;
+
+            MatrixD matrix = block.PositionComp.WorldMatrixNormalizedInv;
+            Line line = new Line(pos1, pos2);
+            Dictionary<string, IMyModelDummy> dummies = new Dictionary<string, IMyModelDummy>();
+            block.Model.GetDummies(dummies);
+            foreach (var x in dummies)
+            {
+                if (x.Key.StartsWith("subpart_"))
+                    continue;
+                Matrix dumMatrix = x.Value.Matrix * block.PositionComp.WorldMatrixRef;
+                MyOrientedBoundingBox box = new MyOrientedBoundingBox(ref dumMatrix);
+                float? value = box.Intersects(ref line);
+                if (value.HasValue)
+                    returned.Add(x.Key);
+            }
+            return returned;
         }
 
-        public static Vector3 FromAnglesToVector(this Vector3 me)
+        public static QuaternionD EulerToQuat(this Vector3 me)
         {
-            //x = yaw
-            //y = pitch
-            //z = roll
-            return new Vector3(Math.Cos(me.X) * Math.Cos(me.Y), Math.Sin(me.X) * Math.Cos(me.Y), Math.Sin(me.Y));
+            double c = Math.PI / 180;
+
+            double cr = Math.Cos(me.X * c * 0.5);
+            double sr = Math.Sin(me.X * c * 0.5);
+            double cp = Math.Cos(me.Y * c * 0.5);
+            double sp = Math.Sin(me.Y * c * 0.5);
+            double cy = Math.Cos(me.Z * c * 0.5);
+            double sy = Math.Sin(me.Z * c * 0.5);
+
+            return new QuaternionD(
+                    sr * cp * cy - cr * sp * sy,
+                    cr * sp * cy + sr * cp * sy,
+                    cr * cp * sy - sr * sp * cy,
+                    cr * cp * cy + sr * sp * sy
+                );
         }
 
         public static Matrix Scale(this Matrix matrix, Vector3 vector)

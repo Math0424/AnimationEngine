@@ -12,6 +12,9 @@ namespace AnimationEngine
     {
         public Action<float> Changed;
 
+        IMyGasTank tank;
+        private double PrevGasValue;
+
         private MyInventory inventory;
         private int lastUpdate, lastInvoked;
 
@@ -19,7 +22,13 @@ namespace AnimationEngine
 
         public void Init(CoreScript parent)
         {
-            if (parent.Entity.HasInventory)
+            if (parent.Entity is IMyGasTank)
+            {
+                tank = parent.Entity as IMyGasTank;
+                PrevGasValue = tank.FilledRatio;
+                Changed?.Invoke((float)PrevGasValue);
+            } 
+            else if (parent.Entity.HasInventory)
             {
                 inventory = (MyInventory)parent.Entity.GetInventory();
                 inventory.ContentsChanged += Update;
@@ -40,6 +49,11 @@ namespace AnimationEngine
         public void Tick(int time) 
         {
             lastUpdate += time;
+            if (tank != null && PrevGasValue != tank.FilledRatio)
+            {
+                PrevGasValue = tank.FilledRatio;
+                Changed?.Invoke((float)PrevGasValue);
+            }
         }
     }
 }
