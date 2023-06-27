@@ -123,7 +123,7 @@ namespace AnimationEngine.Core
                 ((MyEntity)Entity).Subparts[subpart.Name] = part;
             }
 
-            part.Name = subpart.CustomName;
+            part.Name = $"{part.EntityId}:{subpart.CustomName}";
             part.OnClose += SubpartClose;
             Subparts[subpart.CustomName].Init(part);
             return true;

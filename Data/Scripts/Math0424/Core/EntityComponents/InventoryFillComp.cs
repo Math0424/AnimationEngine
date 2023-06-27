@@ -1,4 +1,5 @@
 ﻿using AnimationEngine.Core;
+using AnimationEngine.Utility;
 using Sandbox.Game;
 using Sandbox.Game.EntityComponents;
 using Sandbox.ModAPI;
@@ -27,7 +28,7 @@ namespace AnimationEngine
                 tank = parent.Entity as IMyGasTank;
                 PrevGasValue = tank.FilledRatio;
                 Changed?.Invoke((float)PrevGasValue);
-            } 
+            }
             else if (parent.Entity.HasInventory)
             {
                 inventory = (MyInventory)parent.Entity.GetInventory();

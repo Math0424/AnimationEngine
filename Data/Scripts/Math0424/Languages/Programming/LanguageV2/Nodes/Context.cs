@@ -14,7 +14,6 @@ namespace AnimationEngine.LanguageV2.Nodes
         private static int StackIndex = 0;
         public static bool RequireReturn = false;
         public static string ClassContext = "";
-        public static int ContextId = -1;
 
         //parsing
         private static List<Token[]> ContextArray = new List<Token[]>();
@@ -30,7 +29,6 @@ namespace AnimationEngine.LanguageV2.Nodes
             ClassContext = "";
             ContextArray.Clear();
             Variables.Clear();
-            ContextId = -1;
         }
 
         public static void ResetStack()
@@ -41,7 +39,6 @@ namespace AnimationEngine.LanguageV2.Nodes
                 throw new Exception($"Error stack size not zero ({StackIndex})");
             }
             StackIndex = 0;
-            ContextId = -1;
         }
 
         public static int GetStackSize()

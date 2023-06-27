@@ -85,12 +85,12 @@ namespace AnimationEngine.Language
             Log("--Script--");
             i = 0;
             foreach (var x in program) {
-                string v = $"{i++:D4} {x.Arg} : ";
+                string v = $"{i++:D3} {x.Arg} : ";
                 if (x.Arr != null)
                 {
                     foreach (var y in x.Arr)
                     {
-                        v += $"{y:D4} ";
+                        v += $"{y:D3} ";
                     }
                 } 
                 else

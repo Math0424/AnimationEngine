@@ -1,22 +1,46 @@
 ﻿using AnimationEngine.Language;
+using AnimationEngine.Utility;
+using Math0424.Networking;
+using ProtoBuf;
 using Sandbox.Game;
+using Sandbox.Game.SessionComponents;
+using Sandbox.ModAPI;
 using System;
+using System.Collections.Generic;
 using VRageMath;
 
 namespace AnimationEngine.Core
 {
     internal class ButtonComp : InteractableComp
     {
+        private static Dictionary<string, Action> registeredButtons = new Dictionary<string, Action>();
+
+        public static void ButtonIn(PacketIn p)
+        {
+            if (p.IsFromServer)
+            {
+                var id = p.UnWrap<ButtonPacket>().id;
+                if (registeredButtons.ContainsKey(id))
+                    registeredButtons[id].Invoke();
+            }
+        }
+
+        [ProtoContract] public struct ButtonPacket {
+            [ProtoMember(1)] public string id;
+        }
+
         public Action ButtonOn;
         public Action ButtonOff;
+
+        public Action<SVariable> Hovering;
         public Action<SVariable> Pressed;
 
         private SubpartCore core;
         private bool enabled;
 
-        public ButtonComp(string dummy) : base(dummy)
-        {
-        }
+        private string registeredId;
+
+        public ButtonComp(string dummy) : base(dummy) { }
 
         public override void Init(SubpartCore core)
         {
@@ -24,23 +48,36 @@ namespace AnimationEngine.Core
 
             this.core = core;
             OnHover += HoverChange;
-            OnUnHover += HoverChange;
+            OnHover += (e) => Hovering?.Invoke(new SVariableBool(e));
+
             OnInteract += Interacted;
+            
+            if (!MyAPIGateway.Utilities.IsDedicated)
+                OnInteract += SyncInteraction;
 
             core.AddMethod("enabled", SetEnabled);
             core.AddMethod("interactable", SetInteractable);
+
+            registeredId = $"{dummy}:{core.Subpart.EntityId}:{core.Subpart.Parent.EntityId}";
+            registeredButtons.Add(registeredId, Interacted);
         }
 
-        private void HoverChange()
+        public override void Close()
         {
-            if (IsHovering && interactable)
-            {
-                MyVisualScriptLogicProvider.SetHighlightLocal(core.Subpart.Name, 20, 0, new Color(0, 255, 255) * .3f);
-            }
+            registeredButtons.Remove(registeredId);
+        }
+
+        private void HoverChange(bool v)
+        {
+            if (v && interactable)
+                MyVisualScriptLogicProvider.SetHighlightLocal(core.Subpart.Name, 9, 3, new Color(255, 255, 0, 12));
             else
-            {
-                MyVisualScriptLogicProvider.SetHighlightLocal(core.Subpart.Name, 0);
-            }
+                MyVisualScriptLogicProvider.SetHighlightLocal(core.Subpart.Name, -1);
+        }
+
+        private void SyncInteraction()
+        {
+            EasyNetworker.SendToSyncRange(new ButtonPacket { id = registeredId }, EasyNetworker.TransitType.ExcludeSender);
         }
 
         private void Interacted()

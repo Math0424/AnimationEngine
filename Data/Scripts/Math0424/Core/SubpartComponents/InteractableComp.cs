@@ -12,12 +12,11 @@ namespace AnimationEngine
     internal class InteractableComp : SubpartComponent
     {
 
-        public Action OnHover;
-        public Action OnUnHover;
+        public Action<bool> OnHover;
         public Action OnInteract;
 
-        public bool IsHovering { get; private set; }
-        private string dummy;
+        private bool IsHovering;
+        protected string dummy;
         protected bool interactable;
         private IMyCubeBlock block;
 
@@ -64,11 +63,9 @@ namespace AnimationEngine
                     if (hit.Contains(dummy))
                     {
                         if (!IsHovering)
-                        {
-                            OnHover?.Invoke();
-                        }
+                            OnHover?.Invoke(true);
                         IsHovering = true;
-                
+                        
                         if (!MyAPIGateway.Gui.IsCursorVisible && !MyAPIGateway.Gui.ChatEntryVisible && MyAPIGateway.Gui.GetCurrentScreen == MyTerminalPageEnum.None)
                         {
                             if (MyAPIGateway.Input.IsNewLeftMousePressed() || MyAPIGateway.Input.IsNewGameControlPressed(MyControlsSpace.USE))
@@ -81,7 +78,7 @@ namespace AnimationEngine
                 else if (IsHovering)
                 {
                     IsHovering = false;
-                    OnUnHover?.Invoke();
+                    OnHover?.Invoke(false);
                 }
             }
         }

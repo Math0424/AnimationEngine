@@ -3,6 +3,7 @@ using AnimationEngine.Language;
 using AnimationEngine.LanguageXML;
 using AnimationEngine.Utility;
 using CoreSystems.Api;
+using Math0424.Networking;
 using Sandbox.Definitions;
 using Sandbox.Game.Entities;
 using Sandbox.ModAPI;
@@ -53,11 +54,6 @@ namespace AnimationEngine
             Utils.CloseLog();
         }
 
-        public override void Init(MyObjectBuilder_SessionComponent sessionComponent)
-        {
-
-        }
-
         private void PrintSubparts(MyEntity ent, int index)
         {
             foreach (var x in ent.Subparts.Keys)
@@ -85,6 +81,9 @@ namespace AnimationEngine
 
         public override void BeforeStart()
         {
+            EasyNetworker.Init(45876);
+            EasyNetworker.RegisterPacket(typeof(ButtonComp.ButtonPacket), ButtonComp.ButtonIn);
+
             WCApi.Load(WCReady);
 
             MyEntity testEnt = new MyEntity();

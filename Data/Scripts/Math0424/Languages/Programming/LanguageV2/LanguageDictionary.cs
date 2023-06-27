@@ -119,7 +119,8 @@ namespace AnimationEngine.Language
             ),
 
             new SpecialAction("button", new TokenType[] { TokenType.KEWRD },
-                new SpecialAction("pressed", new TokenType[] { TokenType.KEWRD })
+                new SpecialAction("pressed", new TokenType[] { TokenType.KEWRD }),
+                new SpecialAction("hovering", new TokenType[] { TokenType.KEWRD })
             ),
 
             new SpecialAction("block", new TokenType[0],
@@ -223,7 +224,7 @@ namespace AnimationEngine.Language
                 new MethodDictionary("stopdelays", false),
                 new MethodDictionary("assert", false, "a", "b"),
 
-                new MethodDictionary("getpositiondelta", true),
+                new MethodDictionary("getinputposition", true),
                 new MethodDictionary("getrotation", true)
             ),
 

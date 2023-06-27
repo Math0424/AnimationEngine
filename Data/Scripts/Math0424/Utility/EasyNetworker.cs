@@ -38,7 +38,6 @@ namespace Math0424.Networking
 
         public enum TransitType
         {
-            Final = 0,
             ToServer = 1,
             ToAll = 2,
             ExcludeSender = 4,
@@ -143,12 +142,10 @@ namespace Math0424.Networking
 
                 if (isFromServer)
                 {
-                    if (MyAPIGateway.Session.IsServer && !packet.Flag.HasFlag(TransitType.Final))
+                    if (MyAPIGateway.Session.IsServer)
                     {
-                        if (!packet.Flag.HasFlag(TransitType.ExcludeSender))
-                        {
+                        if (packet.Final)
                             registry[table[packet.ID]]?.Invoke(packetIn);
-                        }
                     }
                     else
                     {
@@ -182,6 +179,12 @@ namespace Math0424.Networking
             MyAPIGateway.Players.GetPlayers(tempPlayers);
         }
 
+        /// <summary>
+        /// [Server method]
+        /// Send to all players
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="packet"></param>
         private static void TransmitPacket(ulong sender, ServerPacket packet)
         {
             UpdatePlayers();
@@ -192,7 +195,7 @@ namespace Math0424.Networking
                     (MyAPIGateway.Session.IsServer && MyAPIGateway.Session?.Player?.SteamUserId == sender))
                     continue;
 
-                ServerPacket send = new ServerPacket(packet.ID, TransitType.Final);
+                ServerPacket send = new ServerPacket(packet.ID, TransitType.ToAll, true);
                 send.Data = packet.Data;
 
                 if (packet.Range != -1)
@@ -218,13 +221,15 @@ namespace Math0424.Networking
             [ProtoMember(3)] public Vector3D TransmitLocation = Vector3D.Zero;
             [ProtoMember(4)] public TransitType Flag;
             [ProtoMember(5)] public byte[] Data;
+            [ProtoMember(6)] public bool Final;
 
             public ServerPacket() { }
 
-            public ServerPacket(string Id, TransitType Flag)
+            public ServerPacket(string Id, TransitType Flag, bool final = false)
             {
                 this.ID = Id;
                 this.Flag = Flag;
+                this.Final = final;
             }
 
             public void Wrap(object data)

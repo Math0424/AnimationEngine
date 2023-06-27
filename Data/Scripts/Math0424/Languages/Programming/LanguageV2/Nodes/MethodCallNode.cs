@@ -103,12 +103,7 @@ namespace AnimationEngine.LanguageV2.Nodes
             foreach (var x in children)
                 x.Compile();
             Context.IncreaseStackIndex();
-            if (Context.ContextId != contextId)
-            {
-                Context.ContextId = contextId;
-                Script.program.Add(new Line(ProgramFunc.Cxt, contextId));
-            }
-            Script.program.Add(new Line(ProgramFunc.Mth, Script.AddImmediate(new SVariableString(methodName)), variables));
+            Script.program.Add(new Line(ProgramFunc.Mth, Script.AddImmediate(new SVariableString(methodName)), variables, contextId));
             for (int i = 0; i < children.Count; i++)
                 Context.PopStackIndex();
             next?.ContextCompile(contextId);

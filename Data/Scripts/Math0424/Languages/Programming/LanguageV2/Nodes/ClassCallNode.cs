@@ -65,7 +65,7 @@ namespace AnimationEngine.LanguageV2.Nodes
                     if (Script.objects[contextId].Name.Value.ToString().ToLower().Equals(objectName))
                         break;
                 }
-
+                Script.program.Add(new Line(ProgramFunc.RDly));
                 ((MethodCallNode)children[0]).ContextCompile(contextId);
             }
         }

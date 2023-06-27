@@ -15,6 +15,7 @@ namespace AnimationEngine.Utility
     {
         private static MyLog log;
         private static MyStringId SQUARE = MyStringId.GetOrCompute("Square");
+        private static readonly double c = Math.PI / 180;
 
         static Utils()
         {
@@ -23,13 +24,14 @@ namespace AnimationEngine.Utility
             log.Init("AnimationEngine.log", new System.Text.StringBuilder("Beta"));
 #endif
         }
+
         public static List<string> MyRaycastDetectors(this IMyCubeBlock block, Vector3 pos1, Vector3 pos2)
         {
             List<string> returned = new List<string>();
 
             IHitInfo hit;
             if (MyAPIGateway.Physics.CastRay(pos1, pos2, out hit, 30))
-                pos2 = hit.Position;
+                pos2 = hit.Position + (Vector3.Normalize(pos2-pos1) * 0.25f);
 
             MatrixD matrix = block.PositionComp.WorldMatrixNormalizedInv;
             Line line = new Line(pos1, pos2);
@@ -50,8 +52,6 @@ namespace AnimationEngine.Utility
 
         public static QuaternionD EulerToQuat(this Vector3 me)
         {
-            double c = Math.PI / 180;
-
             double cr = Math.Cos(me.X * c * 0.5);
             double sr = Math.Sin(me.X * c * 0.5);
             double cp = Math.Cos(me.Y * c * 0.5);

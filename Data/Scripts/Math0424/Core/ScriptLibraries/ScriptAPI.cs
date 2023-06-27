@@ -37,7 +37,7 @@ namespace AnimationEngine.Language.Libs
             AddMethod("stopdelays", stopDelays);
             AddMethod("assert", assert);
 
-            AddMethod("getpositiondelta", getPositionDelta);
+            AddMethod("getinputposition", getPositionDelta);
             AddMethod("getrotation", getRotation);
         }
 

@@ -41,7 +41,7 @@ namespace AnimationEngine.Language
         LdG, // load a global
         StG, // save a global
 
-        Cxt, // set context to object [0]
+        RDly, // set context to object [0]
         Mth, // call method from immediate [0]
 
         Jmp, //jump to method at [0]
@@ -151,10 +151,10 @@ namespace AnimationEngine.Language
                     _libraries.Add(new Emissive(ent.Args[0].Value.ToString()));
                     break;
                 case "emitter":
-                    _libraries.Add(new Emitter(ent.Args[0].Value.ToString(), ent.Parent.Value?.ToString()));
+                    _libraries.Add(new Emitter(ent.Args[0].Value.ToString(), ent.Parent.Value?.ToString().ToLower()));
                     break;
                 case "light":
-                    _libraries.Add(new Light(ent.Args[0].Value.ToString(), (float)ent.Args[1].Value, ent.Parent.Value?.ToString()));
+                    _libraries.Add(new Light(ent.Args[0].Value.ToString(), (float)ent.Args[1].Value, ent.Parent.Value?.ToString().ToLower()));
                     break;
             }
         }
@@ -173,9 +173,17 @@ namespace AnimationEngine.Language
             {
                 case "button":
                     var part = core.Subparts[action.Paramaters[0].Value.ToString().ToLower()];
-
                     if (part.HasComponent<ButtonComp>())
-                        part.GetFirstComponent<ButtonComp>().Pressed += (e) => Execute($"act_{action.ID}_pressed", e);
+                        foreach (var x in action.Funcs)
+                            switch (x.TokenName)
+                            {
+                                case "pressed":
+                                    part.GetFirstComponent<ButtonComp>().Pressed += (e) => Execute($"act_{action.ID}_pressed", e);
+                                    break;
+                                case "hovering":
+                                    part.GetFirstComponent<ButtonComp>().Hovering += (e) => Execute($"act_{action.ID}_hovering", e);
+                                    break;
+                            }
                     break;
                 case "block":
                     foreach (var x in action.Funcs)
@@ -285,7 +293,7 @@ namespace AnimationEngine.Language
                 case "landinggear":
                     ((IMyLandingGear)core.Entity).LockModeChanged += (e, f) =>
                     {
-                        switch (f)
+                        switch (e.LockMode)
                         {
                             case SpaceEngineers.Game.ModAPI.Ingame.LandingGearMode.Locked:
                                 Execute($"act_{action.ID}_lock");
@@ -474,9 +482,8 @@ namespace AnimationEngine.Language
                         _stack.Set(curr.Arr[1], _stack.Peek(curr.Arr[0]));
                         break;
 
-                    case ProgramFunc.Cxt:
+                    case ProgramFunc.RDly:
                         _delay = 0;
-                        _context = curr.Arr[0];
                         break;
                     case ProgramFunc.Mth:
                         SVariable[] arr = new SVariable[curr.Arr[1]];
@@ -489,12 +496,12 @@ namespace AnimationEngine.Language
                         }
                         else if(_delay != 0)
                         {
-                            _delays.Add(new Delay(_delay, _context, _immediates[curr.Arr[0]].ToString(), arr));
+                            _delays.Add(new Delay(_delay, curr.Arr[2], _immediates[curr.Arr[0]].ToString(), arr));
                             _stack.Push(new SVariableInt(0));
                         }
                         else
                         {
-                            SVariable s = _libraries[_context].Execute(_immediates[curr.Arr[0]].ToString(), arr);
+                            SVariable s = _libraries[curr.Arr[2]].Execute(_immediates[curr.Arr[0]].ToString(), arr);
                             _stack.Push(s ?? new SVariableInt(0));
                         }
                         break;
