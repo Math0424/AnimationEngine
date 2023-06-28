@@ -250,7 +250,7 @@ namespace AnimationEngine.LanguageV1
                     libraries[def.Name.ToLower()] = core.Subparts[def.Name];
                     break;
                 case "emissive":
-                    libraries[def.Name.ToLower()] = new Emissive(def.Values[0].ToString());
+                    libraries[def.Name.ToLower()] = new Emissive(def.Values[0].ToString(), null);
                     break;
                 case "emitter":
                     libraries[def.Name.ToLower()] = new Emitter(def.Values[0].ToString(), null);

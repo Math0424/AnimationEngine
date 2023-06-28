@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace AnimationEngine.Language
@@ -219,13 +220,16 @@ namespace AnimationEngine.Language
 
             new LibraryDictionary("api",
                 new MethodDictionary("log", false, "Value"),
+                new MethodDictionary("startloop", false, "FunctionName", "LoopDelay", "LoopCount", "DelayTime"),
                 new MethodDictionary("startloop", false, "FunctionName", "LoopDelay", "LoopCount"),
                 new MethodDictionary("stoploop", false, "FunctionName"),
+                new MethodDictionary("delayfunction", false, "FunctionName", "FunctionDelay"),
+
                 new MethodDictionary("stopdelays", false),
                 new MethodDictionary("assert", false, "a", "b"),
 
                 new MethodDictionary("getinputposition", true),
-                new MethodDictionary("getrotation", true)
+                new MethodDictionary("getinputrotation", true)
             ),
 
             new LibraryDictionary("block",
@@ -348,14 +352,26 @@ namespace AnimationEngine.Language
 
         public static bool IsObject(Entity ent, out string error)
         {
+            string value = ent.Type.Value.ToString().ToLower();
+            int count = _objects.Where(e => value.Equals(e.Name)).Count();
+
             foreach(var x in _objects)
             {
-                if (ent.Type.Value.ToString().ToLower().Equals(x.Name))
+                if (value.Equals(x.Name))
                 {
+                    count--;
+
                     if (ent.Args.Length != x.Args.Length)
                     {
-                        error = $"{ent.Name.Value} has a different amount of args, expected {x.Args.Length} got {ent.Args.Length}";
-                        return false;
+                        if (count == 0)
+                        {
+                            error = $"{ent.Name.Value} has a different amount of args, expected {x.Args.Length} got {ent.Args.Length}";
+                            return false;
+                        } 
+                        else
+                        {
+                            continue;
+                        }
                     }
 
                     for(int i = 0; i < x.Args.Length; i++)

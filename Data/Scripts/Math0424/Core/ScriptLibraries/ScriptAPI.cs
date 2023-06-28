@@ -9,12 +9,12 @@ namespace AnimationEngine.Language.Libs
 {
     internal struct MethodTick
     {
-        public MethodTick(string method, int loopDelay, int loopCount)
+        public MethodTick(string method, int loopDelay, int loopCount, int startDelay)
         {
             this.method = method;
             this.loopDelay = loopDelay;
             this.loopCount = loopCount;
-            currDelay = 0;
+            this.currDelay = startDelay;
         }
         public int loopDelay;
         public int loopCount;
@@ -32,13 +32,14 @@ namespace AnimationEngine.Language.Libs
             this.runner = runner;
 
             AddMethod("log", log);
-            AddMethod("startloop", StartLoop);
-            AddMethod("stoploop", StopLoop);
+            AddMethod("startloop", startLoop);
+            AddMethod("stoploop", stopLoop);
+
             AddMethod("stopdelays", stopDelays);
             AddMethod("assert", assert);
 
             AddMethod("getinputposition", getPositionDelta);
-            AddMethod("getrotation", getRotation);
+            AddMethod("getinputrotation", getRotation);
         }
 
         public SVariable getPositionDelta(SVariable[] var)
@@ -77,13 +78,16 @@ namespace AnimationEngine.Language.Libs
             return null;
         }
 
-        public SVariable StartLoop(SVariable[] var)
+        public SVariable startLoop(SVariable[] var)
         {
-            methodLoops.Add(new MethodTick("func_" + var[0].ToString().ToLower(), var[1].AsInt(), var[2].AsInt()));
+            if (var.Length == 3)
+                methodLoops.Add(new MethodTick("func_" + var[0].ToString().ToLower(), var[1].AsInt(), var[2].AsInt(), 0));
+            else
+                methodLoops.Add(new MethodTick("func_" + var[0].ToString().ToLower(), var[1].AsInt(), var[2].AsInt(), var[3].AsInt()));
             return null;
         }
 
-        public SVariable StopLoop(SVariable[] var)
+        public SVariable stopLoop(SVariable[] var)
         {
             foreach (var x in methodLoops)
             {

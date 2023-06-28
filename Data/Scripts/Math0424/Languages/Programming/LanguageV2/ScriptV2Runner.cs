@@ -148,7 +148,7 @@ namespace AnimationEngine.Language
                     _libraries.Add(core.Subparts[ent.Name.Value.ToString().ToLower()]);
                     break;
                 case "emissive":
-                    _libraries.Add(new Emissive(ent.Args[0].Value.ToString()));
+                    _libraries.Add(new Emissive(ent.Args[0].Value.ToString(), ent.Parent.Value?.ToString().ToLower()));
                     break;
                 case "emitter":
                     _libraries.Add(new Emitter(ent.Args[0].Value.ToString(), ent.Parent.Value?.ToString().ToLower()));

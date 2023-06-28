@@ -21,7 +21,6 @@ namespace AnimationEngine.Language
             }
         }
 
-
         public static bool IsMathOperator(this TokenType token)
         {
             switch (token)

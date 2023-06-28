@@ -3,9 +3,7 @@ using AnimationEngine.Utility;
 using Sandbox.Game.Components;
 using Sandbox.ModAPI;
 using System.Collections.Generic;
-using System.IO;
 using VRage.Game.Entity;
-using VRage.Game.ModAPI;
 using VRage.ModAPI;
 using VRageMath;
 
@@ -26,7 +24,6 @@ namespace AnimationEngine.Core
             {
                 AddMethod("setvisible", SetVisibility);
                 AddMethod("setmodel", SetModel);
-                AddMethod("setemissive", SetEmissive);
 
                 mover = new Mover(Subpart.PositionComp);
                 mover.AddToScriptLib(this, "");
@@ -50,12 +47,6 @@ namespace AnimationEngine.Core
 
             MatrixD parentMat = Subpart.Parent.PositionComp.WorldMatrixRef;
             Subpart.PositionComp.UpdateWorldMatrix(ref parentMat);
-        }
-
-        private SVariable SetEmissive(SVariable[] args)
-        {
-            Subpart.SetEmissiveParts(args[0].ToString(), new Color(args[1].AsFloat() / 255, args[2].AsFloat() / 255, args[3].AsFloat() / 255), args[4].AsFloat());
-            return null;
         }
 
         private SVariable SetModel(SVariable[] args)

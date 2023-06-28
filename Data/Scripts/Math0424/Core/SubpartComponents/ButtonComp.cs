@@ -1,9 +1,8 @@
 ﻿using AnimationEngine.Language;
-using AnimationEngine.Utility;
 using Math0424.Networking;
 using ProtoBuf;
+using Sandbox.Definitions;
 using Sandbox.Game;
-using Sandbox.Game.SessionComponents;
 using Sandbox.ModAPI;
 using System;
 using System.Collections.Generic;
@@ -14,6 +13,16 @@ namespace AnimationEngine.Core
     internal class ButtonComp : InteractableComp
     {
         private static Dictionary<string, Action> registeredButtons = new Dictionary<string, Action>();
+
+        public static void ServerButtonIn(Type t, PacketIn p)
+        {
+            if (t == typeof(ButtonPacket))
+            {
+                var id = p.UnWrap<ButtonPacket>().id;
+                if (registeredButtons.ContainsKey(id))
+                    registeredButtons[id].Invoke();
+            }
+        }
 
         public static void ButtonIn(PacketIn p)
         {
@@ -70,7 +79,10 @@ namespace AnimationEngine.Core
         private void HoverChange(bool v)
         {
             if (v && interactable)
-                MyVisualScriptLogicProvider.SetHighlightLocal(core.Subpart.Name, 9, 3, new Color(255, 255, 0, 12));
+            {
+                var color = MyDefinitionManager.Static.EnvironmentDefinition.ContourHighlightColor;
+                MyVisualScriptLogicProvider.SetHighlightLocal(core.Subpart.Name, 9, 3, color);
+            }
             else
                 MyVisualScriptLogicProvider.SetHighlightLocal(core.Subpart.Name, -1);
         }

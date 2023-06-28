@@ -28,25 +28,7 @@ namespace AnimationEngine
 
         public override void Init(SubpartCore core)
         {
-            //TODO fix this for parenting
-            //Utils.LogToFile("Part core id " + core.Subpart.Parent);
             block = core?.Subpart?.Parent as IMyCubeBlock;
-
-            //if (block == null || MyAPIGateway.Utilities.IsDedicated)
-            //    return;
-            //
-            //Dictionary<string, IMyModelDummy> dummies = new Dictionary<string, IMyModelDummy>();
-            //block.Model.GetDummies(dummies);
-            //foreach (var dum in dummies)
-            //{
-            //    if (dum.Value.Name.Equals(dummy))
-            //    {
-            //        return;
-            //    }
-            //}
-            //Utils.LogToFile($"Interactable failed to spawn, could not find dummy '{dummy}' valid dummies below");
-            //foreach(var dum in dummies)
-            //    Utils.LogToFile($" - '{dum.Value.Name}'");
         }
 
         public override void Tick(int i)

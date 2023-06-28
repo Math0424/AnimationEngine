@@ -83,6 +83,8 @@ namespace AnimationEngine
         {
             EasyNetworker.Init(45876);
             EasyNetworker.RegisterPacket(typeof(ButtonComp.ButtonPacket), ButtonComp.ButtonIn);
+            if (MyAPIGateway.Utilities.IsDedicated)
+                EasyNetworker.ProcessPacket += ButtonComp.ServerButtonIn;
 
             WCApi.Load(WCReady);
 

@@ -1,13 +1,15 @@
 ﻿using AnimationEngine.Language;
-using AnimationEngine.Utility;
+using Sandbox.ModAPI;
 using VRage.Game.Entity;
 using VRage.ModAPI;
 using VRageMath;
 
 namespace AnimationEngine.Core
 {
-    internal class Emissive : ScriptLib, Initializable
+    internal class Emissive : ScriptLib, Initializable, Parentable
     {
+        string parent;
+
         private string materialID;
         IMyEntity ent;
 
@@ -24,15 +26,24 @@ namespace AnimationEngine.Core
 
         ShortHandLerp lerp;
 
-        public Emissive(string materialID)
+        public string GetParent()
+        {
+            return parent;
+        }
+
+        public Emissive(string materialID, string parent)
         {
             this.materialID = materialID;
+            this.parent = parent;
 
-            AddMethod("setcolor", SetColor);
-            AddMethod("setsubpartcolor", SetSubpartColor);
+            if (!MyAPIGateway.Utilities.IsDedicated)
+            {
+                AddMethod("setcolor", SetColor);
+                AddMethod("setsubpartcolor", SetSubpartColor);
 
-            AddMethod("tocolor", transitionBlockColor);
-            AddMethod("subparttocolor", transitionSubpartColor);
+                AddMethod("tocolor", transitionBlockColor);
+                AddMethod("subparttocolor", transitionSubpartColor);
+            }
         }
 
         public override void Tick(int time) 

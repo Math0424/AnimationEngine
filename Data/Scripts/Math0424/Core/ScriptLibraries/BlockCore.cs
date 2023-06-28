@@ -57,13 +57,6 @@ namespace AnimationEngine.Core
             }
             this.Block = script.Entity as IMyCubeBlock;
 
-            if (Block is IMyDoor)
-            {
-                AddMethod("opendoor", (e) => { OpenDoor(); return null; });
-                AddMethod("closedoor", (e) => { CloseDoor(); return null; });
-                AddMethod("toggledoor", (e) => { ToggleDoor(); return null; });
-            }
-
             if (Block is IMyCockpit)
             {
                 var comp = script.GetFirstComponent<CockpitComp>();
@@ -87,19 +80,27 @@ namespace AnimationEngine.Core
             AddMethod("resetrot", blockMover.ResetRot);
             AddMethod("reset", blockMover.Reset);
 
+
+            //These were a bad idea.
             if (Block is IMyLandingGear)
             {
                 AddMethod("lockon", (e) => { LockOn(); return null; });
                 AddMethod("lockoff", (e) => { LockOff(); return null; });
                 AddMethod("togglelock", (e) => { ToggleLock(); return null; });
             }
-
             if (Block is IMyFunctionalBlock)
             {
                 AddMethod("poweron", (e) => { PowerOn(); return null; });
                 AddMethod("poweroff", (e) => { PowerOff(); return null; });
                 AddMethod("togglepower", (e) => { TogglePower(); return null; });
             }
+            if (Block is IMyDoor)
+            {
+                AddMethod("opendoor", (e) => { OpenDoor(); return null; });
+                AddMethod("closedoor", (e) => { CloseDoor(); return null; });
+                AddMethod("toggledoor", (e) => { ToggleDoor(); return null; });
+            }
+
 
             if (Block is IMyProductionBlock)
             {
