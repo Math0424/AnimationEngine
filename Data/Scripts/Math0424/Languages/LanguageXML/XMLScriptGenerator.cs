@@ -75,16 +75,23 @@ namespace AnimationEngine.LanguageXML
                     V1ScriptAction act;
                     switch (x.type.ToLower())
                     {
-                        //case "pressed":
-                        //case "pressedon":
-                        //case "pressedoff":
-                        //    break;
-                        //case "leave":
-                        //case "arrive":
-                        //    act = GetOrAddActionType("distanceaction");
-                        //    var funcs = new List<V1Function>(act.Funcs);
-                        //    funcs.Add(new V1Function())
-                        //    break;
+                        case "pressed":
+                        case "pressedon":
+                        case "pressedoff":
+                            act = GetOrAddActionType("buttonaction");
+                            break;
+                        case "leave":
+                        case "arrive":
+                            act = GetOrAddActionType("distanceaction");
+                            break;
+                        case "startproducing":
+                        case "stopproducing":
+                            act = GetOrAddActionType("productionaction");
+                            break;
+                        case "working":
+                        case "notworking":
+                            act = GetOrAddActionType("blockaction");
+                            break;
                         case "readylock":
                         case "unlock":
                         case "lock":
@@ -109,7 +116,8 @@ namespace AnimationEngine.LanguageXML
                     var funcs = new List<V1Function>(act.Funcs);
                     funcs.Add(new V1Function()
                     {
-                        Name = new Token(TokenType.KEWRD, x.type.ToLower(), 0, 0)
+                        Name = new Token(TokenType.KEWRD, x.type.ToLower(), 0, 0),
+                        Paramaters = x.distance == 0 ? null : new Token[] { new Token(TokenType.FLOAT, x.distance, 0, 0) },
                     });
                     for(int i = 0; i < actions.Count; i++)
                     {
@@ -117,6 +125,7 @@ namespace AnimationEngine.LanguageXML
                         {
                             var y = actions[i];
                             y.Funcs = funcs.ToArray();
+                            y.Paramaters = x.empty == null ? null : new Token[] { new Token(TokenType.KEWRD, x.empty, 0, 0) };
                             actions[i] = y;
                         }
                     }
@@ -138,11 +147,6 @@ namespace AnimationEngine.LanguageXML
                                 funcs.Add(new V1Function() { Name = new Token(TokenType.KEWRD, "workingloop", 0, 0) });
                                 callingArray.Add($"{act.ID}_workingloop", null);
                             }
-                            else
-                            {
-                                funcs.Add(new V1Function(){ Name = new Token(TokenType.KEWRD, "working", 0, 0) });
-                                callingArray.Add($"{act.ID}_working", null);
-                            }
                             break;
                         case "producing":
                             act = GetOrAddActionType("productionaction");
@@ -150,11 +154,6 @@ namespace AnimationEngine.LanguageXML
                             {
                                 funcs.Add(new V1Function() { Name = new Token(TokenType.KEWRD, "producingloop", 0, 0) });
                                 callingArray.Add($"{act.ID}_producingloop", null);
-                            }
-                            else
-                            {
-                                funcs.Add(new V1Function() { Name = new Token(TokenType.KEWRD, "producing", 0, 0) });
-                                callingArray.Add($"{act.ID}_producing", null);
                             }
                             break;
                         default:
@@ -372,111 +371,114 @@ namespace AnimationEngine.LanguageXML
         {
             Utils.LogToFile(msg);
         }
+
+
+        [XmlRoot("Animations")]
+        public struct XMLScript
+        {
+            [XmlAttribute]
+            public string ver;
+            [XmlElement("Animation")]
+            public XMLAnimation[] Animations;
+        }
+
+        [XmlType("Animation")]
+        public struct XMLAnimation
+        {
+            [XmlAttribute]
+            public string id;
+            [XmlAttribute]
+            public string subtypeId;
+            [XmlElement("Triggers")]
+            public XMLTrigers Triggers;
+            [XmlArray("Subparts")]
+            public XMLSubpart[] Subparts;
+        }
+
+        [XmlType("Triggers")]
+        public struct XMLTrigers
+        {
+            [XmlElement("Event")]
+            public XMLEvent[] EventTriggers;
+            [XmlElement("State")]
+            public XMLState[] StateTriggers;
+        }
+
+        [XmlType("Subpart")]
+        public struct XMLSubpart
+        {
+            [XmlAttribute]
+            public string empty;
+            [XmlArray("Keyframes")]
+            public XMLKeyFrame[] Keyframes;
+        }
+
+        [XmlType("Keyframe")]
+        public struct XMLKeyFrame
+        {
+            [XmlAttribute]
+            public int frame;
+            [XmlElement("Anim")]
+            public XMLAnim[] Anims;
+            [XmlElement("Function")]
+            public XMLFunction[] Functions;
+        }
+
+        [XmlType("Anim")]
+        public struct XMLAnim
+        {
+            [XmlAttribute]
+            public string scale;
+            [XmlAttribute]
+            public string location;
+            [XmlAttribute]
+            public string rotation;
+            [XmlAttribute]
+            public string lerp;
+            [XmlAttribute]
+            public string easing;
+        }
+
+        [XmlType("Trigger")]
+        public struct XMLEvent
+        {
+            [XmlAttribute]
+            public string type;
+            [XmlAttribute]
+            public float distance;
+            [XmlAttribute]
+            public string empty;
+        }
+
+        [XmlType("Function")]
+        public struct XMLFunction
+        {
+            [XmlAttribute]
+            public string rgb;
+            [XmlAttribute]
+            public string type;
+            [XmlAttribute]
+            public string empty;
+            [XmlAttribute]
+            public string subtypeid;
+            [XmlAttribute]
+            public string material;
+            [XmlAttribute]
+            public float brightness;
+        }
+
+        [XmlType("State")]
+        public struct XMLState
+        {
+            [XmlAttribute]
+            public string type;
+            [XmlAttribute("bool")]
+            public bool value;
+            [XmlAttribute]
+            public bool loop;
+        }
+
     }
 
-    [XmlRoot("Animations")]
-    public struct XMLScript
-    {
-        [XmlAttribute]
-        public string ver;
-        [XmlElement("Animation")]
-        public XMLAnimation[] Animations;
-    }
-
-    [XmlType("Animation")]
-    public struct XMLAnimation
-    {
-        [XmlAttribute]
-        public string id;
-        [XmlAttribute]
-        public string subtypeId;
-        [XmlElement("Triggers")]
-        public XMLTrigers Triggers;
-        [XmlArray("Subparts")]
-        public XMLSubpart[] Subparts;
-    }
-
-    [XmlType("Triggers")]
-    public struct XMLTrigers
-    {
-        [XmlElement("Event")]
-        public XMLEvent[] EventTriggers;
-        [XmlElement("State")]
-        public XMLState[] StateTriggers;
-    }
-
-    [XmlType("Subpart")]
-    public struct XMLSubpart
-    {
-        [XmlAttribute]
-        public string empty;
-        [XmlArray("Keyframes")]
-        public XMLKeyFrame[] Keyframes;
-    }
-    
-    [XmlType("Keyframe")]
-    public struct XMLKeyFrame
-    {
-        [XmlAttribute]
-        public int frame;
-        [XmlElement("Anim")]
-        public XMLAnim[] Anims;
-        [XmlElement("Function")]
-        public XMLFunction[] Functions;
-    }
-
-    [XmlType("Anim")]
-    public struct XMLAnim
-    {
-        [XmlAttribute]
-        public string scale;
-        [XmlAttribute]
-        public string location;
-        [XmlAttribute]
-        public string rotation;
-        [XmlAttribute]
-        public string lerp;
-        [XmlAttribute]
-        public string easing;
-    }
-
-    [XmlType("Trigger")]
-    public struct XMLEvent
-    {
-        [XmlAttribute]
-        public string type;
-        [XmlAttribute]
-        public float distance;
-        [XmlAttribute]
-        public string empty;
-    }
-
-    [XmlType("Function")]
-    public struct XMLFunction
-    {
-        [XmlAttribute]
-        public string rgb;
-        [XmlAttribute]
-        public string type;
-        [XmlAttribute]
-        public string empty;
-        [XmlAttribute]
-        public string subtypeid;
-        [XmlAttribute]
-        public string material;
-        [XmlAttribute]
-        public float brightness;
-    }
-
-    [XmlType("State")]
-    public struct XMLState
-    {
-        [XmlAttribute]
-        public string type;
-        [XmlAttribute("bool")]
-        public bool value;
-        [XmlAttribute]
-        public bool loop;
-    }
 
 }

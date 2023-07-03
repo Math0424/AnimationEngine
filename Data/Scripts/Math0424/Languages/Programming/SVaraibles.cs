@@ -24,7 +24,7 @@ namespace AnimationEngine.Language
         }
     }
 
-    internal interface SVariable
+    public interface SVariable
     {
         int AsInt();
         float AsFloat();
@@ -116,9 +116,9 @@ namespace AnimationEngine.Language
             this.value = value;
         }
 
-        public int AsInt() => (int)value.X;
-        public float AsFloat() => value.X;
-        public bool AsBool() => value.X != 0;
+        public int AsInt() => (int)value.Length();
+        public float AsFloat() => value.Length();
+        public bool AsBool() => value.Length() != 0;
         public Vector3 AsVector3() => value;
 
         public bool Equals(SVariable a) => a.GetType() == typeof(SVariableVector) && value == ((SVariableVector)a).AsVector3();

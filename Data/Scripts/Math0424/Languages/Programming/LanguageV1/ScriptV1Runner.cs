@@ -1,12 +1,9 @@
 ﻿using AnimationEngine.Core;
 using AnimationEngine.Language;
 using AnimationEngine.LogicV1;
-using AnimationEngine.Utility;
-using Sandbox.Definitions;
 using Sandbox.ModAPI;
 using SpaceEngineers.Game.ModAPI;
 using System.Collections.Generic;
-using VRage.Game.ModAPI;
 
 namespace AnimationEngine.LanguageV1
 {
