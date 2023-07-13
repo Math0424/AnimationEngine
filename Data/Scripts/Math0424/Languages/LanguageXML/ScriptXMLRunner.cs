@@ -32,7 +32,7 @@ namespace AnimationEngine.LanguageXML
 
         }
 
-        public void Init(CoreScript parent)
+        public void InitBuilt(CoreScript parent)
         {
 
         }
@@ -60,10 +60,17 @@ namespace AnimationEngine.LanguageXML
 
     }
 
-    public struct xSubpartFrame
+    public struct sTrigger
     {
         public string name;
-        public sXMLDelay[] movements;
+        public SVariable[] args;
+    }
+
+    public struct sSubpartFrame
+    {
+        public string name;
+        public int timeTaken;
+        public sXMLDelay[] delays;
     }
 
     public struct sXMLDelay

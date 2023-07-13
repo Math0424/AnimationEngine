@@ -3,7 +3,6 @@ using AnimationEngine.Utility;
 using Sandbox.Game;
 using Sandbox.ModAPI;
 using System;
-using System.Collections.Generic;
 using VRage.Game.ModAPI;
 using VRageMath;
 
@@ -12,8 +11,8 @@ namespace AnimationEngine
     internal class InteractableComp : SubpartComponent
     {
 
-        public Action<bool> OnHover;
-        public Action OnInteract;
+        protected Action<bool> OnHover;
+        protected Action OnInteract;
 
         private bool IsHovering;
         protected string dummy;
@@ -24,6 +23,15 @@ namespace AnimationEngine
         {
             this.dummy = dummy;
             interactable = true;
+        }
+
+        public override void Close()
+        {
+            if (IsHovering)
+            {
+                IsHovering = false;
+                OnHover?.Invoke(false);
+            }
         }
 
         public override void Init(SubpartCore core)

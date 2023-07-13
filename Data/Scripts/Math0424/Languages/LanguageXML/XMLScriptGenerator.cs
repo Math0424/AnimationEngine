@@ -30,8 +30,149 @@ namespace AnimationEngine.LanguageXML
                 XMLScript script = MyAPIGateway.Utilities.SerializeFromXML<XMLScript>(RawScript);
                 Log($"|  Running Generator XML version '{script.ver}'");
 
-                foreach (var x in script.Animations)
-                    GenerateScript(x);
+                foreach(var anim in script.Animations)
+                {
+                    Log($"|  |  Reading block '{anim.subtypeId}'");
+                    List<Subpart> subparts = new List<Subpart>();
+
+                    List<sSubpartFrame> subpartFrames = new List<sSubpartFrame>();
+                    foreach(var sub in anim.Subparts)
+                    {
+                        Log($"|  |  |  Reading animations for '{sub.empty}'");
+                        subparts.Add(new Subpart(sub.empty.Substring(8), sub.empty.Substring(8), null));
+
+                        List<sXMLDelay> delays = new List<sXMLDelay>();
+                        int largestTime = 0;
+                        for (int m = 0; m < sub.Keyframes.Length; m++)
+                        {
+                            List<sXMLMovement> movements = new List<sXMLMovement>();
+                            List<sXMLFunction> functions = new List<sXMLFunction>();
+
+                            var currFrame = sub.Keyframes[m];
+                            if (currFrame.frame > largestTime) largestTime = currFrame.frame;
+
+                            if (currFrame.Functions != null)
+                            {
+                                foreach(var f in currFrame.Functions)
+                                {
+                                    var func = new sXMLFunction() {
+                                        type = f.type.ToLower(),
+                                    };
+
+                                    switch (f.type.ToLower())
+                                    {
+                                        case "reset":
+                                        case "resetpos":
+                                        case "setresetpos":
+                                            break;
+                                        case "setemissivecolor":
+                                            func.args = new SVariable[] {
+                                                    new SVariableString(f.material),
+                                                    new SVariableVector(StringToVector(f.rgb)),
+                                                    new SVariableFloat(f.brightness)
+                                                };
+                                            break;
+                                        case "setvisible":
+                                            func.args = new SVariable[] {
+                                                    new SVariableBool(f.visible),
+                                                };
+                                            break;
+                                        default:
+                                            throw new Exception($"Unknown/Unsupported XML function '{f.type}'");
+                                    }
+                                    functions.Add(func);
+                                }
+                            }
+
+                            if (currFrame.Anims != null)
+                            {
+                                foreach (var movement in currFrame.Anims)
+                                {
+                                    int lerp = 16;
+                                    foreach (var a in Enum.GetValues(typeof(LerpType)))
+                                        if (a.ToString().ToLower().Equals((movement.lerp ?? "linear").ToLower()))
+                                            lerp = (int)a;
+
+                                    int ease = 0;
+                                    foreach (var a in Enum.GetValues(typeof(EaseType)))
+                                        if (a.ToString().ToLower().Equals((movement.easing ?? "in").ToLower()))
+                                            ease = (int)a;
+
+                                    var arr = sub.Keyframes;
+                                    if (movement.rotation != null) // 1
+                                    {
+                                        Vector3 to;
+                                        int changedFrame = GetNextFrameChange(ref arr, m, 1, out to);
+                                        if (changedFrame != -1)
+                                        {
+                                            Vector3 from = StringToVector(movement.rotation);
+                                            QuaternionD diff = from.EulerToQuat() * QuaternionD.Inverse(to.EulerToQuat());
+                                            Vector3D one;
+                                            double angle;
+                                            diff.GetAxisAngle(out one, out angle);
+
+                                            int timetaken = sub.Keyframes[changedFrame].frame - currFrame.frame;
+                                            movements.Add(new sXMLMovement()
+                                            {
+                                                type = "rotate",
+                                                args = new SVariable[] {
+                                                    new SVariableVector(one),
+                                                    new SVariableFloat((float)(angle * (180.0/Math.PI))),
+                                                    new SVariableInt(timetaken),
+                                                    new SVariableInt(ease | lerp),
+                                                }
+                                            });
+                                        }
+                                    }
+                                    else if (movement.location != null || movement.scale != null) // 2 : 0
+                                    {
+                                        Vector3 change;
+                                        int changedFrame = GetNextFrameChange(ref arr, m, movement.location == null ? 0 : 2, out change);
+                                        if (changedFrame != -1)
+                                        {
+                                            change -= StringToVector(movement.location);
+                                            int timetaken = sub.Keyframes[changedFrame].frame - currFrame.frame;
+                                            movements.Add(new sXMLMovement()
+                                            {
+                                                type = movement.location == null ? "scale" : "translate",
+                                                args = new SVariable[] {
+                                                    new SVariableVector(change),
+                                                    new SVariableInt(timetaken),
+                                                    new SVariableInt(ease | lerp),
+                                                }
+                                            });
+                                        }
+                                    }
+                                }
+                            }
+
+                            delays.Add(new sXMLDelay()
+                            {
+                                delay = currFrame.frame,
+                                functions = functions.ToArray(),
+                                movements = movements.ToArray(),
+                            });
+                        }
+
+                        subpartFrames.Add(new sSubpartFrame()
+                        {
+                            timeTaken = largestTime,
+                            delays = delays.ToArray(),
+                            name = sub.empty.Substring(8)
+                        });
+
+                        var trigger = new sTrigger
+                        {
+
+                        };
+
+                    }
+
+                    ScriptRunner runner = new ScriptXMLRunner(mod.Name);
+                    Log($"|  |  Registering block");
+                    AnimationEngine.AddToRegisteredScripts(anim.subtypeId, subparts.ToArray(), runner);
+                    Log($"|  |  Registered script to '{anim.subtypeId}'");
+                }
 
                 Log($"Compiled script(s) ({(DateTime.Now.Ticks - start) / TimeSpan.TicksPerMillisecond}ms)");
             }
@@ -321,7 +462,7 @@ namespace AnimationEngine.LanguageXML
                 }
             }
 
-            ScriptRunner runner = new ScriptV1Runner(mod.Name, objects, actions, callingArray);
+            ScriptRunner runner = new ScriptXMLRunner(mod.Name);
             Log($"|  Registering block");
             AnimationEngine.AddToRegisteredScripts(animation.subtypeId, subparts.ToArray(), runner);
             Log($"|  |  Registered script to '{animation.subtypeId}'");
@@ -372,112 +513,114 @@ namespace AnimationEngine.LanguageXML
             Utils.LogToFile(msg);
         }
 
+    }
 
-        [XmlRoot("Animations")]
-        public struct XMLScript
-        {
-            [XmlAttribute]
-            public string ver;
-            [XmlElement("Animation")]
-            public XMLAnimation[] Animations;
-        }
 
-        [XmlType("Animation")]
-        public struct XMLAnimation
-        {
-            [XmlAttribute]
-            public string id;
-            [XmlAttribute]
-            public string subtypeId;
-            [XmlElement("Triggers")]
-            public XMLTrigers Triggers;
-            [XmlArray("Subparts")]
-            public XMLSubpart[] Subparts;
-        }
+    [XmlRoot("Animations")]
+    public struct XMLScript
+    {
+        [XmlAttribute]
+        public string ver;
+        [XmlElement("Animation")]
+        public XMLAnimation[] Animations;
+    }
 
-        [XmlType("Triggers")]
-        public struct XMLTrigers
-        {
-            [XmlElement("Event")]
-            public XMLEvent[] EventTriggers;
-            [XmlElement("State")]
-            public XMLState[] StateTriggers;
-        }
+    [XmlType("Animation")]
+    public struct XMLAnimation
+    {
+        [XmlAttribute]
+        public string id;
+        [XmlAttribute]
+        public string subtypeId;
+        [XmlElement("Triggers")]
+        public XMLTrigers Triggers;
+        [XmlArray("Subparts")]
+        public XMLSubpart[] Subparts;
+    }
 
-        [XmlType("Subpart")]
-        public struct XMLSubpart
-        {
-            [XmlAttribute]
-            public string empty;
-            [XmlArray("Keyframes")]
-            public XMLKeyFrame[] Keyframes;
-        }
+    [XmlType("Triggers")]
+    public struct XMLTrigers
+    {
+        [XmlElement("Event")]
+        public XMLEvent[] EventTriggers;
+        [XmlElement("State")]
+        public XMLState[] StateTriggers;
+    }
 
-        [XmlType("Keyframe")]
-        public struct XMLKeyFrame
-        {
-            [XmlAttribute]
-            public int frame;
-            [XmlElement("Anim")]
-            public XMLAnim[] Anims;
-            [XmlElement("Function")]
-            public XMLFunction[] Functions;
-        }
+    [XmlType("Subpart")]
+    public struct XMLSubpart
+    {
+        [XmlAttribute]
+        public string empty;
+        [XmlArray("Keyframes")]
+        public XMLKeyFrame[] Keyframes;
+    }
 
-        [XmlType("Anim")]
-        public struct XMLAnim
-        {
-            [XmlAttribute]
-            public string scale;
-            [XmlAttribute]
-            public string location;
-            [XmlAttribute]
-            public string rotation;
-            [XmlAttribute]
-            public string lerp;
-            [XmlAttribute]
-            public string easing;
-        }
+    [XmlType("Keyframe")]
+    public struct XMLKeyFrame
+    {
+        [XmlAttribute]
+        public int frame;
+        [XmlElement("Anim")]
+        public XMLAnim[] Anims;
+        [XmlElement("Function")]
+        public XMLFunction[] Functions;
+    }
 
-        [XmlType("Trigger")]
-        public struct XMLEvent
-        {
-            [XmlAttribute]
-            public string type;
-            [XmlAttribute]
-            public float distance;
-            [XmlAttribute]
-            public string empty;
-        }
+    [XmlType("Anim")]
+    public struct XMLAnim
+    {
+        [XmlAttribute]
+        public string scale;
+        [XmlAttribute]
+        public string location;
+        [XmlAttribute]
+        public string rotation;
+        [XmlAttribute]
+        public string lerp;
+        [XmlAttribute]
+        public string easing;
+    }
 
-        [XmlType("Function")]
-        public struct XMLFunction
-        {
-            [XmlAttribute]
-            public string rgb;
-            [XmlAttribute]
-            public string type;
-            [XmlAttribute]
-            public string empty;
-            [XmlAttribute]
-            public string subtypeid;
-            [XmlAttribute]
-            public string material;
-            [XmlAttribute]
-            public float brightness;
-        }
+    [XmlType("Trigger")]
+    public struct XMLEvent
+    {
+        [XmlAttribute]
+        public string type;
+        [XmlAttribute]
+        public float distance;
+        [XmlAttribute]
+        public string empty;
+    }
 
-        [XmlType("State")]
-        public struct XMLState
-        {
-            [XmlAttribute]
-            public string type;
-            [XmlAttribute("bool")]
-            public bool value;
-            [XmlAttribute]
-            public bool loop;
-        }
+    [XmlType("Function")]
+    public struct XMLFunction
+    {
+        [XmlAttribute]
+        public bool visible;
+        [XmlAttribute]
+        public string rgb;
+        [XmlAttribute]
+        public string type;
+        [XmlAttribute]
+        public string empty;
+        [XmlAttribute]
+        public string subtypeid;
+        [XmlAttribute]
+        public string material;
+        [XmlAttribute]
+        public float brightness;
+    }
 
+    [XmlType("State")]
+    public struct XMLState
+    {
+        [XmlAttribute]
+        public string type;
+        [XmlAttribute("bool")]
+        public bool value;
+        [XmlAttribute]
+        public bool loop;
     }
 
 

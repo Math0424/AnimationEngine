@@ -25,15 +25,18 @@ namespace AnimationEngine.Core
                 AddMethod("setvisible", SetVisibility);
                 AddMethod("setmodel", SetModel);
 
+                mover?.Clear();
                 mover = new Mover(Subpart.PositionComp);
                 mover.AddToScriptLib(this, "");
             }
             Subpart.OnClose += Close;
         }
 
-        public void Close()
+        public override void Close()
         {
-
+            mover?.Clear();
+            foreach (var component in components)
+                component.Close();
         }
 
         public override void Tick(int tick)
@@ -67,9 +70,7 @@ namespace AnimationEngine.Core
         private void Close(IMyEntity ent)
         {
             Subpart.OnClose -= Close;
-            mover?.Clear();
-            foreach (var component in components)
-                component.Close();
+            Close();
         }
 
         public void AddComponent<T>(T comp) where T : SubpartComponent
@@ -90,6 +91,18 @@ namespace AnimationEngine.Core
             foreach (var x in components)
                 if (x.GetType() == typeof(T))
                     return true;
+            return false;
+        }
+
+        public bool RemoveComponent<T>() where T : SubpartComponent
+        {
+            foreach (var x in components)
+                if (x.GetType() == typeof(T))
+                {
+                    x.Close();
+                    components.Remove(x);
+                    return true;
+                }
             return false;
         }
 

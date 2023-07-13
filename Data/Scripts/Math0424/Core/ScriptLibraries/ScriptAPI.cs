@@ -3,6 +3,7 @@ using AnimationEngine.Utility;
 using Sandbox.ModAPI;
 using System.Collections.Generic;
 using VRage.Input;
+using VRage.ModAPI;
 using VRageMath;
 
 namespace AnimationEngine.Language.Libs
@@ -80,6 +81,10 @@ namespace AnimationEngine.Language.Libs
 
         public SVariable startLoop(SVariable[] var)
         {
+            foreach(var x in methodLoops)
+                if (x.method == "func_" + var[0].ToString().ToLower())
+                    return null;
+
             if (var.Length == 3)
                 methodLoops.Add(new MethodTick("func_" + var[0].ToString().ToLower(), var[1].AsInt(), var[2].AsInt(), 0));
             else

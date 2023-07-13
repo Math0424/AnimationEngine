@@ -41,7 +41,7 @@ namespace AnimationEngine.LanguageV1
             delay.Clear();
         }
 
-        public void Init(CoreScript script)
+        public void InitBuilt(CoreScript script)
         {
             libraries = new Dictionary<string, ScriptLib>();
             delay = new List<Delayed>();
@@ -81,9 +81,9 @@ namespace AnimationEngine.LanguageV1
                 if (!(x is SubpartCore))
                     x.Tick(time);
 
-            if ((core.Flags & 2) != 0)
+            if ((core.Flags & CoreScript.BlockFlags.Built) != 0)
             {
-                core.Flags ^= 2;
+                core.Flags |= CoreScript.BlockFlags.Built;
                 Call("blockaction", "built");
             }
         }
@@ -143,9 +143,9 @@ namespace AnimationEngine.LanguageV1
                     {
                         switch (x.Name.Value.ToString())
                         {
-                            case "pressedon": btnComp.ButtonOn += () => CallFunction($"{act.ID}_{x.Name.Value}"); break;
-                            case "pressedoff": btnComp.ButtonOff += () => CallFunction($"{act.ID}_{x.Name.Value}"); break;
-                            case "pressed": btnComp.OnInteract += () => CallFunction($"{act.ID}_{x.Name.Value}"); break;
+                            case "pressedon": btnComp.Pressed += (b) => { if (b.AsBool()) { CallFunction($"{act.ID}_{x.Name.Value}"); } }; break; 
+                            case "pressedoff": btnComp.Pressed += (b) => { if (!b.AsBool()) { CallFunction($"{act.ID}_{x.Name.Value}"); } }; break;
+                            case "pressed": btnComp.Pressed += (b) => CallFunction($"{act.ID}_{x.Name.Value}"); break;
                         }
                     }
                     break;
@@ -266,7 +266,8 @@ namespace AnimationEngine.LanguageV1
 
         public void Close()
         {
-
+            foreach(var x in libraries)
+                x.Value.Close();
         }
 
     }

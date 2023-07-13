@@ -127,6 +127,7 @@ namespace AnimationEngine.Language
             new SpecialAction("block", new TokenType[0],
                 new SpecialAction("create", new TokenType[0]),
                 new SpecialAction("built", new TokenType[0]),
+                new SpecialAction("damaged", new TokenType[0]),
                 new SpecialAction("working", new TokenType[0]),
                 new SpecialAction("notworking", new TokenType[0])
             ),
@@ -235,9 +236,6 @@ namespace AnimationEngine.Language
             new LibraryDictionary("block",
                 new MethodDictionary("delay", false, "Value"),
 
-                new MethodDictionary("poweron", false),
-                new MethodDictionary("poweroff", false),
-
                 new MethodDictionary("translate", false, "PositionVector", "Time", "Lerp"),
                 new MethodDictionary("scale", false, "ScaleVector", "Time", "Lerp"),
                 new MethodDictionary("rotate", false, "AxisVector", "Angle", "Time", "Lerp"),
@@ -248,14 +246,6 @@ namespace AnimationEngine.Language
                 new MethodDictionary("resetpos", false),
                 new MethodDictionary("resetrot", false),
                 new MethodDictionary("reset", false),
-
-                new MethodDictionary("toggledoor", false),
-                new MethodDictionary("closedoor", false),
-                new MethodDictionary("opendoor", false),
-
-                new MethodDictionary("togglelock", false),
-                new MethodDictionary("lockoff", false),
-                new MethodDictionary("lockon", false),
 
                 new MethodDictionary("pilottranslate", false, "PositionVector", "Time", "Lerp"),
                 new MethodDictionary("pilotscale", false, "ScaleVector", "Time", "Lerp"),
@@ -269,10 +259,25 @@ namespace AnimationEngine.Language
                 new MethodDictionary("pilotsetresetpos", false),
 
                 new MethodDictionary("currentthrustpercent", true),
-                new MethodDictionary("isoccupied", true),
                 new MethodDictionary("productionitemmodel", true),
 
-                new MethodDictionary("isnpcgrid", true)
+                new MethodDictionary("isnpcgrid", true),
+                new MethodDictionary("isoccupied", true),
+                new MethodDictionary("isworking", true),
+                new MethodDictionary("isfunctional", true),
+
+                //terrible ideas
+                new MethodDictionary("poweron", false),
+                new MethodDictionary("poweroff", false),
+
+                new MethodDictionary("toggledoor", false),
+                new MethodDictionary("closedoor", false),
+                new MethodDictionary("opendoor", false),
+
+                new MethodDictionary("togglelock", false),
+                new MethodDictionary("lockoff", false),
+                new MethodDictionary("lockon", false)
+
             ),
 
             new LibraryDictionary("subpart",

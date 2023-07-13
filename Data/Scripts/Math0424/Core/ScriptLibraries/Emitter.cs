@@ -39,17 +39,15 @@ namespace AnimationEngine.Core
             }
         }
 
-        private void Close(IMyEntity ent)
+        public override void Close()
         {
             StopParticles(null);
             soundEmitter?.Cleanup();
-            ent.OnClose -= Close;
         }
 
         public void Init(IMyEntity ent)
         {
             this.ent = ent;
-            ent.OnClose += Close;
             if (!MyAPIGateway.Utilities.IsDedicated)
                 FindDummy(ent);
         }

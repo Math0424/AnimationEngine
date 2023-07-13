@@ -14,7 +14,7 @@ namespace AnimationEngine
         IMyShipToolBase block;
         bool active;
 
-        public void Init(CoreScript parent)
+        public void InitBuilt(CoreScript parent)
         {
             if (parent.Entity is IMyShipToolBase)
             {

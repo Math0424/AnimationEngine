@@ -1,4 +1,5 @@
 ﻿using AnimationEngine.Language;
+using AnimationEngine.Utility;
 using Math0424.Networking;
 using ProtoBuf;
 using Sandbox.Definitions;
@@ -38,9 +39,6 @@ namespace AnimationEngine.Core
             [ProtoMember(1)] public string id;
         }
 
-        public Action ButtonOn;
-        public Action ButtonOff;
-
         public Action<SVariable> Hovering;
         public Action<SVariable> Pressed;
 
@@ -49,20 +47,21 @@ namespace AnimationEngine.Core
 
         private string registeredId;
 
-        public ButtonComp(string dummy) : base(dummy) { }
+        public ButtonComp(string dummy) : base(dummy) 
+        {
+            OnHover += HoverChange;
+            OnHover += HoverScriptInvoke;
+
+            OnInteract += Interacted;
+            if (!MyAPIGateway.Utilities.IsDedicated)
+                OnInteract += SyncInteraction;
+        }
 
         public override void Init(SubpartCore core)
         {
             base.Init(core);
 
             this.core = core;
-            OnHover += HoverChange;
-            OnHover += (e) => Hovering?.Invoke(new SVariableBool(e));
-
-            OnInteract += Interacted;
-            
-            if (!MyAPIGateway.Utilities.IsDedicated)
-                OnInteract += SyncInteraction;
 
             core.AddMethod("enabled", SetEnabled);
             core.AddMethod("interactable", SetInteractable);
@@ -73,7 +72,17 @@ namespace AnimationEngine.Core
 
         public override void Close()
         {
+            base.Close();
+
+            Hovering?.UnSubscribeAll();
+            Pressed?.UnSubscribeAll();
+
             registeredButtons.Remove(registeredId);
+        }
+
+        private void HoverScriptInvoke(bool b)
+        {
+            Hovering?.Invoke(new SVariableBool(b));
         }
 
         private void HoverChange(bool v)
@@ -97,14 +106,6 @@ namespace AnimationEngine.Core
             MyVisualScriptLogicProvider.PlayHudSoundLocal();
             enabled = !enabled;
             Pressed?.Invoke(new SVariableBool(enabled));
-            if (enabled)
-            {
-                ButtonOn?.Invoke();
-            }
-            else
-            {
-                ButtonOff?.Invoke();
-            }
         }
 
         public SVariable SetInteractable(SVariable[] arr)

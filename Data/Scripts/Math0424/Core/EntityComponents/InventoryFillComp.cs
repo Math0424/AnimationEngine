@@ -21,7 +21,7 @@ namespace AnimationEngine
 
         public InventoryFillComp() { }
 
-        public void Init(CoreScript parent)
+        public void InitBuilt(CoreScript parent)
         {
             if (parent.Entity is IMyGasTank)
             {
@@ -32,6 +32,7 @@ namespace AnimationEngine
             else if (parent.Entity.HasInventory)
             {
                 inventory = (MyInventory)parent.Entity.GetInventory();
+                inventory.ContentsChanged -= Update;
                 inventory.ContentsChanged += Update;
                 Changed?.Invoke(inventory.CurrentVolume.RawValue / (float)inventory.MaxVolume.RawValue);
             }

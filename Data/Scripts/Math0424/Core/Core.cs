@@ -43,7 +43,7 @@ namespace AnimationEngine.Core
 
     internal interface EntityComponent
     {
-        void Init(CoreScript parent);
+        void InitBuilt(CoreScript parent);
         void Tick(int time);
         void Close();
     }
@@ -86,6 +86,8 @@ namespace AnimationEngine.Core
                 return _dir[value.ToLower()].Invoke(arr);
             return null;
         }
+
+        public virtual void Close() { }
 
         public virtual void Tick(int time) { }
     }

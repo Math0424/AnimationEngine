@@ -50,6 +50,18 @@ namespace AnimationEngine.Utility
             return returned;
         }
 
+        public static void UnSubscribeAll(this Action act)
+        {
+            foreach (var x in act.GetInvocationList())
+                act -= (Action)x;
+        }
+
+        public static void UnSubscribeAll<T>(this Action<T> act)
+        {
+            foreach (var x in act.GetInvocationList())
+                act -= (Action<T>)x;
+        }
+
         public static QuaternionD EulerToQuat(this Vector3 me)
         {
             double cr = Math.Cos(me.X * c * 0.5);

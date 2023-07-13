@@ -57,7 +57,6 @@ namespace AnimationEngine.Language
         private RAStack<SVariable> _stack;
         private Stack<int> _callStack;
         private bool nFlag, zFlag, nzFlag;
-        private int _context;
 
         private readonly Line[] _program;
         private readonly SVariable[] _immediates;
@@ -73,8 +72,6 @@ namespace AnimationEngine.Language
         private List<ScriptAction> _actions;
         private List<ScriptAction> _terminals;
         int _stackStart;
-
-        private string buildId, createId;
 
         public void Execute(string function, params SVariable[] args)
         {
@@ -104,16 +101,20 @@ namespace AnimationEngine.Language
             return new ScriptV2Runner(this);
         }
 
-        public void Init(CoreScript script)
+        public void InitBuilt(CoreScript script)
         {
             core = script;
 
-            foreach (var x in _ents)
-                InitEnt(x);
-            foreach (var x in _actions)
-                InitAction(x);
-            foreach (var x in _terminals)
-                InitTerminal(x);
+            if ((core.Flags & CoreScript.BlockFlags.ActionsInited) == 0) {
+                core.Flags |= CoreScript.BlockFlags.ActionsInited;
+
+                foreach (var x in _ents)
+                    InitEnt(x);
+                foreach (var x in _actions)
+                    InitAction(x);
+                foreach (var x in _terminals)
+                    InitTerminal(x);
+            } 
 
             foreach (var x in _libraries)
             {
@@ -121,7 +122,7 @@ namespace AnimationEngine.Language
                 if (x is Parentable && ((Parentable)x).GetParent() != null)
                 {
                     ent = script.Subparts[((Parentable)x).GetParent()].Subpart;
-                } 
+                }
                 if (x is Initializable)
                     ((Initializable)x).Init(ent);
             }
@@ -138,10 +139,13 @@ namespace AnimationEngine.Language
                 case "block":
                     _libraries.Add(new BlockCore(core)); break;
                 case "button":
-                    var btnComp = new ButtonComp(ent.Args[1].Value.ToString());
                     var btnSubpart = core.Subparts[ent.Name.Value.ToString().ToLower()];
-                    btnSubpart.AddComponent(btnComp);
-                    btnComp.Init(btnSubpart);
+                    if (!btnSubpart.HasComponent<ButtonComp>())
+                    {
+                        var btnComp = new ButtonComp(ent.Args[1].Value.ToString());
+                        btnSubpart.AddComponent(btnComp);
+                        btnComp.Init(btnSubpart);
+                    }
                     _libraries.Add(btnSubpart);
                     break;
                 case "subpart":
@@ -186,24 +190,25 @@ namespace AnimationEngine.Language
                             }
                     break;
                 case "block":
+                    if (!core.HasComponent<BlockStateComp>())
+                        core.AddComponent(new BlockStateComp());
                     foreach (var x in action.Funcs)
                         switch (x.TokenName)
                         {
-                            case "create": 
-                                createId = $"act_{action.ID}_create"; 
+                            case "create":
+                                core.GetFirstComponent<BlockStateComp>().Create += () => Execute($"act_{action.ID}_create");
                                 break;
                             case "built":
-                                buildId = $"act_{action.ID}_built";
+                                core.GetFirstComponent<BlockStateComp>().Built += () => Execute($"act_{action.ID}_built");
+                                break;
+                            case "damaged":
+                                core.GetFirstComponent<BlockStateComp>().Damaged += () => Execute($"act_{action.ID}_damaged");
                                 break;
                             case "working":
-                                if (!core.HasComponent<WorkingTickComp>())
-                                    core.AddComponent(new WorkingTickComp(-1));
-                                core.GetFirstComponent<WorkingTickComp>().OnIsWorking += () => Execute($"act_{action.ID}_working");
+                                core.GetFirstComponent<BlockStateComp>().Working += () => Execute($"act_{action.ID}_working");
                                 break;
                             case "notworking":
-                                if (!core.HasComponent<WorkingTickComp>())
-                                    core.AddComponent(new WorkingTickComp(-1));
-                                core.GetFirstComponent<WorkingTickComp>().OnNotWorking += () => Execute($"act_{action.ID}_notworking");
+                                core.GetFirstComponent<BlockStateComp>().NotWorking += () => Execute($"act_{action.ID}_notworking");
                                 break;
                         }
                     break;
@@ -312,12 +317,6 @@ namespace AnimationEngine.Language
 
         public void Tick(int time)
          {
-            if ((core.Flags & 1) != 0)
-            {
-                core.Flags ^= 1;
-                Execute(createId);
-            }
-
             for (int i = 0; i < _delays.Count; i++)
             {
                 Delay d = _delays[i];
@@ -331,17 +330,12 @@ namespace AnimationEngine.Language
             foreach (var x in _libraries)
                 if (!(x is SubpartCore))
                     x.Tick(time);
-
-            if ((core.Flags & 2) != 0)
-            {
-                core.Flags ^= 2;
-                Execute(buildId);
-            }
         }
 
         public void Close()
         {
-
+            foreach(var x in _libraries)
+                x.Close();
         }
 
         private string modName;

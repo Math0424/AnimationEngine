@@ -296,6 +296,9 @@ namespace AnimationEngine
         {
             if (ent is IMyCubeGrid)
             {
+                if (((MyEntity)ent).IsPreview)
+                    return;
+
                 foreach (var x in ((MyCubeGrid)ent).GetFatBlocks())
                     OnBlockAdded(x.SlimBlock);
 

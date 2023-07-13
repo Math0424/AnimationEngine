@@ -17,7 +17,7 @@ namespace AnimationEngine
 
         public PowerTickComp() { }
 
-        public void Init(CoreScript parent)
+        public void InitBuilt(CoreScript parent)
         {
             if (parent.Entity.Components.Has<MyResourceSourceComponent>())
                 SourceComp = parent.Entity.Components.Get<MyResourceSourceComponent>();

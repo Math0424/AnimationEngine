@@ -33,7 +33,7 @@ namespace AnimationEngine
 
         }
 
-        public void Init(CoreScript parent)
+        public void InitBuilt(CoreScript parent)
         {
             entity = parent.Entity;
         }

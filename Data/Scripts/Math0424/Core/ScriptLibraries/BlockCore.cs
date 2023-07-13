@@ -80,7 +80,6 @@ namespace AnimationEngine.Core
             AddMethod("resetrot", blockMover.ResetRot);
             AddMethod("reset", blockMover.Reset);
 
-
             //These were a bad idea.
             if (Block is IMyLandingGear)
             {
@@ -106,9 +105,11 @@ namespace AnimationEngine.Core
             {
                 AddMethod("productionitemmodel", GetProductionItemModel);
             }
-
             AddMethod("currentthrustpercent", CurrentThrustPercent);
+
             AddMethod("isoccupied", IsOccupied);
+            AddMethod("isworking", IsWorking);
+            AddMethod("isfunctional", IsFunctional);
 
             AddMethod("isnpcgrid", IsNPCGrid);
         }
@@ -141,6 +142,16 @@ namespace AnimationEngine.Core
                 }
             }
             return null;
+        }
+
+        private SVariable IsFunctional(SVariable[] arr)
+        {
+            return new SVariableBool(Block.IsFunctional);
+        }
+
+        private SVariable IsWorking(SVariable[] arr)
+        {
+            return new SVariableBool(Block.IsWorking);
         }
 
         private SVariable IsOccupied(SVariable[] arr)

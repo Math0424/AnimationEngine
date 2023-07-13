@@ -68,9 +68,9 @@ namespace AnimationEngine.Language
             return parent.GetModName();
         }
 
-        public void Init(CoreScript a)
+        public void InitBuilt(CoreScript a)
         {
-            parent.Init(a);
+            parent.InitBuilt(a);
         }
 
         public void Tick(int time)

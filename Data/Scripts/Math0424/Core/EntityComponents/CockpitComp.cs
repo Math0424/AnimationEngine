@@ -13,13 +13,19 @@ namespace AnimationEngine
         private bool enteredSeat = false;
         private IMyCockpit block;
 
-        public void Init(CoreScript parent)
+        public void InitBuilt(CoreScript parent)
         {
             if (parent.Entity is IMyCockpit)
             {
                 this.block = (IMyCockpit)parent.Entity;
+
+                this.block.ControllerInfo.ControlReleased -= Released;
+                this.block.ControllerInfo.ControlAcquired -= Controlled;
                 this.block.ControllerInfo.ControlReleased += Released;
                 this.block.ControllerInfo.ControlAcquired += Controlled;
+
+                if (block.Pilot is IMyCharacter)
+                    EnteredSeat?.Invoke();
             }
         }
 

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using VRage.Game.Entity;
 using VRage.Game.ModAPI;
 using VRage.ModAPI;
+using VRageMath;
 
 namespace AnimationEngine.Core
 {
@@ -16,9 +17,14 @@ namespace AnimationEngine.Core
         public Dictionary<string, SubpartCore> Subparts = new Dictionary<string, SubpartCore>();
         private Dictionary<string, Subpart> subpartData = new Dictionary<string, Subpart>();
 
-        //1 = just created
-        //2 = just ready
-        public int Flags = 0;
+        public enum BlockFlags
+        {
+            Created = 1,
+            Built = 2,
+            SubpartReady = 4,
+            ActionsInited = 8,
+        }
+        public BlockFlags Flags = 0;
 
         string modName;
         public string GetModName()
@@ -66,12 +72,15 @@ namespace AnimationEngine.Core
                     unReadySubparts.Add(subpart.CustomName);
             }
 
+            if (unReadySubparts.Count == 0)
+                Flags |= BlockFlags.SubpartReady;
+
+            Flags |= BlockFlags.Created;
             for (int i = 0; i < components.Count; i++)
-                components[i].Init(this);
+                components[i].InitBuilt(this);
 
             ent.OnClosing += OnClose;
             AnimationEngine.AddScript(this);
-            Flags |= 1;
         }
 
         private bool InitSubpart(Subpart subpart)
@@ -97,11 +106,20 @@ namespace AnimationEngine.Core
                 return false;
             }
 
+            //Dictionary<string, IMyModelDummy> dummies = new Dictionary<string, IMyModelDummy>();
+            //((IMyModel)part.Parent.Model).GetDummies(dummies);
+            //string dummyName = "subpart_" + subpart.Name;
+            //if (dummies.ContainsKey(dummyName))
+            //{
+            //    Matrix matrix = dummies[dummyName].Matrix;
+            //    part.PositionComp.SetLocalMatrix(ref matrix);
+            //}
+
             if (part.Render.GetType() != typeof(MyRenderComponent))
             {
                 if (part.Model == null)
                     return false;
-                
+
                 string asset = ((IMyModel)part.Model).AssetName;
                 var model = part.Render.ModelStorage;
                 var matrix = part.PositionComp.LocalMatrixRef;
@@ -131,11 +149,16 @@ namespace AnimationEngine.Core
 
         private void SubpartClose(IMyEntity ent)
         {
-            if (ent != null && Subparts.ContainsKey(ent.Name))
+            int index = ent.Name.IndexOf(":");
+            if (index == -1 || index == ent.Name.Length - 1)
+                return;
+
+            string newName = ent.Name.Substring(index + 1);
+            if (ent != null && Subparts.ContainsKey(newName))
             {
-                Subparts[ent.Name].Close();
-                Subparts[ent.Name].Subpart.OnClose -= SubpartClose;
-                unReadySubparts.Add(ent.Name);
+                Subparts[newName].Close();
+                Subparts[newName].Subpart.OnClose -= SubpartClose;
+                unReadySubparts.Add(newName);
             }
         }
 
@@ -144,7 +167,7 @@ namespace AnimationEngine.Core
         {
             if (unReadySubparts.Count != 0)
             {
-                Flags |= 2;
+                Flags &= ~BlockFlags.SubpartReady;
                 List<string> ready = new List<string>();
                 foreach (var x in unReadySubparts)
                 {
@@ -154,11 +177,14 @@ namespace AnimationEngine.Core
                 unReadySubparts.RemoveAll((e) => ready.Contains(e));
                 if (unReadySubparts.Count == 0)
                 {
+                    Flags |= BlockFlags.SubpartReady;
+                    Flags |= BlockFlags.Built;
                     for (int i = 0; i < components.Count; i++)
-                        components[i].Init(this);
+                        components[i].InitBuilt(this);
                 }
                 return;
             }
+
             foreach (var component in components)
                 component.Tick(time);
             foreach (var x in Subparts.Values)

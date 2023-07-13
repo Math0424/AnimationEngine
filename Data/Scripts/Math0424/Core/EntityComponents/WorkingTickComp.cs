@@ -29,7 +29,7 @@ namespace AnimationEngine
                 OnNotWorking?.Invoke(); 
         }
 
-        public void Init(CoreScript parent)
+        public void InitBuilt(CoreScript parent)
         {
             if (parent.Entity is IMyCubeBlock)
             {
