@@ -37,7 +37,8 @@ namespace AnimationEngine.Language
 
         private void TriggerEvent(int v, bool a)
         {
-            parent.Execute($"act_7749_{((EventTriggers)v).ToString().ToLower()}");
+            if (a)
+                parent.Execute($"act_7749_{((EventTriggers)v).ToString().ToLower()}");
         }
 
         public void Stop()
@@ -68,9 +69,11 @@ namespace AnimationEngine.Language
             return parent.GetModName();
         }
 
-        public void InitBuilt(CoreScript a)
+        public void InitBuilt(CoreScript core)
         {
-            parent.InitBuilt(a);
+            if ((core.Flags & CoreScript.BlockFlags.ActionsInited) == 0)
+                ((ScriptV2Runner)parent).AddLibrary(new WeaponcoreCore(core, id));
+            parent.InitBuilt(core);
         }
 
         public void Tick(int time)

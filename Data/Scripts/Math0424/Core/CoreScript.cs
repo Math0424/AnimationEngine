@@ -167,20 +167,23 @@ namespace AnimationEngine.Core
         {
             if (unReadySubparts.Count != 0)
             {
+                if ((Flags & BlockFlags.SubpartReady) != 0)
+                    foreach (var x in components)
+                        if (x is ScriptRunner)
+                            ((ScriptRunner)x).Stop();
+
                 Flags &= ~BlockFlags.SubpartReady;
                 List<string> ready = new List<string>();
                 foreach (var x in unReadySubparts)
-                {
                     if (InitSubpart(subpartData[x]))
                         ready.Add(x);
-                }
                 unReadySubparts.RemoveAll((e) => ready.Contains(e));
                 if (unReadySubparts.Count == 0)
                 {
                     Flags |= BlockFlags.SubpartReady;
                     Flags |= BlockFlags.Built;
-                    for (int i = 0; i < components.Count; i++)
-                        components[i].InitBuilt(this);
+                    foreach (var x in components)
+                        x.InitBuilt(this);
                 }
                 return;
             }
@@ -191,7 +194,7 @@ namespace AnimationEngine.Core
                 x.Tick(time);
         }
 
-        private void OnClose(IMyEntity ent)
+        public void OnClose(IMyEntity ent)
         {
             AnimationEngine.RemoveScript(this);
 

@@ -138,6 +138,32 @@ namespace AnimationEngine
                 failedEnts = failedEnts.Substring(0, failedEnts.Length - 2);
                 MyAPIGateway.Utilities.ShowMessage("AnimationEngine", $"These blocks have errors\n{failedEnts}\n check logs for more info");
             }
+
+            MyAPIGateway.Utilities.MessageEnteredSender += MessageIn;
+        }
+
+        public void MessageIn(ulong sender, string messageText, ref bool sendToOthers)
+        {
+            if (messageText.ToLower() == "/aer" || messageText.ToLower() == "/animationegine reload")
+            {
+                sendToOthers = false;
+                foreach(var x in loaded)
+                    foreach(var y in new List<CoreScript>(x.Value))
+                        y.OnClose(y.Entity);
+
+                loaded.Clear();
+                registeredScripts.Clear();
+                HasScript.Clear();
+                failed.Clear();
+                delayed.Clear();
+                LoadData();
+
+                foreach(var x in MyEntities.GetEntities())
+                    OnEntityAdded(x);
+
+                MyAPIGateway.Utilities.ShowMessage("AnimationEngine", "Reloaded scripts");
+                Utils.LogToFile("Reloaded scripts");
+            }
         }
 
         int currentTick = 0;

@@ -730,6 +730,7 @@ namespace CoreSystems.Api
                         [ProtoMember(1)] internal float Modifier;
                         [ProtoMember(2)] internal ShieldType Type;
                         [ProtoMember(3)] internal float BypassModifier;
+                        [ProtoMember(4)] internal double HeatModifier;
                     }
 
                     [ProtoContract]

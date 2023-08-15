@@ -229,6 +229,9 @@ namespace AnimationEngine.Language
                 new MethodDictionary("stopdelays", false),
                 new MethodDictionary("assert", false, "a", "b"),
 
+                new MethodDictionary("getlargegridmaxspeed", true),
+                new MethodDictionary("getsmallgridmaxspeed", true),
+
                 new MethodDictionary("getinputposition", true),
                 new MethodDictionary("getinputrotation", true)
             ),
@@ -261,10 +264,11 @@ namespace AnimationEngine.Language
                 new MethodDictionary("currentthrustpercent", true),
                 new MethodDictionary("productionitemmodel", true),
 
-                new MethodDictionary("isnpcgrid", true),
                 new MethodDictionary("isoccupied", true),
                 new MethodDictionary("isworking", true),
                 new MethodDictionary("isfunctional", true),
+
+                new MethodDictionary("getgasfilledratio", true),
 
                 //terrible ideas
                 new MethodDictionary("poweron", false),
@@ -278,6 +282,24 @@ namespace AnimationEngine.Language
                 new MethodDictionary("lockoff", false),
                 new MethodDictionary("lockon", false)
 
+            ),
+
+            new LibraryDictionary("grid",
+                new MethodDictionary("isnpc", true),
+                new MethodDictionary("getatmosphericdensity", true),
+                new MethodDictionary("getplanetaltitude", true),
+                new MethodDictionary("getspeed", true),
+                new MethodDictionary("getnaturalgravity", true),
+
+                new MethodDictionary("geth2fuel", true),
+                new MethodDictionary("geto2fuel", true)
+            ),
+
+            new LibraryDictionary("weaponcore",
+                new MethodDictionary("getactiveammo", true),
+                new MethodDictionary("getheatlevel", true),
+                new MethodDictionary("getshotsfired", true),
+                new MethodDictionary("isshooting", true)
             ),
 
             new LibraryDictionary("subpart",

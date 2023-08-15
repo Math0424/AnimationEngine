@@ -30,7 +30,8 @@ namespace AnimationEngine.LanguageV2.Nodes
                 }
                 else if (t.Type != TokenType.KEWRD && !t.Type.IsMathOperator() && !t.Type.IsMathVariable())
                 {
-                    throw Script.DetailedErrorLog($"Cannot parse logic token of type {t.Type}", t);
+                    //throw Script.DetailedErrorLog($"Cannot parse logic token of type {t.Type}", t);
+                    break;
                 }
                 index++;
             }
@@ -61,6 +62,14 @@ namespace AnimationEngine.LanguageV2.Nodes
                 isNot = true;
                 index++;
             }
+
+            if (Tokens[index].Type.IsLogicOperator())
+            {
+                logicOperator = Tokens[index++].Type;
+                children.Add(new LogicNode(ref index));
+                return;
+            }
+
             if (CreateLogOrEquasion(ref index))
             {
                 if (!Tokens[index].Type.IsLogic())
@@ -78,11 +87,7 @@ namespace AnimationEngine.LanguageV2.Nodes
             }
 
             if (Tokens[index].Type.IsLogicOperator())
-            {
-                logicOperator = Tokens[index].Type;
-                index++;
                 children.Add(new LogicNode(ref index));
-            }
         }
 
         protected int FindClose(int start)
@@ -114,56 +119,62 @@ namespace AnimationEngine.LanguageV2.Nodes
                     case TokenType.NOTEQ: CompileWithBranch(ProgramFunc.BZ, 0, 1); break;
                     case TokenType.COMP: CompileWithBranch(ProgramFunc.BNZ, 0, 1); break;
                 }
+
+                // value == value || 
+                if (children.Count == 3)
+                    children[2].Compile();
             }
 
             if (logicOperator != TokenType.UKWN)
             {
-                if (children.Count == 2)
-                    children[0].Compile();
-
-                //compare result of left
-                Script.program.Add(new Line(ProgramFunc.Cmp, 0));
-
-                //prepare output result
-                Script.program.Add(new Line(ProgramFunc.PopJ, 1));
-                Script.program.Add(new Line(ProgramFunc.LdI, Script.AddImmediate(new SVariableInt(1))));
-
-                // 0 == true
-                // 1 == false
-
+                // 0 == false
+                // 1 == true
                 int index;
                 int jumpTo;
                 switch (logicOperator)
                 {
                     case TokenType.AND:
+                        Script.program.Add(new Line(ProgramFunc.Cmp, 0));
                         index = Script.program.Count;
-                        Script.program.Add(new Line(ProgramFunc.BNZ)); // jump to end if false
+                        Script.program.Add(new Line(ProgramFunc.BZ)); // jump to end if false
+                        Script.program.Add(new Line(ProgramFunc.Pop, 1));
 
-                        children[children.Count - 1].Compile(); // compile output
+                        children[0].Compile();
                         Script.program.Add(new Line(ProgramFunc.Cmp, 0));
                         Script.program.Add(new Line(ProgramFunc.PopJ, 1));
+                        children[0].PostCompile();
 
+                        Script.program.Add(new Line(ProgramFunc.LdI, 0));
                         jumpTo = Script.program.Count + 2;
-                        Script.program.Add(new Line(ProgramFunc.BNZ, jumpTo));
-                        Script.program[index] = new Line(ProgramFunc.BNZ, jumpTo); // jump past subtract
-                        Script.program.Add(new Line(ProgramFunc.Sub, 0, 0, 0));
-                        break;
-                    case TokenType.OR:
-                        index = Script.program.Count;
-                        Script.program.Add(new Line(ProgramFunc.BZ)); // jump to end if true
+                        Script.program.Add(new Line(ProgramFunc.BZ, jumpTo));
+                        Script.program.Add(new Line(ProgramFunc.AddI, 0, 0, 1));
 
-                        children[children.Count - 1].Compile(); // compile output
+                        Script.program[index] = new Line(ProgramFunc.BZ, jumpTo); // jump past subtract
+                        break;
+
+                    case TokenType.OR:
+                        Script.program.Add(new Line(ProgramFunc.Cmp, 0));
+                        index = Script.program.Count;
+                        Script.program.Add(new Line(ProgramFunc.BNZ)); // jump to end if true
+                        Script.program.Add(new Line(ProgramFunc.Pop, 1));
+
+                        children[0].Compile(); // compile output
                         Script.program.Add(new Line(ProgramFunc.Cmp, 0));
                         Script.program.Add(new Line(ProgramFunc.PopJ, 1));
+                        children[0].PostCompile();
 
-                        jumpTo = Script.program.Count + 1;
-                        Script.program.Add(new Line(ProgramFunc.BNZ, jumpTo + 1));
-                        Script.program[index] = new Line(ProgramFunc.BZ, jumpTo); // jump past subtract
-                        Script.program.Add(new Line(ProgramFunc.Sub, 0, 0, 0));
+                        Script.program.Add(new Line(ProgramFunc.LdI, 0));
+                        jumpTo = Script.program.Count + 2;
+                        Script.program.Add(new Line(ProgramFunc.BZ, jumpTo));
+                        Script.program.Add(new Line(ProgramFunc.AddI, 0, 0, 1));
+
+                        Script.program[index] = new Line(ProgramFunc.BNZ, jumpTo); // jump past subtract
                         break;
                 }
                 if (isNot)
                     Script.program.Add(new Line(ProgramFunc.bXor, 0, 0, 1));
+
+                Context.PopStackIndex();
             }
 
             if (logicOperator == TokenType.UKWN && logicType == TokenType.UKWN)
@@ -176,8 +187,6 @@ namespace AnimationEngine.LanguageV2.Nodes
 
         private void CompileWithBranch(ProgramFunc func, int a, int b)
         {
-            Context.IncreaseStackIndex();
-            Script.program.Add(new Line(ProgramFunc.LdI, Script.AddImmediate(new SVariableInt(1))));
 
             children[0].Compile();
             children[1].Compile();
@@ -188,8 +197,10 @@ namespace AnimationEngine.LanguageV2.Nodes
             children[0].PostCompile();
             children[1].PostCompile();
 
+            Context.IncreaseStackIndex();
+            Script.program.Add(new Line(ProgramFunc.LdI, 0));
             Script.program.Add(new Line(func, Script.program.Count + 2));
-            Script.program.Add(new Line(ProgramFunc.Sub, 0, 0, 0));
+            Script.program.Add(new Line(ProgramFunc.AddI, 0, 0, 1));
         }
 
         public override void PostCompile() { }

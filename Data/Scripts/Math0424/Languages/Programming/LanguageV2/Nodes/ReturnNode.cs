@@ -28,7 +28,7 @@ namespace AnimationEngine.LanguageV2.Nodes
             {
                 if (Context.GetStackSize() != 0)
                     Script.program.Add(new Line(ProgramFunc.Pop, Context.GetStackSize()));
-                Script.program.Add(new Line(ProgramFunc.LdI, Script.AddImmediate(new SVariableInt(0))));
+                Script.program.Add(new Line(ProgramFunc.LdI, 0));
                 Script.program.Add(new Line(ProgramFunc.End));
             }
         }

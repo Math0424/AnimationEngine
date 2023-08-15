@@ -150,7 +150,7 @@ namespace AnimationEngine.LanguageV2.Nodes
                         else if (a.Length != 0 && b.Length != 0)
                         {
                             Context.IncreaseStackIndex();
-                            Script.program.Add(new Line(ProgramFunc.LdI, Script.AddImmediate(new SVariableInt(0))));
+                            Script.program.Add(new Line(ProgramFunc.LdI, 0));
                             AddLineOperator(t.Type, 0, Context.GetCompileVariableIndex(a), Context.GetCompileVariableIndex(b));
                             _stack.Push("");
                         }
@@ -168,7 +168,7 @@ namespace AnimationEngine.LanguageV2.Nodes
                     case TokenType.STR:
                     case TokenType.LERP:
                         Context.IncreaseStackIndex();
-                        Script.program.Add(new Line(ProgramFunc.LdI, Script.AddImmediate(SVarUtil.Convert(t))));
+                        Script.program.Add(new Line(ProgramFunc.LdrI, Script.AddImmediate(SVarUtil.Convert(t))));
                         _stack.Push("");
                         break;
                     case TokenType.KEWRD: //variable
@@ -177,7 +177,7 @@ namespace AnimationEngine.LanguageV2.Nodes
                             if (tokens.Count == 1)
                             {
                                 Context.IncreaseStackIndex();
-                                Script.program.Add(new Line(ProgramFunc.LdI, Script.AddImmediate(new SVariableInt(0))));
+                                Script.program.Add(new Line(ProgramFunc.LdI, 0));
                                 Script.program.Add(new Line(ProgramFunc.Cpy, Context.GetCompileVariableIndex(t.Value.ToString()), 0));
                             }
                             else

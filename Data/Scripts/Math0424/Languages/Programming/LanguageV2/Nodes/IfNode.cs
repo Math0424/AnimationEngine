@@ -55,7 +55,7 @@ namespace AnimationEngine.LanguageV2.Nodes
             Script.program.Add(new Line(ProgramFunc.Cmp, 0));
             Script.program.Add(new Line(ProgramFunc.PopJ, 1));
             int top = Script.program.Count;
-            Script.program.Add(new Line(ProgramFunc.BNZ, 0));
+            Script.program.Add(new Line(ProgramFunc.BZ, 0));
 
             logic.PostCompile();
 
@@ -66,7 +66,7 @@ namespace AnimationEngine.LanguageV2.Nodes
             if (elseNode != null)
                 Script.program.Add(new Line(ProgramFunc.B, 0));
 
-            Script.program[top] = new Line(ProgramFunc.BNZ, Script.program.Count);
+            Script.program[top] = new Line(ProgramFunc.BZ, Script.program.Count);
 
             if (elseNode != null)
             {

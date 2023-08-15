@@ -15,13 +15,13 @@ namespace AnimationEngine.LanguageV2
         {
             try
             {
-                Compile("AnimatedThruster.bsl");
+                //Compile("AnimatedThruster.bsl");
                 //Compile("Parenting.bsl");
                 //Test("Fibonacci.bsl", "func_fib", new SVariableInt(10));
                 //Compile("ActionStatements.bsl");
-                //Test("LogicStatements.bsl", "func_logic");
+                Test("LogicStatements.bsl", "func_logic");
 
-                ABSCompile(@"C:\Users\Math0424\AppData\Roaming\SpaceEngineers\Mods\2985356980\Data\Animation\NextGenLarge_LargeCargoPad.bsl");
+                //ABSCompile(@"C:\Users\Math0424\AppData\Roaming\SpaceEngineers\Mods\2985356980\Data\Animation\NextGenLarge_LargeCargoPad.bsl");
             } 
             catch(Exception e)
             {

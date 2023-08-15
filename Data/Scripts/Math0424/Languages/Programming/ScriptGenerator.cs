@@ -55,28 +55,36 @@ namespace AnimationEngine.Language
                     if (!headers.ContainsKey("blockid"))
                         throw new Exception("Cannot find block id");
 
+
+                    int weaponId = -1;
+                    if (headers.ContainsKey("weaponcore"))
+                    {
+                        if (!int.TryParse(headers["weaponcore"], out weaponId))
+                        {
+                            throw new Exception($"Unknown WeaponCore weapon ID of '{headers["weaponcore"]}'");
+                        }
+                    }
+
                     ScriptRunner runner = null;
                     List<Subpart> subparts = null;
                     switch (versionId)
                     {
                         case 1: new ScriptV1Generator(this, out runner, out subparts); break;
-                        case 2: new ScriptV2Generator(this, out runner, out subparts); break;
+                        case 2: 
+                            if (weaponId != -1)
+                            {
+                                new ScriptV2Generator(this, out runner, out subparts, "weaponcore");
+                                runner = new WeaponcoreScriptRunner(weaponId, runner);
+                            } 
+                            else
+                                new ScriptV2Generator(this, out runner, out subparts);
+                            break;
                         default: throw new Exception($"Unsupported script version number {versionId}");
                     }
 
 #if DEBUG
                     rout = runner;
 #endif
-
-                    if (headers.ContainsKey("weaponcore"))
-                    {
-                        int weaponId;
-                        if (!int.TryParse(headers["weaponcore"], out weaponId))
-                        {
-                            throw new Exception($"Unknown WeaponCore weapon ID of '{headers["weaponcore"]}'");
-                        }
-                        runner = new WeaponcoreScriptRunner(weaponId, runner);
-                    }
 
                     Log($"|  Registering block");
                     AnimationEngine.AddToRegisteredScripts(headers["blockid"], subparts.ToArray(), runner);

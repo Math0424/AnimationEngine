@@ -1,4 +1,5 @@
 ﻿using AnimationEngine.Language;
+using AnimationEngine.Utility;
 using Sandbox.ModAPI;
 using VRage.Game.Entity;
 using VRage.ModAPI;
@@ -64,13 +65,13 @@ namespace AnimationEngine.Core
             {
                 MyEntitySubpart x = ent.GetSubpart(subpartName);
                 if (x != null)
-                    x.SetEmissiveParts(materialID, newColor, newColor.Z);
+                    x.SetEmissiveParts(materialID, newColor, newColor.W);
             } 
             else
             {
-                ent.SetEmissiveParts(materialID, newColor, newColor.Z);
+                ent.SetEmissiveParts(materialID, newColor, newColor.W);
                 if (transitionAllColors)
-                    ent.SetEmissivePartsForSubparts(materialID, newColor, newColor.Z);
+                    ent.SetEmissivePartsForSubparts(materialID, newColor, newColor.W);
             }
         }
 
@@ -112,10 +113,10 @@ namespace AnimationEngine.Core
         {
             transitionColor = false;
             CurrentColor = new Vector4(arr[0].AsFloat() / 255, arr[1].AsFloat() / 255, arr[2].AsFloat() / 255, arr[3].AsFloat()); 
-            ent.SetEmissiveParts(materialID, CurrentColor, CurrentColor.Z);
+            ent.SetEmissiveParts(materialID, CurrentColor, CurrentColor.W);
             if (arr.Length == 5 && arr[4].AsBool())
             {
-                ent.SetEmissivePartsForSubparts(materialID, CurrentColor, CurrentColor.Z);
+                ent.SetEmissivePartsForSubparts(materialID, CurrentColor, CurrentColor.W);
             }
             return null;
             //TODO, broadcast to clients
@@ -128,7 +129,7 @@ namespace AnimationEngine.Core
             if (x != null)
             {
                 CurrentColor = new Vector4(arr[1].AsFloat() / 255, arr[2].AsFloat() / 255, arr[3].AsFloat() / 255, arr[4].AsFloat());
-                x.SetEmissiveParts(materialID, CurrentColor, CurrentColor.Z);
+                x.SetEmissiveParts(materialID, CurrentColor, CurrentColor.W);
             }
             return null;
             //TODO, broadcast to clients

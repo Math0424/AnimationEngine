@@ -42,16 +42,20 @@ namespace AnimationEngine.Language
             return _immediates.Count - 1;
         }
 
-        public ScriptV2Generator(ScriptGenerator generator, out ScriptRunner runner, out List<Subpart> defs)
+        public ScriptV2Generator(ScriptGenerator generator, out ScriptRunner runner, out List<Subpart> defs, params string[] additionalObjects)
         {
             this.generator = generator;
 
             Context.EnterNewContext(Tokens.ToArray());
             Context.SetScript(this);
 
+            if (additionalObjects != null)
+                foreach(var x in additionalObjects)
+                    objects.Add(new Entity(x));
             objects.Add(new Entity("api"));
             objects.Add(new Entity("math"));
             objects.Add(new Entity("block"));
+            objects.Add(new Entity("grid"));
             ScriptNode root = new ScriptNode();
 
             Log($"|  Running Generator V2");

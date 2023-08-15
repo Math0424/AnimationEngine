@@ -1,10 +1,7 @@
 ﻿using AnimationEngine.Language;
-using AnimationEngine.Utility;
 using Sandbox.Definitions;
 using Sandbox.ModAPI;
 using SpaceEngineers.Game.ModAPI;
-using System.Linq;
-using VRage.Game;
 using VRage.Game.ModAPI;
 using VRageMath;
 
@@ -80,6 +77,11 @@ namespace AnimationEngine.Core
             AddMethod("resetrot", blockMover.ResetRot);
             AddMethod("reset", blockMover.Reset);
 
+            if (Block is IMyGasTank)
+            {
+                AddMethod("getgasfilledratio", GetGasFilledRatio);
+            }
+
             //These were a bad idea.
             if (Block is IMyLandingGear)
             {
@@ -100,34 +102,22 @@ namespace AnimationEngine.Core
                 AddMethod("toggledoor", (e) => { ToggleDoor(); return null; });
             }
 
-
             if (Block is IMyProductionBlock)
             {
                 AddMethod("productionitemmodel", GetProductionItemModel);
             }
+
             AddMethod("currentthrustpercent", CurrentThrustPercent);
 
             AddMethod("isoccupied", IsOccupied);
             AddMethod("isworking", IsWorking);
             AddMethod("isfunctional", IsFunctional);
-
-            AddMethod("isnpcgrid", IsNPCGrid);
         }
 
         public override void Tick(int tick)
         {
             pilotMover?.Tick(tick);
             blockMover?.Tick(tick);
-        }
-
-        private SVariable IsNPCGrid(SVariable[] arr)
-        {
-            IMyFaction faction = MyAPIGateway.Session.Factions.TryGetPlayerFaction(Block.CubeGrid.BigOwners.FirstOrDefault());
-            if (faction != null)
-            {
-                return new SVariableBool(faction.IsEveryoneNpc());
-            }
-            return new SVariableBool(false);
         }
 
         private SVariable GetProductionItemModel(SVariable[] arr)
@@ -142,6 +132,11 @@ namespace AnimationEngine.Core
                 }
             }
             return null;
+        }
+
+        private SVariable GetGasFilledRatio(SVariable[] arr)
+        {
+            return new SVariableFloat((float)((IMyGasTank)Block).FilledRatio);
         }
 
         private SVariable IsFunctional(SVariable[] arr)

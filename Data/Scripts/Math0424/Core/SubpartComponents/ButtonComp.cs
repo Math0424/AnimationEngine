@@ -77,7 +77,8 @@ namespace AnimationEngine.Core
             Hovering?.UnSubscribeAll();
             Pressed?.UnSubscribeAll();
 
-            registeredButtons.Remove(registeredId);
+            if (registeredId != null)
+                registeredButtons.Remove(registeredId);
         }
 
         private void HoverScriptInvoke(bool b)

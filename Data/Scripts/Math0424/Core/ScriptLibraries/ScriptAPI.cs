@@ -1,5 +1,6 @@
 ﻿using AnimationEngine.Core;
 using AnimationEngine.Utility;
+using Sandbox.Definitions;
 using Sandbox.ModAPI;
 using System.Collections.Generic;
 using VRage.Input;
@@ -41,6 +42,19 @@ namespace AnimationEngine.Language.Libs
 
             AddMethod("getinputposition", getPositionDelta);
             AddMethod("getinputrotation", getRotation);
+
+            AddMethod("getlargegridmaxspeed", LargeGridMax);
+            AddMethod("getsmallgridmaxspeed", SmallGridMax);
+        }
+
+        public SVariable LargeGridMax(SVariable[] var)
+        {
+            return new SVariableFloat(MyDefinitionManager.Static.EnvironmentDefinition.LargeShipMaxSpeed);
+        }
+
+        public SVariable SmallGridMax(SVariable[] var)
+        {
+            return new SVariableFloat(MyDefinitionManager.Static.EnvironmentDefinition.SmallShipMaxAngularSpeed);
         }
 
         public SVariable getPositionDelta(SVariable[] var)

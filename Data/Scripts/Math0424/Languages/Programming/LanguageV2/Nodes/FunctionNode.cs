@@ -83,7 +83,7 @@ namespace AnimationEngine.LanguageV2.Nodes
                 Script.program.Add(new Line(ProgramFunc.PopJ, 1));
             }
             Optimize();
-            Script.program.Add(new Line(ProgramFunc.LdI, Script.AddImmediate(new SVariableInt(0))));
+            Script.program.Add(new Line(ProgramFunc.LdI, 0));
             Script.program.Add(new Line(ProgramFunc.End));
         }
 

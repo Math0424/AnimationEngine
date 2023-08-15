@@ -19,6 +19,10 @@ namespace AnimationEngine.Language
     {
         bXor,
 
+        LdI, // push immediate [0] to stack 
+        AddI, // stack[0] = stack[1] + Immediate
+        SubI, // stack[0] = stack[1] - Immediate
+
         Add, // stack[0] = stack[1] + stack[2]
         Sub, // above
         Mul, // above
@@ -35,13 +39,13 @@ namespace AnimationEngine.Language
         Pop, // pop without jump
         PopJ, // remove object at top of register with jump
 
-        LdI, // pushes immediate [0] to top of register
+        LdrI, // pushes immediate [0] to top of register
         Cpy, // copy [0] to [1]
 
         LdG, // load a global
         StG, // save a global
 
-        RDly, // set context to object [0]
+        RDly, // reset delay
         Mth, // call method from immediate [0]
 
         Jmp, //jump to method at [0]
@@ -101,6 +105,11 @@ namespace AnimationEngine.Language
             return new ScriptV2Runner(this);
         }
 
+        public void AddLibrary(ScriptLib library)
+        {
+            _libraries.Add(library);
+        }
+
         public void InitBuilt(CoreScript script)
         {
             core = script;
@@ -120,9 +129,7 @@ namespace AnimationEngine.Language
             {
                 IMyEntity ent = script.Entity;
                 if (x is Parentable && ((Parentable)x).GetParent() != null)
-                {
                     ent = script.Subparts[((Parentable)x).GetParent()].Subpart;
-                }
                 if (x is Initializable)
                     ((Initializable)x).Init(ent);
             }
@@ -138,6 +145,8 @@ namespace AnimationEngine.Language
                     _libraries.Add(new ScriptMath()); break;
                 case "block":
                     _libraries.Add(new BlockCore(core)); break;
+                case "grid":
+                    _libraries.Add(new GridCore(core)); break;
                 case "button":
                     var btnSubpart = core.Subparts[ent.Name.Value.ToString().ToLower()];
                     if (!btnSubpart.HasComponent<ButtonComp>())
@@ -376,6 +385,13 @@ namespace AnimationEngine.Language
 
 #if DEBUG
             _libraries.Add(new ScriptAPI(this));
+            _libraries.Add(new ScriptMath());
+
+            Utils.LogToFile($"--Libraries--");
+            for (int i = 0; i < _libraries.Count; i++)
+            {
+                Utils.LogToFile($"{i}: {_libraries[i]}");
+            }
 #endif
         }
 
@@ -387,7 +403,6 @@ namespace AnimationEngine.Language
             while (count++ < 100000)
             {
                 curr = _program[line++];
-
 
                 //string output = $"Line {(line - 1):D3}: ({_stack.Count:D3}) {curr.Arg,-4} > ";
                 //if (curr.Arr != null)
@@ -455,6 +470,16 @@ namespace AnimationEngine.Language
                         break;
 
                     case ProgramFunc.LdI:
+                        _stack.Push(new SVariableInt(curr.Arr[0]));
+                        break;
+                    case ProgramFunc.SubI:
+                        _stack.Set(curr.Arr[0], _stack.Peek(curr.Arr[1]).Sub(new SVariableInt(curr.Arr[2])));
+                        break;
+                    case ProgramFunc.AddI:
+                        _stack.Set(curr.Arr[0], _stack.Peek(curr.Arr[1]).Add(new SVariableInt(curr.Arr[2])));
+                        break;
+
+                    case ProgramFunc.LdrI:
                         _stack.Push(_immediates[curr.Arr[0]]);
                         break;
                     case ProgramFunc.LdG:

@@ -81,6 +81,7 @@ namespace AnimationEngine
                 if (parent.Entity.Components.Has<MyResourceSinkComponent>())
                     SinkComp = parent.Entity.Components.Get<MyResourceSinkComponent>();
             }
+            isProducing = false;
         }
 
         public void Close() { }
