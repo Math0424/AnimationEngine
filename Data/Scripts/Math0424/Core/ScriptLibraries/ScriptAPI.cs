@@ -1,6 +1,7 @@
 ﻿using AnimationEngine.Core;
 using AnimationEngine.Utility;
 using Sandbox.Definitions;
+using Sandbox.Game.Entities;
 using Sandbox.ModAPI;
 using System.Collections.Generic;
 using VRage.Input;
@@ -54,7 +55,7 @@ namespace AnimationEngine.Language.Libs
 
         public SVariable SmallGridMax(SVariable[] var)
         {
-            return new SVariableFloat(MyDefinitionManager.Static.EnvironmentDefinition.SmallShipMaxAngularSpeed);
+            return new SVariableFloat(MyDefinitionManager.Static.EnvironmentDefinition.SmallShipMaxSpeed);
         }
 
         public SVariable getPositionDelta(SVariable[] var)

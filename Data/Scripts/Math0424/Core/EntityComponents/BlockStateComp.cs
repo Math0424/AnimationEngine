@@ -49,6 +49,9 @@ namespace AnimationEngine
                 block.IsWorkingChanged += WorkingChange;
 
                 isWorking = !block.IsWorking;
+
+                if (!block.IsWorking && (core.Flags & CoreScript.BlockFlags.Created) != 0)
+                    NotWorking?.Invoke();
             }
         }
 

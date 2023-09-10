@@ -270,6 +270,10 @@ namespace AnimationEngine.Language
 
                 new MethodDictionary("getgasfilledratio", true),
 
+                new MethodDictionary("isarmed", true),
+                new MethodDictionary("iscountingdown", true),
+                new MethodDictionary("detonationtime", true),
+
                 //terrible ideas
                 new MethodDictionary("poweron", false),
                 new MethodDictionary("poweroff", false),
@@ -288,11 +292,14 @@ namespace AnimationEngine.Language
                 new MethodDictionary("isnpc", true),
                 new MethodDictionary("getatmosphericdensity", true),
                 new MethodDictionary("getplanetaltitude", true),
+                new MethodDictionary("getplanetgroundaltitude", true),
+                new MethodDictionary("getplanetmaxaltitude", true),
                 new MethodDictionary("getspeed", true),
                 new MethodDictionary("getnaturalgravity", true),
 
                 new MethodDictionary("geth2fuel", true),
-                new MethodDictionary("geto2fuel", true)
+                new MethodDictionary("geto2fuel", true),
+                new MethodDictionary("getfuel", true, "fuelString")
             ),
 
             new LibraryDictionary("weaponcore",

@@ -19,6 +19,7 @@ namespace AnimationEngine.Core
         private float H2Amount = 0;
         private float O2Amount = 0;
         MyDefinitionId HydrogenId = MyDefinitionId.Parse("MyObjectBuilder_GasProperties/Hydrogen");
+        MyDefinitionId OxygenId = MyDefinitionId.Parse("MyObjectBuilder_GasProperties/Oxygen");
 
         public GridCore(CoreScript script)
         {
@@ -31,12 +32,16 @@ namespace AnimationEngine.Core
             AddMethod("isnpc", IsNPC);
             AddMethod("getatmosphericdensity", AtmosphericDensity);
             AddMethod("getplanetaltitude", Altitude);
+            AddMethod("getplanetgroundaltitude", GroundAltitude);
+            AddMethod("getplanetmaxaltitude", PlanetMaxAltitude);
 
             AddMethod("getspeed", Speed);
             AddMethod("getnaturalgravity", NaturalGravity);
 
             AddMethod("geth2fuel", H2Fuel);
             AddMethod("geto2fuel", O2Fuel);
+
+            AddMethod("getfuel", GetFuel);
         }
 
         public override void Tick(int tick)
@@ -65,15 +70,15 @@ namespace AnimationEngine.Core
                             totalH2Capacity += gasCapacity;
                             currentH2Capacity += (float)(filledRatio * gasCapacity);
                         } 
-                        else
+                        else if(comp.AcceptedResources.Contains(OxygenId))
                         {
                             totalO2Capacity += gasCapacity;
                             currentO2Capacity += (float)(filledRatio * gasCapacity);
                         }
                     }
                 }
-                H2Amount = currentH2Capacity / totalH2Capacity;
-                O2Amount = currentO2Capacity / totalO2Capacity;
+                H2Amount = totalH2Capacity == 0 ? 0 : currentH2Capacity / totalH2Capacity;
+                O2Amount = totalO2Capacity == 0 ? 0 : currentO2Capacity / totalO2Capacity;
             }
         }
 
@@ -89,9 +94,45 @@ namespace AnimationEngine.Core
             return new SVariableFloat(O2Amount);
         }
 
+        //far slower
+        private SVariable GetFuel(SVariable[] arr)
+        {
+            MyDefinitionId id = MyDefinitionId.Parse(arr[0].ToString());
+            var gas = Grid.GetFatBlocks<IMyGasTank>();
+
+            float maxGasCapacity = 0f;
+            float currentGasCapcity = 0f;
+            foreach (IMyGasTank myGasTank in gas)
+            {
+                var comp = myGasTank.Components.Get<MyResourceSinkComponent>();
+
+                double filledRatio = myGasTank.FilledRatio;
+                float gasCapacity = myGasTank.Capacity;
+
+                if (comp.AcceptedResources.Contains(id))
+                {
+                    maxGasCapacity += gasCapacity;
+                    currentGasCapcity += (float)(filledRatio * gasCapacity);
+                }
+            }
+
+            return new SVariableFloat(maxGasCapacity == 0 ? 0 : currentGasCapcity / maxGasCapacity);
+        }
+
         private SVariable NaturalGravity(SVariable[] arr)
         {
             return new SVariableVector(Grid.NaturalGravity);
+        }
+
+        private SVariable PlanetMaxAltitude(SVariable[] arr)
+        {
+            var planet = MyGamePruningStructure.GetClosestPlanet(Grid.GetPosition());
+            if (planet != null)
+            {
+                float val = planet.AtmosphereRadius - planet.AverageRadius;
+                return new SVariableFloat(val);
+            }
+            return new SVariableFloat(0);
         }
 
         private SVariable AtmosphericDensity(SVariable[] arr)
@@ -104,8 +145,19 @@ namespace AnimationEngine.Core
         {
             var planet = MyGamePruningStructure.GetClosestPlanet(Grid.GetPosition());
             if (planet != null) {
-                float altitudeRatio = 1.0f - (Vector3.Distance(Grid.GetPosition(), planet.PositionComp.GetPosition()) - planet.AverageRadius) / planet.AtmosphereAltitude;
-                return new SVariableFloat(altitudeRatio);
+                double altitudeRatio = (Vector3D.Distance(Grid.GetPosition(), planet.PositionComp.GetPosition()) - planet.AverageRadius) / ((double)planet.AtmosphereRadius - planet.AverageRadius);
+                return new SVariableFloat((float)altitudeRatio);
+            }
+            return new SVariableFloat(0);
+        }
+
+        private SVariable GroundAltitude(SVariable[] arr)
+        {
+            var planet = MyGamePruningStructure.GetClosestPlanet(Grid.GetPosition());
+            if (planet != null)
+            {
+                float GroundAltitude = Vector3.Distance(Grid.GetPosition(), planet.GetClosestSurfacePointGlobal(Grid.GetPosition()));
+                return new SVariableFloat(GroundAltitude);
             }
             return new SVariableFloat(0);
         }

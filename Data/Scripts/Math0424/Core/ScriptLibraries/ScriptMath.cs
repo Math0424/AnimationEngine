@@ -23,6 +23,7 @@ namespace AnimationEngine.Language.Libs
             AddMethod("randomrange", randomRange);
 
             AddMethod("createvector", makeVector);
+
             //("cross", 1, true, "Vector", "Vector"),
             //("distance", 1, true, "Vector", "Vector"),
             //("dot", 1, true, "Vector", "Vector"),

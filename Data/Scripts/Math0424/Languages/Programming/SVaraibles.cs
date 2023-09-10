@@ -139,8 +139,20 @@ namespace AnimationEngine.Language
             this.value = value;
         }
 
-        public int AsInt() => (int)value.Length;
-        public float AsFloat() => (float)value.Length;
+        public int AsInt()
+        {
+            int val;
+            if (int.TryParse(value, out val))
+                return val;
+            return value.Length;
+        }
+        public float AsFloat()
+        {
+            float val;
+            if (float.TryParse(value, out val))
+                return val;
+            return value.Length;
+        }
         public bool AsBool() => value.Length != 0;
         public Vector3 AsVector3() => new Vector3(value.Length);
 
@@ -148,7 +160,7 @@ namespace AnimationEngine.Language
         public SVariable Add(SVariable a) => new SVariableString(value + a.ToString());
         public SVariable Sub(SVariable a) => new SVariableString(value.Replace(a.ToString(), ""));
         public SVariable Div(SVariable a) => new SVariableString(value + a.ToString()); // dunno
-        public SVariable Mod(SVariable a) => new SVariableString(value + a.ToString()); // dunno
+        public SVariable Mod(SVariable a) => new SVariableString(value.ToCharArray()[a.AsInt() % value.Length].ToString());
         public SVariable Mul(SVariable a)
         {
             string x = value;

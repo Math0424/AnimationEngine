@@ -81,6 +81,12 @@ namespace AnimationEngine.Core
             {
                 AddMethod("getgasfilledratio", GetGasFilledRatio);
             }
+            if (Block is IMyWarhead)
+            {
+                AddMethod("detonationtime", DetonationTime);
+                AddMethod("iscountingdown", IsCountingDown);
+                AddMethod("isarmed", IsArmed);
+            }
 
             //These were a bad idea.
             if (Block is IMyLandingGear)
@@ -132,6 +138,21 @@ namespace AnimationEngine.Core
                 }
             }
             return null;
+        }
+
+        private SVariable DetonationTime(SVariable[] arr)
+        {
+            return new SVariableFloat(((IMyWarhead)Block).DetonationTime);
+        }
+
+        private SVariable IsCountingDown(SVariable[] arr)
+        {
+            return new SVariableBool(((IMyWarhead)Block).IsCountingDown);
+        }
+
+        private SVariable IsArmed(SVariable[] arr)
+        {
+            return new SVariableBool(((IMyWarhead)Block).IsArmed);
         }
 
         private SVariable GetGasFilledRatio(SVariable[] arr)
