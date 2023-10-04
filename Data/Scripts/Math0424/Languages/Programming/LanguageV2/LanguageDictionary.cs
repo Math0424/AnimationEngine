@@ -317,8 +317,10 @@ namespace AnimationEngine.Language
                 new MethodDictionary("setemissive", false, "materialName", "r", "g", "b", "a"),
 
                 new MethodDictionary("translate", false, "PositionVector", "Time", "Lerp"),
+                new MethodDictionary("translaterelative", false, "PositionVector", "Time", "Lerp"),
                 new MethodDictionary("scale", false, "ScaleVector", "Time", "Lerp"),
                 new MethodDictionary("rotate", false, "AxisVector", "Angle", "Time", "Lerp"),
+                new MethodDictionary("rotaterelative", false, "AxisVector", "Angle", "Time", "Lerp"),
                 new MethodDictionary("rotatearound", false, "AxisVector", "PivotVector", "Angle", "Time", "Lerp"),
                 new MethodDictionary("spin", false, "Vector", "Speed", "Time"),
                 new MethodDictionary("vibrate", false, "Scale", "Time"),
@@ -340,6 +342,7 @@ namespace AnimationEngine.Language
                 new MethodDictionary("setemissive", false, "materialName", "r", "g", "b", "a"),
 
                 new MethodDictionary("translate", false, "PositionVector", "Time", "Lerp"),
+                new MethodDictionary("translaterelative", false, "PositionVector", "Time", "Lerp"),
                 new MethodDictionary("scale", false, "ScaleVector", "Time", "Lerp"),
                 new MethodDictionary("rotate", false, "AxisVector", "Angle", "Time", "Lerp"),
                 new MethodDictionary("rotatearound", false, "AxisVector", "PivotVector", "Angle", "Time", "Lerp"),
