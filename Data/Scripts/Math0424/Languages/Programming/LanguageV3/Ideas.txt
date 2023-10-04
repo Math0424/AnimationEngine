@@ -1,0 +1,163 @@
+﻿
+# Ideas and examples on how AnimationEngineV3 would work
+#
+# One of the bigger changes would be to types, you can still use 'var'
+# but it will simply convert it to what type it thinks at compile time
+# This keeps it simple for non power users but will allow for things like
+#
+# float x = 0.0
+# int x = 0
+# string x = "0" 
+#
+# Below are more documented changes and ideas for V3 and its new methodology
+
+
+# allow creation of stucts and advanced math
+struct Vector {
+	var m1, m2, m3
+}
+
+struct Matrix {
+	Vector m1, m2, m3, m4
+}
+
+struct PlanetDetails {
+	var Radius
+	var Height
+	var WaterLevel
+	var Name
+}
+
+# declaration of these structs
+func value() {
+	var x = Vector:new(1, 1, 1)
+}
+
+
+# allow creation of arrays
+func ArrayTesting() {
+	var[] arr;
+	arr[0] = 1
+}
+
+
+# adding property headers to functions
+[PropertyHeader()]
+func NameOfFunction() {}
+
+
+# creation of looping methods
+[Loop(100)]
+func LoopingFunction() {}
+
+
+# defining your actions in property headers
+[Action("Block/Create")]
+[Action("Block/Built")]
+func BlockCreate() {}
+
+
+# passing of objects into methods and multiple property headers
+using MyObject as Subpart()
+
+func Test() {
+	DoThing(MyObject)
+}
+
+func DoThing(var obj) {
+	obj.translate(10, 10, 10)
+}
+
+
+# importing script libraries
+import "MyOtherScript.bsl"
+
+
+# syncing variables across clients
+synced var VariableName
+
+
+# saving variables to a block
+saved var VariableName
+
+
+# synced var example
+synced saved var VariableName
+
+
+# Switch statements
+func APITesting(var x) {
+	switch (x) {
+		case 0:
+			break;
+		case 1:
+			break;
+		default:
+			break;
+	}
+}
+
+
+# Passing function pointers like variables
+func GetValue {
+	return 1
+}
+
+func Test() {
+	PrintValue(1) # output 1
+	PrintValue(GetValue) # output 1
+}
+
+func PrintValue(var x) {
+	API:log(x)
+}
+
+
+# Advanced API Access example
+[RequireFunctional]
+[Loop(100)]
+func ApiTesting() {
+	var characterPos = API:GetCharacter:Position
+	var distance = characterPos:distance(BLOCK:worldPosition)
+	if (distance < 100) {
+		Subpart.spin(distance / 10)
+	}
+}
+
+
+# Example of an exploding core
+[Action("Block/Damaged")]
+func DisplayExample() {
+	var characterPos = API:GetCharacter:Position
+	var distance = characterPos:distance(BLOCK:worldPosition)
+	if (distance < 100) {
+		API:GetCharacter:Notify("Warning, core unstable - explosion imminent", "Red")
+		ParticleLoop:Loop(10, 1)
+		Explode:Delay(10 * 60)
+	}
+}
+
+
+# Method property will be checked
+# and canceled if flags are not met
+[RequireNonFunctional]
+func ParticleLoop() {
+	MyEmitterThingy.playParticle("Smoke").delay(2).playParticle("Sparks")
+}
+
+[RequireNonFunctional]
+func Explode() {
+	var pos = BLOCK:GetWorldPosition
+	API:CreateExplosion(pos, 10)
+}
+
+
+# Ability to use synced variable and changed listeners for for method actions
+synced var VariableName
+
+func VaraibleName:Changed(var oldVal) {}
+
+
+# Terminal controls
+[Terminal("slider", 0, 1)]
+func SliderTerminal(var newValue) {}
