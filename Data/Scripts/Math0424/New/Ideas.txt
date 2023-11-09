@@ -10,7 +10,7 @@
 # string x = "0" 
 #
 # Below are more documented changes and ideas for V3 and its new methodology
-
+# preferably make this code mostly agnostic from SE
 
 # allow creation of stucts and advanced math
 struct Vector {
@@ -86,6 +86,7 @@ synced saved var VariableName
 
 
 # Switch statements
+# including jump tables
 func APITesting(var x) {
 	switch (x) {
 		case 0:
