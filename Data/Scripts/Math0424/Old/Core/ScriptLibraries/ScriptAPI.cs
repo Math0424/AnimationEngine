@@ -44,6 +44,8 @@ namespace AnimationEngine.Language.Libs
             AddMethod("getinputposition", getPositionDelta);
             AddMethod("getinputrotation", getRotation);
 
+            AddMethod("delayfunction", delayFunction);
+
             AddMethod("getlargegridmaxspeed", LargeGridMax);
             AddMethod("getsmallgridmaxspeed", SmallGridMax);
         }
@@ -91,6 +93,16 @@ namespace AnimationEngine.Language.Libs
         public SVariable log(SVariable[] var)
         {
             Utils.LogToFile("Log: " + var[0].ToString());
+            return null;
+        }
+
+        public SVariable delayFunction(SVariable[] var)
+        {
+            foreach (var x in methodLoops)
+                if (x.method == "func_" + var[0].ToString().ToLower())
+                    return null;
+
+            methodLoops.Add(new MethodTick("func_" + var[0].ToString().ToLower(), 0, 0, var[1].AsInt()));
             return null;
         }
 

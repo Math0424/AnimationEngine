@@ -15,6 +15,13 @@ namespace AnimationEngine.Core
         Quaternion quat;
 
         //translate([x, y, z], time, lerp)
+        public SVariable TranslateTranslateRelative(SVariable[] args)
+        {
+            args[0] = new SVariableVector(Vector3.Transform(args[0].AsVector3(), quat));
+            blockMover.TranslateRelative(args);
+            return null;
+        }
+        //translate([x, y, z], time, lerp)
         public SVariable TranslateTranslate(SVariable[] args)
         {
             args[0] = new SVariableVector(Vector3.Transform(args[0].AsVector3(), quat));
@@ -67,6 +74,7 @@ namespace AnimationEngine.Core
             Block.Orientation.GetQuaternion(out quat);
             blockMover = new Mover(Block.PositionComp);
             AddMethod("translate", TranslateTranslate);
+            AddMethod("translate", TranslateTranslateRelative);
             AddMethod("rotate", RotateTranslate);
             AddMethod("rotatearound", RotateAroundTranslate);
             AddMethod("spin", SpinTranslate);

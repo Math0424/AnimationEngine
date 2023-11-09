@@ -75,21 +75,25 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="Data\Scripts\Math0424\ExampleTestScripts\AnimatedThruster.bsl">
+    <None Update="Data\Scripts\Math0424\Old\ExampleTestScripts\AnimatedThruster.bsl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Data\Scripts\Math0424\ExampleTestScripts\ActionStatements.bsl">
+    <None Update="Data\Scripts\Math0424\Old\ExampleTestScripts\ActionStatements.bsl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Data\Scripts\Math0424\ExampleTestScripts\LogicStatements.bsl">
+    <None Update="Data\Scripts\Math0424\Old\ExampleTestScripts\LogicStatements.bsl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Data\Scripts\Math0424\ExampleTestScripts\Fibonacci.bsl">
+    <None Update="Data\Scripts\Math0424\Old\ExampleTestScripts\Fibonacci.bsl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Data\Scripts\Math0424\ExampleTestScripts\Parenting.bsl">
+    <None Update="Data\Scripts\Math0424\Old\ExampleTestScripts\Parenting.bsl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Data\Scripts\Math0424\New\" />
   </ItemGroup>
 
 </Project>

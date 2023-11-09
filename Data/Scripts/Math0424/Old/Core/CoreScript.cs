@@ -1,10 +1,8 @@
-﻿using AnimationEngine.Utility;
-using Sandbox.Game.Components;
+﻿using Sandbox.Game.Components;
 using System.Collections.Generic;
 using VRage.Game.Entity;
 using VRage.Game.ModAPI;
 using VRage.ModAPI;
-using VRageMath;
 
 namespace AnimationEngine.Core
 {
@@ -14,6 +12,7 @@ namespace AnimationEngine.Core
         public long EntityId { private set; get; }
         public long ParentId { private set; get; }
         private List<EntityComponent> components = new List<EntityComponent>();
+
         public Dictionary<string, SubpartCore> Subparts = new Dictionary<string, SubpartCore>();
         private Dictionary<string, Subpart> subpartData = new Dictionary<string, Subpart>();
 
@@ -23,6 +22,7 @@ namespace AnimationEngine.Core
             Built = 2,
             SubpartReady = 4,
             ActionsInited = 8,
+            WeaponcoreInit = 16,
         }
         public BlockFlags Flags = 0;
 

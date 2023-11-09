@@ -71,8 +71,11 @@ namespace AnimationEngine.Language
 
         public void InitBuilt(CoreScript core)
         {
-            if ((core.Flags & CoreScript.BlockFlags.ActionsInited) == 0)
+            if ((core.Flags & CoreScript.BlockFlags.WeaponcoreInit) == 0)
+            {
+                core.Flags |= CoreScript.BlockFlags.WeaponcoreInit;
                 ((ScriptV2Runner)parent).AddLibrary(new WeaponcoreCore(core, id));
+            }
             parent.InitBuilt(core);
         }
 

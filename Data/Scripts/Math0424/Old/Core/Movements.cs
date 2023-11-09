@@ -15,10 +15,16 @@ namespace AnimationEngine
         private List<BaseAction> movements = new List<BaseAction>();
         private Matrix originMatrix;
 
+        //TODO
+        //translaterelative
+        //rotaterelative
+
         public void AddToScriptLib(ScriptLib library, string prefix)
         {
             library.AddMethod(prefix + "translate", Translate);
+            library.AddMethod(prefix + "translaterelative", TranslateRelative);
             library.AddMethod(prefix + "rotate", Rotate);
+            library.AddMethod(prefix + "rotaterelative", RotateRelative);
             library.AddMethod(prefix + "rotatearound", RotateAround);
             library.AddMethod(prefix + "scale", Scale);
             library.AddMethod(prefix + "spin", Spin);
@@ -33,7 +39,9 @@ namespace AnimationEngine
         public void RemoveFromScriptLib(ScriptLib library, string prefix)
         {
             library.RemoveMethod(prefix + "translate");
+            library.RemoveMethod(prefix + "translaterelative");
             library.RemoveMethod(prefix + "rotate");
+            library.RemoveMethod(prefix + "rotaterelative");
             library.RemoveMethod(prefix + "rotatearound");
             library.RemoveMethod(prefix + "scale");
             library.RemoveMethod(prefix + "spin");
@@ -122,6 +130,18 @@ namespace AnimationEngine
             return null;
         }
 
+        //translate([x, y, z], time, lerp)
+        public SVariable TranslateRelative(SVariable[] args)
+        {
+            Vector3 val = args[0].AsVector3();
+            int time = args[1].AsInt();
+            LerpType lerp;
+            EaseType ease;
+            ((ShortHandLerp)args[2].AsInt()).ShortToLong(out lerp, out ease);
+            movements.Add(new TranslateRelativeAction(core, time, val, lerp, ease));
+            return null;
+        }
+
         //rotate([x, y, z], angle, time, lerp)
         public SVariable Rotate(params SVariable[] args)
         {
@@ -132,6 +152,19 @@ namespace AnimationEngine
             EaseType ease;
             ((ShortHandLerp)args[3].AsInt()).ShortToLong(out lerp, out ease);
             movements.Add(new RotateAction(core, time, Quaternion.CreateFromAxisAngle(val, angle), lerp, ease));
+            return null;
+        }
+
+        //rotate([x, y, z], angle, time, lerp)
+        public SVariable RotateRelative(params SVariable[] args)
+        {
+            Vector3 val = args[0].AsVector3();
+            float angle = args[1].AsFloat() * 0.0174f;
+            int time = args[2].AsInt();
+            LerpType lerp;
+            EaseType ease;
+            ((ShortHandLerp)args[3].AsInt()).ShortToLong(out lerp, out ease);
+            movements.Add(new RotateRelativeAction(core, time, Quaternion.CreateFromAxisAngle(val, angle), lerp, ease));
             return null;
         }
 
@@ -275,6 +308,57 @@ namespace AnimationEngine
             Matrix x = core.LocalMatrixRef.Scale(temp);
 
             core.SetLocalMatrix(ref x, null, false, ref x);
+        }
+    }
+
+    internal class TranslateRelativeAction : MoveAction
+    {
+        private Vector3D prev, end;
+        public TranslateRelativeAction(MyPositionComponentBase core, int time, Vector3D end, LerpType lerp, EaseType ease) : base(core, time, lerp, ease)
+        {
+            this.prev = Vector3D.Zero;
+            this.end = end;
+        }
+        public override void Tick(int time)
+        {
+            base.Tick(time);
+
+            Matrix matrix = core.LocalMatrixRef;
+
+            Vector3D temp = prev;
+            prev = lerp.Lerp(ease, Vector3D.Zero, end, val);
+            temp = temp - prev;
+
+            Vector3 refMatixVec = matrix.Translation;
+            matrix.Translation = Vector3.Zero;
+            matrix.Translation = refMatixVec + Vector3D.Transform(temp, matrix);
+
+            core.SetLocalMatrix(ref matrix, null, false, ref matrix);
+        }
+    }
+
+    internal class RotateRelativeAction : MoveAction
+    {
+        private Quaternion start, end;
+
+        public RotateRelativeAction(MyPositionComponentBase core, int time, Quaternion end, LerpType lerp, EaseType ease)
+            : base(core, time, lerp, ease)
+        {
+            this.start = Quaternion.CreateFromRotationMatrix(core.LocalMatrixRef);
+            this.end = this.start * end; 
+        }
+
+        public override void Tick(int time)
+        {
+            base.Tick(time);
+
+            Quaternion currentRotation = lerp.Lerp(ease, start, end, val);
+
+            Matrix local = core.LocalMatrixRef;
+            Matrix matrix = MatrixD.Transform(MatrixD.Identity, currentRotation);
+            matrix.Translation = local.Translation;
+
+            core.SetLocalMatrix(ref matrix, null, false, ref matrix);
         }
     }
 

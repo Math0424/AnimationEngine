@@ -75,6 +75,7 @@ namespace AnimationEngine.Language
                             {
                                 new ScriptV2Generator(this, out runner, out subparts, "weaponcore");
                                 runner = new WeaponcoreScriptRunner(weaponId, runner);
+                                Log($"|  Loading Weaponcore Script Runner");
                             } 
                             else
                                 new ScriptV2Generator(this, out runner, out subparts);

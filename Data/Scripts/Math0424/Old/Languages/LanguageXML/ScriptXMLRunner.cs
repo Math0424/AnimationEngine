@@ -6,7 +6,7 @@ using System.Text;
 
 namespace AnimationEngine.LanguageXML
 {
-    internal class ScriptXMLRunner : ScriptRunner
+    internal class ScriptXMLRunner
     {
         string modName;
         List<sXMLDelay> delays = new List<sXMLDelay>();
@@ -24,7 +24,6 @@ namespace AnimationEngine.LanguageXML
         public ScriptXMLRunner(string modName)
         {
             this.modName = modName;
-
         }
 
         public void Execute(string function, params SVariable[] args)
@@ -60,12 +59,6 @@ namespace AnimationEngine.LanguageXML
 
     }
 
-    public struct sTrigger
-    {
-        public string name;
-        public SVariable[] args;
-    }
-
     public struct sSubpartFrame
     {
         public string name;
@@ -77,13 +70,6 @@ namespace AnimationEngine.LanguageXML
     {
         public int delay;
         public sXMLMovement[] movements;
-        public sXMLFunction[] functions;
-    }
-
-    public struct sXMLFunction
-    {
-        public string type;
-        public SVariable[] args;
     }
 
     public struct sXMLMovement
