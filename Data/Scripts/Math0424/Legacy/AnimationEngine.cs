@@ -1,6 +1,5 @@
 ﻿using AnimationEngine.Core;
 using AnimationEngine.Language;
-using AnimationEngine.LanguageXML;
 using AnimationEngine.Utility;
 using CoreSystems.Api;
 using Math0424.Networking;
@@ -11,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using ToolCore.API;
 using VRage;
 using VRage.Game;
 using VRage.Game.Components;
@@ -36,6 +36,8 @@ namespace AnimationEngine
         private static List<string> failed = new List<string>();
         private static List<MyTuple<CoreScript, IMyEntity>> delayed = new List<MyTuple<CoreScript, IMyEntity>>();
 
+        public static TCApi TCApi = new TCApi();
+        public static Action TCReady;
         public static WcApi WCApi = new WcApi();
         public static Action WCReady;
 
@@ -50,6 +52,7 @@ namespace AnimationEngine
 
         protected override void UnloadData()
         {
+            TCApi.Unload();
             WCApi.Unload();
             Utils.CloseLog();
         }
@@ -87,6 +90,7 @@ namespace AnimationEngine
                 EasyNetworker.ProcessPacket += ButtonComp.ServerButtonIn;
 
             WCApi.Load(WCReady);
+            TCApi.Load(TCReady);
 
             MyEntity testEnt = new MyEntity();
             foreach (var x in registeredScripts.Keys)
@@ -253,7 +257,7 @@ namespace AnimationEngine
             }
             catch (Exception ex)
             {
-                Utils.LogToFile($"Error while ticking a block from mod '{script.GetModName()}'");
+                Utils.LogToFile($"Error while ticking a block from mod '{script.GetMod().Name}'");
                 Utils.LogToFile(ex.TargetSite);
                 Utils.LogToFile(ex.StackTrace);
                 Utils.LogToFile(ex.Message);
@@ -282,11 +286,6 @@ namespace AnimationEngine
                             if (s.ToLower().StartsWith("animation "))
                             {
                                 new ScriptGenerator(mod, MainPath + s.ToLower().Substring(10).Trim() + ".bsl");
-                                registered++;
-                            }
-                            else if (s.ToLower().StartsWith("xmlanimation "))
-                            {
-                                new XMLScriptGenerator(mod, MainPath + s.ToLower().Substring(13).Trim() + ".xml");
                                 registered++;
                             }
                         }
@@ -334,7 +333,6 @@ namespace AnimationEngine
                 ((IMyCubeGrid)ent).OnGridSplit += OnGridSplit;
                 ((IMyCubeGrid)ent).OnGridMerge += OnGridMeger;
             }
-
         }
 
         //transfer fatblocks from one to another
@@ -399,7 +397,6 @@ namespace AnimationEngine
                 Utils.LogToFile(ex.InnerException);
                 Utils.LogToFile(ex.Source);
             }
-            
         }
 
         private void OnBlockAdded(IMySlimBlock block)
@@ -408,7 +405,7 @@ namespace AnimationEngine
             if (block.FatBlock != null && registeredScripts.ContainsKey(id) && !HasScript.Contains(block.FatBlock.EntityId))
             {
                 var x = registeredScripts[id];
-                CoreScript script = new CoreScript(x.Item2.GetModName(), x.Item1);
+                CoreScript script = new CoreScript(x.Item2.GetMod(), x.Item1);
                 script.AddComponent(x.Item2.Clone());
                 delayed.Add(new MyTuple<CoreScript, IMyEntity>(script, block.FatBlock));
             }

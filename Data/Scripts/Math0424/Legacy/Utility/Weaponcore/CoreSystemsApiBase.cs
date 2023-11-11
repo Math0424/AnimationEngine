@@ -379,7 +379,7 @@ namespace CoreSystems.Api
         /// <returns></returns>
         private bool ShootCallBack(Vector3D scopePos, Vector3D scopeDirection, int requestState, bool hasLos, object target, int currentAmmo, int remainingMags, int requestStage)
         {
-            var stage = (EventTriggers)requestStage;
+            var stage = (WCEventTriggers)requestStage;
             var state = (ShootState)requestState;
             var targetAsEntity = target as MyEntity;
             var targetAsProjectileId = target as ulong? ?? 0;
@@ -396,7 +396,7 @@ namespace CoreSystems.Api
             Canceled,
         }
 
-        public enum EventTriggers
+        public enum WCEventTriggers
         {
             Reloading,
             Firing,

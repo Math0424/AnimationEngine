@@ -4,11 +4,13 @@ using AnimationEngine.LogicV1;
 using Sandbox.ModAPI;
 using SpaceEngineers.Game.ModAPI;
 using System.Collections.Generic;
+using static VRage.Game.MyObjectBuilder_Checkpoint;
 
 namespace AnimationEngine.LanguageV1
 {
     internal class ScriptV1Runner : ScriptRunner
     {
+        ModItem mod;
         private CoreScript core;
         private List<Delayed> delay;
         private Dictionary<string, ScriptLib> libraries;
@@ -17,15 +19,14 @@ namespace AnimationEngine.LanguageV1
         private List<V1ScriptAction> scriptActions;
         private Dictionary<string, Caller[]> callingArray;
 
-        private string modName;
-        public string GetModName()
+        public ModItem GetMod()
         {
-            return modName;
+            return mod;
         }
 
-        public ScriptV1Runner(string modName, List<ObjectDef> objectDefs, List<V1ScriptAction> scriptActions, Dictionary<string, Caller[]> callingArray)
+        public ScriptV1Runner(ModItem modName, List<ObjectDef> objectDefs, List<V1ScriptAction> scriptActions, Dictionary<string, Caller[]> callingArray)
         {
-            this.modName = modName;
+            this.mod = modName;
             this.objectDefs = objectDefs;
             this.scriptActions = scriptActions;
             this.callingArray = callingArray;
@@ -33,7 +34,7 @@ namespace AnimationEngine.LanguageV1
 
         public ScriptRunner Clone()
         {
-            return new ScriptV1Runner(modName, objectDefs, scriptActions, callingArray);
+            return new ScriptV1Runner(mod, objectDefs, scriptActions, callingArray);
         }
 
         public void Stop()

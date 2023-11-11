@@ -64,7 +64,7 @@ namespace AnimationEngine.LanguageV1
                 actionsUpdated.Add(act);
             }
 
-            runner = new ScriptV1Runner(generator.ModName, objectDefs, actionsUpdated, calls);
+            runner = new ScriptV1Runner(generator.Mod, objectDefs, actionsUpdated, calls);
             defs = subparts;
         }
 

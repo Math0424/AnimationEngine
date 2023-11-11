@@ -11,7 +11,7 @@ namespace AnimationEngine.Language
 {
     internal class ScriptGenerator
     {
-        public string ModName;
+        public ModItem Mod;
         public ScriptError Error { get; protected set; }
         public string[] RawScript { get; protected set; }
         public List<Token> Tokens = new List<Token>();
@@ -23,6 +23,7 @@ namespace AnimationEngine.Language
             if (MyAPIGateway.Utilities.FileExistsInModLocation(path, mod))
             {
                 Error = new ScriptError();
+                
                 RawScript = MyAPIGateway.Utilities.ReadFileInModLocation(path, mod).ReadToEnd().Split('\n');
 #else
         public ScriptGenerator(ModItem mod, string path) { }
@@ -38,7 +39,7 @@ namespace AnimationEngine.Language
                 {
                     long start = DateTime.Now.Ticks;
                     Log($"Reading script {Path.GetFileName(path)} for {mod.Name}");
-                    ModName = mod.Name;
+                    this.Mod = mod;
                     Log($"|  Lexer");
                     Lexer.TokenizeScript(this);
                     Log($"|  |  Generated {Tokens.Count} tokens");
@@ -64,19 +65,26 @@ namespace AnimationEngine.Language
                             throw new Exception($"Unknown WeaponCore weapon ID of '{headers["weaponcore"]}'");
                         }
                     }
+                    bool toolcore = headers.ContainsKey("toolcore");
 
                     ScriptRunner runner = null;
                     List<Subpart> subparts = null;
                     switch (versionId)
                     {
                         case 1: new ScriptV1Generator(this, out runner, out subparts); break;
-                        case 2: 
+                        case 2:
                             if (weaponId != -1)
                             {
                                 new ScriptV2Generator(this, out runner, out subparts, "weaponcore");
                                 runner = new WeaponcoreScriptRunner(weaponId, runner);
                                 Log($"|  Loading Weaponcore Script Runner");
                             } 
+                            else if(toolcore)
+                            {
+                                new ScriptV2Generator(this, out runner, out subparts);
+                                runner = new ToolcoreScriptRunner(weaponId, runner);
+                                Log($"|  Loading Toolcore Script Runner");
+                            }
                             else
                                 new ScriptV2Generator(this, out runner, out subparts);
                             break;

@@ -21,6 +21,10 @@ namespace AnimationEngine.LanguageV2.Nodes
             if (Tokens[index].Value.ToString().ToLower().Equals("weaponcore"))
             {
                 id = 7749;
+            } 
+            else if (Tokens[index].Value.ToString().ToLower().Equals("toolcore"))
+            {
+                id = 7750;
             }
 
             name = id + "_" + Tokens[index].Value.ToString().ToLower();

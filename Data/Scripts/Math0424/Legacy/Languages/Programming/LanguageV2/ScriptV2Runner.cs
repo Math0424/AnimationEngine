@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using VRage.Game.Entity;
 using VRage.Game.ModAPI;
 using VRage.ModAPI;
+using static VRage.Game.MyObjectBuilder_Checkpoint;
 
 /// <summary>
 /// This handles the code, its pretty much a emulator for a basic computer
@@ -56,6 +57,7 @@ namespace AnimationEngine.Language
     internal class ScriptV2Runner : ScriptRunner
     {
         CoreScript core;
+        ModItem modItem;
 
         #region Script
         private RAStack<SVariable> _stack;
@@ -70,6 +72,7 @@ namespace AnimationEngine.Language
         private List<ScriptLib> _libraries;
         #endregion
 
+        
         private int _delay;
         private List<Delay> _delays;
         private List<Entity> _ents;
@@ -147,6 +150,8 @@ namespace AnimationEngine.Language
                     _libraries.Add(new BlockCore(core)); break;
                 case "grid":
                     _libraries.Add(new GridCore(core)); break;
+                case "xmlscript":
+                    _libraries.Add(new XMLScriptCore(core.GetMod(), ent.Args[0].Value.ToString())); break;
                 case "button":
                     var btnSubpart = core.Subparts[ent.Name.Value.ToString().ToLower()];
                     if (!btnSubpart.HasComponent<ButtonComp>())
@@ -347,15 +352,14 @@ namespace AnimationEngine.Language
                 x.Close();
         }
 
-        private string modName;
-        public string GetModName()
+        public ModItem GetMod()
         {
-            return modName;
+            return modItem;
         }
 
-        public ScriptV2Runner(string modName, List<Entity> ents, List<ScriptAction> actions, List<ScriptAction> terminals, SVariable[] globals, Line[] program, SVariable[] immediates, Dictionary<string, int> methods)
+        public ScriptV2Runner(ModItem moditem, List<Entity> ents, List<ScriptAction> actions, List<ScriptAction> terminals, SVariable[] globals, Line[] program, SVariable[] immediates, Dictionary<string, int> methods)
         {
-            this.modName = modName;
+            this.modItem = moditem;
             _globals = globals;
             _program = program;
             _immediates = immediates;
@@ -367,7 +371,7 @@ namespace AnimationEngine.Language
 
         public ScriptV2Runner(ScriptV2Runner copy)
         {
-            modName = copy.modName;
+            modItem = copy.modItem;
             _libraries = new List<ScriptLib>();
             _stack = new RAStack<SVariable>();
             _callStack = new Stack<int>();

@@ -4,17 +4,24 @@ using Sandbox.ModAPI;
 using System;
 using System.Collections.Generic;
 using System.Xml.Serialization;
+using VRage;
 using VRageMath;
 using static VRage.Game.MyObjectBuilder_Checkpoint;
 
-namespace AnimationEngine.LanguageXML
+namespace AnimationEngine.Core
 {
-    internal class XMLScriptGenerator
+    internal class XMLScriptCore : ScriptLib
     {
+        List<sDelay> delays = new List<sDelay>();
         List<sSubpartFrame> subpartFrames = new List<sSubpartFrame>();
+        List<string> subpartNames = new List<string>();
+        Action<string, MyTuple<string, SVariable[]>> args;
 
-        public XMLScriptGenerator(ModItem mod, string path)
+        public XMLScriptCore(ModItem mod, string path)
         {
+            AddMethod("run", Run);
+            AddMethod("stop", Stop);
+            AddMethod("reset", Reset);
             if (MyAPIGateway.Utilities.FileExistsInModLocation(path, mod))
             {
                 var RawScript = MyAPIGateway.Utilities.ReadFileInModLocation(path, mod).ReadToEnd();
@@ -24,12 +31,12 @@ namespace AnimationEngine.LanguageXML
                 {
                     foreach(var sub in anim.Subparts)
                     {
-                        List<sXMLDelay> delays = new List<sXMLDelay>();
+                        List<sDelay> delays = new List<sDelay>();
                         int largestTime = 0;
                         var keyframes = sub.Keyframes;
                         for (int currentKeyframe = 0; currentKeyframe < keyframes.Length; currentKeyframe++)
                         {
-                            List<sXMLMovement> movements = new List<sXMLMovement>();
+                            List<sMovement> movements = new List<sMovement>();
 
                             var currentFrame = keyframes[currentKeyframe];
                             if (currentFrame.frame > largestTime) largestTime = currentFrame.frame;
@@ -65,7 +72,7 @@ namespace AnimationEngine.LanguageXML
                                                     double angle;
                                                     StringToQuaternion(nextAnim.Value.args).GetAxisAngle(out one, out angle);
                                                     int time = nextframe.Value.frame - currentFrame.frame;
-                                                    movements.Add(new sXMLMovement()
+                                                    movements.Add(new sMovement()
                                                     {
                                                         type = "rotaterelative",
                                                         args = new SVariable[] {
@@ -82,9 +89,9 @@ namespace AnimationEngine.LanguageXML
                                                 if (nextframe.HasValue)
                                                 {
                                                     int time = nextframe.Value.frame - currentFrame.frame;
-                                                    movements.Add(new sXMLMovement()
+                                                    movements.Add(new sMovement()
                                                     {
-                                                        type = "relativetranslate",
+                                                        type = "translaterelative",
                                                         args = new SVariable[] {
                                                             new SVariableVector(StringToVector(nextAnim.Value.args)),
                                                             new SVariableInt(time),
@@ -105,7 +112,7 @@ namespace AnimationEngine.LanguageXML
                                                     (from.EulerToQuat() * QuaternionD.Inverse(to.EulerToQuat())).GetAxisAngle(out one, out angle);
 
                                                     int time = nextframe.Value.frame - currentFrame.frame;
-                                                    movements.Add(new sXMLMovement()
+                                                    movements.Add(new sMovement()
                                                     {
                                                         type = "rotaterelative",
                                                         args = new SVariable[] {
@@ -123,7 +130,7 @@ namespace AnimationEngine.LanguageXML
                                                 if (nextframe.HasValue)
                                                 {
                                                     int time = nextframe.Value.frame - currentFrame.frame;
-                                                    movements.Add(new sXMLMovement()
+                                                    movements.Add(new sMovement()
                                                     {
                                                         type = movementType == "scale" ? movementType : "translate",
                                                         args = new SVariable[] {
@@ -141,7 +148,7 @@ namespace AnimationEngine.LanguageXML
                                 }
                             }
 
-                            delays.Add(new sXMLDelay()
+                            delays.Add(new sDelay()
                             {
                                 delay = currentFrame.frame,
                                 movements = movements.ToArray(),
@@ -150,10 +157,12 @@ namespace AnimationEngine.LanguageXML
 
                         subpartFrames.Add(new sSubpartFrame()
                         {
+                            animationTriggerName = anim.id.ToLower(),
                             timeTaken = largestTime,
                             delays = delays.ToArray(),
-                            name = sub.empty.Substring(8)
+                            subpartName = sub.empty.Substring(8)
                         });
+                        subpartNames.Add(sub.empty.Substring(8));
                     }
 
                 }
@@ -182,6 +191,37 @@ namespace AnimationEngine.LanguageXML
             }
             frame = null;
             found = null;
+        }
+
+        public SVariable Run(SVariable[] animationName)
+        {
+            foreach(var x in subpartFrames)
+                if (x.animationTriggerName == animationName[0].ToString().ToLower())
+                    delays.AddArray(x.delays);
+            return null;
+        }
+
+        public override void Tick(int time)
+        {
+            delays.ForEach(d => d.delay -= time);
+            foreach (var d in delays)
+                if (d.delay < 0)
+                    foreach (var m in d.movements)
+                        args?.Invoke(d.subpartName, new MyTuple<string, SVariable[]>(m.type, m.args));
+            delays.RemoveAll(d => d.delay < 0);
+        }
+
+        public SVariable Stop(SVariable[] animationName)
+        {
+            delays.Clear();
+            return null;
+        }
+
+        public SVariable Reset(SVariable[] animationName)
+        {
+            foreach(var x in subpartNames)
+                args?.Invoke(x, new MyTuple<string, SVariable[]>("reset", null));
+            return null;
         }
 
         //assumed format [x,y,z]
@@ -221,7 +261,7 @@ namespace AnimationEngine.LanguageXML
     public struct XMLSubpart
     {
         [XmlAttribute]
-        public string empty; //formatted parent/parent/name
+        public string empty;
         [XmlArray("Keyframes")]
         public XMLKeyFrame[] Keyframes;
     }
@@ -246,6 +286,28 @@ namespace AnimationEngine.LanguageXML
         public string lerp;
         [XmlAttribute]
         public string easing;
+    }
+
+
+    public struct sSubpartFrame
+    {
+        public string animationTriggerName;
+        public string subpartName;
+        public int timeTaken;
+        public sDelay[] delays;
+    }
+
+    public struct sDelay
+    {
+        public string subpartName;
+        public int delay;
+        public sMovement[] movements;
+    }
+
+    public struct sMovement
+    {
+        public string type;
+        public SVariable[] args;
     }
 
 }

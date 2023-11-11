@@ -3,11 +3,13 @@ using System.Collections.Generic;
 using VRage.Game.Entity;
 using VRage.Game.ModAPI;
 using VRage.ModAPI;
+using static VRage.Game.MyObjectBuilder_Checkpoint;
 
 namespace AnimationEngine.Core
 {
     internal class CoreScript
     {
+        ModItem mod;
         public IMyEntity Entity { private set; get; }
         public long EntityId { private set; get; }
         public long ParentId { private set; get; }
@@ -23,18 +25,18 @@ namespace AnimationEngine.Core
             SubpartReady = 4,
             ActionsInited = 8,
             WeaponcoreInit = 16,
+            ToolcoreInit = 32,
         }
         public BlockFlags Flags = 0;
 
-        string modName;
-        public string GetModName()
+        public ModItem GetMod()
         {
-            return modName;
+            return mod;
         }
 
-        public CoreScript(string name, Subpart[] subparts)
+        public CoreScript(ModItem mod, Subpart[] subparts)
         {
-            modName = name;
+            this.mod = mod;
             foreach (var x in subparts)
                 subpartData[x.CustomName] = x;
         }

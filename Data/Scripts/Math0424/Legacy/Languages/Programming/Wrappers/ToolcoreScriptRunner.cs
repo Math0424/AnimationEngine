@@ -1,45 +1,42 @@
 ﻿using AnimationEngine.Core;
-using AnimationEngine.Utility;
 using System;
-using System.Collections.Generic;
-using System.Text;
+using ToolCore.API;
 using VRage.Game.Entity;
-using static CoreSystems.Api.WcApi;
 using static VRage.Game.MyObjectBuilder_Checkpoint;
 
 namespace AnimationEngine.Language
 {
-    internal class WeaponcoreScriptRunner : ScriptRunner
+    internal class ToolcoreScriptRunner : ScriptRunner
     {
         ScriptRunner parent;
         Action<int, bool> triggers;
         MyEntity gun;
         int id;
 
-        public WeaponcoreScriptRunner(int id, ScriptRunner parent)
+        public ToolcoreScriptRunner(int id, ScriptRunner parent)
         {
             this.id = id;
             this.parent = parent;
             triggers += TriggerEvent;
         }
 
-        public void ListenToEvents(MyEntity gun)
+        public void ListenToEvents(MyEntity entity)
         {
-            this.gun = gun;
-            if (!AnimationEngine.WCApi.IsReady)
+            this.gun = entity;
+            if (!AnimationEngine.TCApi.IsReady)
             {
-                AnimationEngine.WCReady += () => AnimationEngine.WCApi.MonitorEvents(gun, id, triggers);
+                AnimationEngine.TCReady += () => AnimationEngine.WCApi.MonitorEvents(entity, id, triggers);
             }
             else
             {
-               AnimationEngine.WCApi.MonitorEvents(gun, id, triggers);
+               AnimationEngine.TCApi.MonitorEvents(entity, triggers);
             }
         }
 
         private void TriggerEvent(int v, bool a)
         {
             if (a)
-                parent.Execute($"act_7749_{((WCEventTriggers)v).ToString().ToLower()}");
+                parent.Execute($"act_7750_{((ToolCoreEnum)v).ToString().ToLower()}");
         }
 
         public void Stop()
@@ -49,14 +46,14 @@ namespace AnimationEngine.Language
 
         public ScriptRunner Clone()
         {
-            return new WeaponcoreScriptRunner(id, parent.Clone());
+            return new ToolcoreScriptRunner(id, parent.Clone());
         }
 
         public void Close()
         {
             triggers -= TriggerEvent;
             if (gun != null)
-                AnimationEngine.WCApi.UnMonitorEvents(gun, id, triggers);
+                AnimationEngine.TCApi.UnMonitorEvents(gun, triggers);
             parent.Close();
         }
 
@@ -72,11 +69,6 @@ namespace AnimationEngine.Language
 
         public void InitBuilt(CoreScript core)
         {
-            if ((core.Flags & CoreScript.BlockFlags.WeaponcoreInit) == 0)
-            {
-                core.Flags |= CoreScript.BlockFlags.WeaponcoreInit;
-                ((ScriptV2Runner)parent).AddLibrary(new WeaponcoreCore(core, id));
-            }
             parent.InitBuilt(core);
         }
 

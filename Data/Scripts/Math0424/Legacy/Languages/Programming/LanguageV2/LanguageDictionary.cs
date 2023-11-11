@@ -95,6 +95,19 @@ namespace AnimationEngine.Language
         
         private static List<SpecialAction> _specialActions = new List<SpecialAction>()
         {
+            new SpecialAction("toolcore", new TokenType[0],
+                new SpecialAction("functional", new TokenType[0]),
+                new SpecialAction("powered", new TokenType[0]),
+                new SpecialAction("enabled", new TokenType[0]),
+                new SpecialAction("activated", new TokenType[0]),
+                new SpecialAction("leftclick", new TokenType[0]),
+                new SpecialAction("rightclick", new TokenType[0]),
+                new SpecialAction("click", new TokenType[0]),
+                new SpecialAction("firing", new TokenType[0]),
+                new SpecialAction("hit", new TokenType[0]),
+                new SpecialAction("rayhit", new TokenType[0])
+            ),
+
             new SpecialAction("weaponcore", new TokenType[0],
                 new SpecialAction("reloading", new TokenType[0]),
                 new SpecialAction("firing", new TokenType[0]),
@@ -307,6 +320,12 @@ namespace AnimationEngine.Language
                 new MethodDictionary("getheatlevel", true),
                 new MethodDictionary("getshotsfired", true),
                 new MethodDictionary("isshooting", true)
+            ),
+
+             new LibraryDictionary("xmlscript",
+                new MethodDictionary("run", false, "AnimationId"),
+                new MethodDictionary("stop", false),
+                new MethodDictionary("reset", false)
             ),
 
             new LibraryDictionary("subpart",

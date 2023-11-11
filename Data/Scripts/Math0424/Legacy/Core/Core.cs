@@ -3,6 +3,7 @@ using AnimationEngine.Utility;
 using System;
 using System.Collections.Generic;
 using VRage.ModAPI;
+using static VRage.Game.MyObjectBuilder_Checkpoint;
 
 namespace AnimationEngine.Core
 {
@@ -50,7 +51,7 @@ namespace AnimationEngine.Core
 
     internal interface ScriptRunner : EntityComponent
     {
-        string GetModName();
+        ModItem GetMod();
         ScriptRunner Clone();
         void Stop();
         void Execute(string function, params SVariable[] args);
