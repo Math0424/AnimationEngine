@@ -12,16 +12,18 @@ namespace AnimationEngine.Core
 {
     internal class XMLScriptCore : ScriptLib
     {
+        CoreScript core;
         List<sDelay> delays = new List<sDelay>();
         List<sSubpartFrame> subpartFrames = new List<sSubpartFrame>();
-        List<string> subpartNames = new List<string>();
-        Action<string, MyTuple<string, SVariable[]>> args;
+        public List<string> subpartNames = new List<string>();
 
-        public XMLScriptCore(ModItem mod, string path)
+        public XMLScriptCore(CoreScript core, ModItem mod, string path)
         {
+            this.core = core;
             AddMethod("run", Run);
             AddMethod("stop", Stop);
             AddMethod("reset", Reset);
+
             if (MyAPIGateway.Utilities.FileExistsInModLocation(path, mod))
             {
                 var RawScript = MyAPIGateway.Utilities.ReadFileInModLocation(path, mod).ReadToEnd();
@@ -31,6 +33,7 @@ namespace AnimationEngine.Core
                 {
                     foreach(var sub in anim.Subparts)
                     {
+                        string subpartName = sub.empty.Substring(8);
                         List<sDelay> delays = new List<sDelay>();
                         int largestTime = 0;
                         var keyframes = sub.Keyframes;
@@ -54,7 +57,6 @@ namespace AnimationEngine.Core
                                     foreach (var a in Enum.GetValues(typeof(EaseType)))
                                         if (a.ToString().ToLower().Equals((currentAnim.easing ?? "in").ToLower()))
                                             ease = (int)a;
-
 
                                     if (currentAnim.type != null)
                                     {
@@ -100,7 +102,7 @@ namespace AnimationEngine.Core
                                                     });
                                                 }
                                                 break;
-                                            case "rotate":
+                                            case "rotation":
                                                 GetNextFrame(ref keyframes, currentKeyframe, movementType, out nextframe, out nextAnim);
                                                 if (nextframe.HasValue)
                                                 {
@@ -114,7 +116,7 @@ namespace AnimationEngine.Core
                                                     int time = nextframe.Value.frame - currentFrame.frame;
                                                     movements.Add(new sMovement()
                                                     {
-                                                        type = "rotaterelative",
+                                                        type = "rotate",
                                                         args = new SVariable[] {
                                                             new SVariableVector(one),
                                                             new SVariableFloat((float)(angle * (180.0/Math.PI))),
@@ -141,17 +143,29 @@ namespace AnimationEngine.Core
                                                     });
                                                 }
                                                 break;
+                                            case "reset":
+                                                movements.Add(new sMovement()
+                                                {
+                                                    type = "reset",
+                                                    args = null,
+                                                });
+                                                break;
                                             default:
                                                 throw new Exception($"Unknown movement type {currentAnim.type}");
                                         }
                                     }
                                 }
+                            } 
+                            else
+                            {
+                                throw new Exception($"{currentFrame} has no animation data in the XML file");
                             }
 
                             delays.Add(new sDelay()
                             {
                                 delay = currentFrame.frame,
                                 movements = movements.ToArray(),
+                                subpartName = subpartName,
                             });
                         }
 
@@ -160,9 +174,8 @@ namespace AnimationEngine.Core
                             animationTriggerName = anim.id.ToLower(),
                             timeTaken = largestTime,
                             delays = delays.ToArray(),
-                            subpartName = sub.empty.Substring(8)
                         });
-                        subpartNames.Add(sub.empty.Substring(8));
+                        subpartNames.Add(subpartName);
                     }
 
                 }
@@ -181,10 +194,11 @@ namespace AnimationEngine.Core
                 XMLKeyFrame key = arr[start];
                 foreach (var x in key.Anims)
                 {
-                    if (x.type == type)
+                    if (x.type.ToLower() == type)
                     {
                         frame = key;
                         found = x;
+                        return;
                     }
                 }
                 start++;
@@ -193,11 +207,30 @@ namespace AnimationEngine.Core
             found = null;
         }
 
+        private void Execute(string name, string arg, SVariable[] args)
+        {
+            if (core.SubpartArr.ContainsKey(name))
+            {
+                foreach (var x in core.SubpartArr[name])
+                    x.Execute(arg, args);
+            }
+        }
+
         public SVariable Run(SVariable[] animationName)
         {
-            foreach(var x in subpartFrames)
+            foreach (var x in subpartFrames)
                 if (x.animationTriggerName == animationName[0].ToString().ToLower())
-                    delays.AddArray(x.delays);
+                {
+                    foreach(var y in x.delays)
+                    {
+                        delays.Add(new sDelay()
+                        {
+                            delay = y.delay,
+                            movements = y.movements,
+                            subpartName = y.subpartName
+                        });
+                    }
+                }
             return null;
         }
 
@@ -207,7 +240,7 @@ namespace AnimationEngine.Core
             foreach (var d in delays)
                 if (d.delay < 0)
                     foreach (var m in d.movements)
-                        args?.Invoke(d.subpartName, new MyTuple<string, SVariable[]>(m.type, m.args));
+                        Execute(d.subpartName, m.type, m.args);
             delays.RemoveAll(d => d.delay < 0);
         }
 
@@ -219,16 +252,16 @@ namespace AnimationEngine.Core
 
         public SVariable Reset(SVariable[] animationName)
         {
-            foreach(var x in subpartNames)
-                args?.Invoke(x, new MyTuple<string, SVariable[]>("reset", null));
+            foreach (var x in subpartNames)
+                Execute(x, "reset", null);
             return null;
         }
 
-        //assumed format [x,y,z]
+        // BLENDER -> SE [x z y] -> [x,y,z]
         private Vector3 StringToVector(string str)
         {
             string[] arr = str.Substring(1, str.Length - 2).Split(',');
-            return new Vector3(float.Parse(arr[0]), float.Parse(arr[1]), float.Parse(arr[2]));
+            return new Vector3(float.Parse(arr[0]), float.Parse(arr[2]), float.Parse(arr[1]));
         }
 
         private QuaternionD StringToQuaternion(string str)
@@ -288,16 +321,14 @@ namespace AnimationEngine.Core
         public string easing;
     }
 
-
     public struct sSubpartFrame
     {
         public string animationTriggerName;
-        public string subpartName;
         public int timeTaken;
         public sDelay[] delays;
     }
 
-    public struct sDelay
+    public class sDelay
     {
         public string subpartName;
         public int delay;

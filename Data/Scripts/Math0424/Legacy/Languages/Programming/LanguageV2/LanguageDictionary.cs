@@ -86,6 +86,7 @@ namespace AnimationEngine.Language
 
         private static List<SpecialObject> _objects = new List<SpecialObject>()
         {
+            new SpecialObject("xmlscript", new TokenType[] {TokenType.STR}, "ScriptPath"),
             new SpecialObject("subpart", new TokenType[] {TokenType.STR}, "SubpartName"),
             new SpecialObject("button", new TokenType[] {TokenType.STR, TokenType.STR}, "SubpartName", "DummyName"),
             new SpecialObject("emissive", new TokenType[] {TokenType.STR}, "EmissiveMaterialID"),

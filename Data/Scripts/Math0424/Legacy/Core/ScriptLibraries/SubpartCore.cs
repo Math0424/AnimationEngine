@@ -4,6 +4,7 @@ using Sandbox.Game.Components;
 using Sandbox.ModAPI;
 using System.Collections.Generic;
 using VRage.Game.Entity;
+using VRage.Game.ModAPI;
 using VRage.ModAPI;
 using VRageMath;
 
@@ -13,27 +14,68 @@ namespace AnimationEngine.Core
     {
         private List<SubpartComponent> components = new List<SubpartComponent>();
         private Mover mover;
-
+        private readonly string _subpartName;
+        
+        public bool Valid { get; private set; }
         public MyEntitySubpart Subpart { get; private set; }
-
-        public void Init(MyEntitySubpart subpart)
+        public SubpartCore(MyEntitySubpart part, string subpartName)
         {
-            Subpart = subpart;
+            _subpartName = subpartName;
+            Valid = false;
+            SetSubpart(part);
 
             if (!MyAPIGateway.Utilities.IsDedicated)
             {
                 AddMethod("setvisible", SetVisibility);
                 AddMethod("setmodel", SetModel);
-
-                mover?.Clear();
-                mover = new Mover(Subpart.PositionComp);
-                mover.AddToScriptLib(this, "");
             }
+        }
+
+        public void SetSubpart(MyEntitySubpart part)
+        {
+            if (part == null)
+                return;
+            
+            if(Subpart != null)
+                Subpart.OnClose -= Close;
+            
+            if (part.Render.GetType() != typeof(MyRenderComponent) && part.Model != null)
+            {
+                string asset = ((IMyModel)part.Model).AssetName;
+                var model = part.Render.ModelStorage;
+                var matrix = part.PositionComp.LocalMatrixRef;
+                var physics = part.Physics;
+                var render = part.Render;
+                var parent = part.Parent;
+                part.Close();
+
+                part = new MyEntitySubpart();
+                part.Render.EnableColorMaskHsv = render.EnableColorMaskHsv;
+                part.Render.ColorMaskHsv = render.ColorMaskHsv;
+                part.Render.TextureChanges = render.TextureChanges;
+                part.Render.MetalnessColorable = render.MetalnessColorable;
+                part.Physics = physics;
+
+                part.Init(null, asset, parent, null, null);
+                part.OnAddedToScene(parent);
+                part.PositionComp.SetLocalMatrix(ref matrix, null, true);
+                parent.Subparts[_subpartName] = part;
+            }
+
+            Subpart = part;
+            Valid = true;
+
+            mover?.Clear();
+            mover = new Mover(Subpart.PositionComp);
+            mover.AddToScriptLib(this, "");
+
             Subpart.OnClose += Close;
+            part.Name = $"{part.EntityId}:{_subpartName}";
         }
 
         public override void Close()
         {
+            Valid = false;
             mover?.Clear();
             foreach (var component in components)
                 component.Close();
@@ -41,7 +83,12 @@ namespace AnimationEngine.Core
 
         public override void Tick(int tick)
         {
-            if (Subpart == null || !Subpart.InScene)
+            if (Subpart == null)
+            {
+                Valid = false;
+                return;
+            }
+            if (!Subpart.InScene)
                 return;
 
             foreach (var c in components)

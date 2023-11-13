@@ -71,7 +71,6 @@ namespace AnimationEngine.Language
         private SVariable[] _globals;
         private List<ScriptLib> _libraries;
         #endregion
-
         
         private int _delay;
         private List<Delay> _delays;
@@ -100,7 +99,7 @@ namespace AnimationEngine.Language
 
         public void Stop()
         {
-            _delays.Clear();
+            _delays?.Clear();
         }
 
         public ScriptRunner Clone()
@@ -124,9 +123,7 @@ namespace AnimationEngine.Language
                     InitEnt(x);
                 foreach (var x in _actions)
                     InitAction(x);
-                foreach (var x in _terminals)
-                    InitTerminal(x);
-            } 
+            }
 
             foreach (var x in _libraries)
             {
@@ -151,7 +148,10 @@ namespace AnimationEngine.Language
                 case "grid":
                     _libraries.Add(new GridCore(core)); break;
                 case "xmlscript":
-                    _libraries.Add(new XMLScriptCore(core.GetMod(), ent.Args[0].Value.ToString())); break;
+                    var x = new XMLScriptCore(core, core.Mod, ent.Args[0].Value.ToString());
+                    _libraries.Add(x);
+                    core.FlattenSubparts(x.subpartNames);
+                    break;
                 case "button":
                     var btnSubpart = core.Subparts[ent.Name.Value.ToString().ToLower()];
                     if (!btnSubpart.HasComponent<ButtonComp>())
@@ -174,14 +174,6 @@ namespace AnimationEngine.Language
                 case "light":
                     _libraries.Add(new Light(ent.Args[0].Value.ToString(), (float)ent.Args[1].Value, ent.Parent.Value?.ToString().ToLower()));
                     break;
-            }
-        }
-
-        private void InitTerminal(ScriptAction action)
-        {
-            switch (action.TokenName)
-            {
-
             }
         }
 
@@ -330,7 +322,7 @@ namespace AnimationEngine.Language
         }
 
         public void Tick(int time)
-         {
+        {
             for (int i = 0; i < _delays.Count; i++)
             {
                 Delay d = _delays[i];
@@ -540,7 +532,7 @@ namespace AnimationEngine.Language
                             //TODO: if adding more then 1 action fix this method
                             if (_stack.Count - _stackStart != 0)
                             {
-                                throw new Exception($"Critical error, stack leaking ({_stack.Count - _stackStart})! Please send your script(s) to Math#0424");
+                                throw new Exception($"Critical error, stack leaking ({_stack.Count - _stackStart})! Please send your script(s) to @realmath on discord");
                             }
                             _stack.Pop();
                             return;

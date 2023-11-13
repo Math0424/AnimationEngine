@@ -39,7 +39,7 @@ namespace AnimationEngine.LanguageV1
 
         public void Stop()
         {
-            delay.Clear();
+            delay?.Clear();
         }
 
         public void InitBuilt(CoreScript script)

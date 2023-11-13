@@ -149,6 +149,7 @@ namespace AnimationEngine.Utility
 
         public static void CloseLog()
         {
+            log?.Flush();
             log?.Close();
         }
 

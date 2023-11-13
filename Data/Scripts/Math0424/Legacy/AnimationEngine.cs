@@ -257,7 +257,7 @@ namespace AnimationEngine
             }
             catch (Exception ex)
             {
-                Utils.LogToFile($"Error while ticking a block from mod '{script.GetMod().Name}'");
+                Utils.LogToFile($"Error while ticking a block from mod '{script.Mod.Name}'");
                 Utils.LogToFile(ex.TargetSite);
                 Utils.LogToFile(ex.StackTrace);
                 Utils.LogToFile(ex.Message);
