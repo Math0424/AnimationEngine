@@ -10,7 +10,7 @@ namespace AnimationEngine.LanguageV2
     internal static class LanguageTester
     {
 
-#if DEBUG
+#if FALSE
         public static void Main(string[] args)
         {
             try

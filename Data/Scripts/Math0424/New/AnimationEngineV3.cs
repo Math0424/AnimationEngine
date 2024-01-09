@@ -1,5 +1,8 @@
-﻿using System;
+﻿using AnimationEngine.Data.Scripts.Math0424.New.Language;
+using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Reflection;
 using System.Text;
 
 namespace AnimationEngine
@@ -9,7 +12,11 @@ namespace AnimationEngine
 
         public static void Main(string[] args)
         {
-
+            string path = Path.Combine(Assembly.GetExecutingAssembly().Location, "..\\Data", "Scripts", "Math0424", "New", "Tests");
+            foreach(var file in Directory.GetFiles(path))
+            {
+                Compiler compiler = new Compiler(file);
+            }
         }
 
     }

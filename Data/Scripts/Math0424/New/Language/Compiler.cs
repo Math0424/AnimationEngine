@@ -17,11 +17,16 @@ namespace AnimationEngine.Data.Scripts.Math0424.New.Language
                 return;
             }
             string[] rawFile = File.ReadAllLines(path);
-            Lexer.LexerToken[] lexerScript = Lexer.Parse(rawFile);
-            if (lexerScript == null)
-                return;
-
-
+            try
+            {
+                Lexer.LexerToken[] lexerScript = Lexer.Parse(rawFile);
+                foreach(var x in lexerScript)
+                    Utils.Debug(x);
+            } 
+            catch (Exception ex)
+            {
+                Utils.Error(ex.Message);
+            }
         }
 
     }
