@@ -64,7 +64,7 @@ namespace AnimationEngine.Language
                     return false;
             }
         }
-
+        
 
         public static void TokenizeScript(ScriptGenerator compiler)
         {

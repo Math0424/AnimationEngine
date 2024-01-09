@@ -128,6 +128,9 @@ namespace AnimationEngine.Core
 
         public void Tick(int time)
         {
+            if (Entity == null)
+                return;
+
             if (!Flags.HasFlag(BlockFlags.SubpartReady))
             {
                 foreach (var x in components)
@@ -182,7 +185,7 @@ namespace AnimationEngine.Core
                 x.Close();
             Entity = null;
         }
-
+        
         public void AddComponent<T>(T comp) where T : EntityComponent
         {
             components.Add(comp);

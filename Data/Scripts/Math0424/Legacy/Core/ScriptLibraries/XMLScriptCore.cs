@@ -14,8 +14,14 @@ namespace AnimationEngine.Core
     {
         CoreScript core;
         List<sDelay> delays = new List<sDelay>();
-        List<sSubpartFrame> subpartFrames = new List<sSubpartFrame>();
-        public List<string> subpartNames = new List<string>();
+        private string indexKey;
+
+        private static Dictionary<string, MyTuple<List<sSubpartFrame>, List<string>>> cache = new Dictionary<string, MyTuple<List<sSubpartFrame>, List<string>>>();
+
+        public List<string> GetSubpartNames()
+        {
+            return cache[indexKey].Item2;
+        }
 
         public XMLScriptCore(CoreScript core, ModItem mod, string path)
         {
@@ -23,6 +29,12 @@ namespace AnimationEngine.Core
             AddMethod("run", Run);
             AddMethod("stop", Stop);
             AddMethod("reset", Reset);
+
+            indexKey = mod.Name + path;
+            if (cache.ContainsKey(indexKey))
+                return;
+            
+            cache.Add(indexKey, new MyTuple<List<sSubpartFrame>, List<string>>(new List<sSubpartFrame>(), new List<string>()));
 
             if (MyAPIGateway.Utilities.FileExistsInModLocation(path, mod))
             {
@@ -73,6 +85,7 @@ namespace AnimationEngine.Core
                                                     Vector3D one;
                                                     double angle;
                                                     StringToQuaternion(nextAnim.Value.args).GetAxisAngle(out one, out angle);
+
                                                     int time = nextframe.Value.frame - currentFrame.frame;
                                                     movements.Add(new sMovement()
                                                     {
@@ -109,9 +122,9 @@ namespace AnimationEngine.Core
                                                     Vector3D one;
                                                     double angle;
 
-                                                    Vector3 from = StringToVector(currentAnim.args);
-                                                    Vector3 to = StringToVector(nextAnim.Value.args);
-                                                    (from.EulerToQuat() * QuaternionD.Inverse(to.EulerToQuat())).GetAxisAngle(out one, out angle);
+                                                    var from = StringToVector(currentAnim.args).EulerToQuat();
+                                                    var to = StringToVector(nextAnim.Value.args).EulerToQuat();
+                                                    (to * QuaternionD.Inverse(from)).GetAxisAngle(out one, out angle);
 
                                                     int time = nextframe.Value.frame - currentFrame.frame;
                                                     movements.Add(new sMovement()
@@ -127,6 +140,21 @@ namespace AnimationEngine.Core
                                                 }
                                                 break;
                                             case "scale":
+                                                GetNextFrame(ref keyframes, currentKeyframe, movementType, out nextframe, out nextAnim);
+                                                if (nextframe.HasValue)
+                                                {
+                                                    int time = nextframe.Value.frame - currentFrame.frame;
+                                                    movements.Add(new sMovement()
+                                                    {
+                                                        type = "scale",
+                                                        args = new SVariable[] {
+                                                            new SVariableVector(Vector3.One - (StringToVector(nextAnim.Value.args) - StringToVector(currentAnim.args))),
+                                                            new SVariableInt(time),
+                                                            new SVariableInt(ease | lerp),
+                                                        }
+                                                    });
+                                                }
+                                                break;
                                             case "location":
                                                 GetNextFrame(ref keyframes, currentKeyframe, movementType, out nextframe, out nextAnim);
                                                 if (nextframe.HasValue)
@@ -134,7 +162,7 @@ namespace AnimationEngine.Core
                                                     int time = nextframe.Value.frame - currentFrame.frame;
                                                     movements.Add(new sMovement()
                                                     {
-                                                        type = movementType == "scale" ? movementType : "translate",
+                                                        type = "translate",
                                                         args = new SVariable[] {
                                                             new SVariableVector(StringToVector(nextAnim.Value.args) - StringToVector(currentAnim.args)),
                                                             new SVariableInt(time),
@@ -169,21 +197,19 @@ namespace AnimationEngine.Core
                             });
                         }
 
-                        subpartFrames.Add(new sSubpartFrame()
+                        cache[indexKey].Item1.Add(new sSubpartFrame()
                         {
                             animationTriggerName = anim.id.ToLower(),
                             timeTaken = largestTime,
                             delays = delays.ToArray(),
                         });
-                        subpartNames.Add(subpartName);
+                        cache[indexKey].Item2.Add(subpartName);
                     }
 
                 }
             }
             else
-            {
                 throw new Exception($"Script file not found! ({path} {mod.Name})");
-            }
         }
 
         private void GetNextFrame(ref XMLKeyFrame[] arr, int start, string type, out XMLKeyFrame? frame, out XMLAnim? found)
@@ -218,7 +244,7 @@ namespace AnimationEngine.Core
 
         public SVariable Run(SVariable[] animationName)
         {
-            foreach (var x in subpartFrames)
+            foreach (var x in cache[indexKey].Item1)
                 if (x.animationTriggerName == animationName[0].ToString().ToLower())
                 {
                     foreach(var y in x.delays)
@@ -252,22 +278,40 @@ namespace AnimationEngine.Core
 
         public SVariable Reset(SVariable[] animationName)
         {
-            foreach (var x in subpartNames)
+            foreach (var x in cache[indexKey].Item2)
                 Execute(x, "reset", null);
             return null;
         }
 
-        // BLENDER -> SE [x z y] -> [x,y,z]
+        //system 1 is 
+        //x+ is right
+        //y+ is up
+        //z- is forward
+        
+        //system 2 is
+        //x+ is forward
+        //y+ is left
+        //z+ is up
+
+        // BLENDER -> SE [x z y] -> [x y z]
         private Vector3 StringToVector(string str)
         {
-            string[] arr = str.Substring(1, str.Length - 2).Split(',');
-            return new Vector3(float.Parse(arr[0]), float.Parse(arr[2]), float.Parse(arr[1]));
+            string[] arr = str.TrimStart('[').TrimEnd(']').Split(',');
+            return new Vector3(float.Parse(arr[0]), -float.Parse(arr[2]), -float.Parse(arr[1]));
         }
 
+        // BLENDER -> SE [x y z w] -> [x y z w]
         private QuaternionD StringToQuaternion(string str)
         {
-            string[] arr = str.Substring(1, str.Length - 2).Split(',');
-            return new QuaternionD(float.Parse(arr[0]), float.Parse(arr[1]), float.Parse(arr[2]), float.Parse(arr[3]));
+            QuaternionD rotation = new QuaternionD(Math.Cos(-Math.PI / 4), Math.Sin(-Math.PI / 4), 0, 0);
+
+            // [ x , y , z , w ]
+            string[] arr = str.TrimStart('[').TrimEnd(']').Split(',');
+            QuaternionD bRot = new QuaternionD(float.Parse(arr[0]), float.Parse(arr[1]), float.Parse(arr[2]), float.Parse(arr[3]));
+
+            bRot = rotation * bRot;
+            
+            return bRot;
         }
 
     }

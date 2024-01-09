@@ -17,6 +17,7 @@ using VRage.Game.Components;
 using VRage.Game.Entity;
 using VRage.Game.ModAPI;
 using VRage.ModAPI;
+using VRageMath;
 
 namespace AnimationEngine
 {
@@ -176,7 +177,16 @@ namespace AnimationEngine
             if (MyAPIGateway.Utilities == null || MyAPIGateway.Session == null)
                 return;
 
-            while(delayed.Count > 0)
+            // //var matrix = MyAPIGateway.Session.Camera.WorldMatrix;
+            // var pos = MyAPIGateway.Session.Player.GetPosition();
+            // // x - red - right
+            // Utils.DrawDebugLine(pos, Vector3D.Right, 255, 0, 0);
+            // // y - green - up
+            // Utils.DrawDebugLine(pos, Vector3D.Up, 0, 255, 0);
+            // // z - blue - forward
+            // Utils.DrawDebugLine(pos, Vector3D.Forward, 0, 0, 255);
+
+            while (delayed.Count > 0)
             {
                 var x = delayed[0];
                 try

@@ -92,8 +92,4 @@
     </None>
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Data\Scripts\Math0424\New\Language\" />
-  </ItemGroup>
-
 </Project>

@@ -150,7 +150,7 @@ namespace AnimationEngine.Language
                 case "xmlscript":
                     var x = new XMLScriptCore(core, core.Mod, ent.Args[0].Value.ToString());
                     _libraries.Add(x);
-                    core.FlattenSubparts(x.subpartNames);
+                    core.FlattenSubparts(x.GetSubpartNames());
                     break;
                 case "button":
                     var btnSubpart = core.Subparts[ent.Name.Value.ToString().ToLower()];

@@ -47,19 +47,27 @@ namespace AnimationEngine.Core
                 var physics = part.Physics;
                 var render = part.Render;
                 var parent = part.Parent;
-                part.Close();
-
+                var oldPart = part;
+                
                 part = new MyEntitySubpart();
                 part.Render.EnableColorMaskHsv = render.EnableColorMaskHsv;
                 part.Render.ColorMaskHsv = render.ColorMaskHsv;
                 part.Render.TextureChanges = render.TextureChanges;
                 part.Render.MetalnessColorable = render.MetalnessColorable;
                 part.Physics = physics;
-
+                
                 part.Init(null, asset, parent, null, null);
                 part.OnAddedToScene(parent);
                 part.PositionComp.SetLocalMatrix(ref matrix, null, true);
+
                 parent.Subparts[_subpartName] = part;
+
+                // man I dunno why its crashing
+                // just make it go away...
+                parent.Hierarchy.RemoveChild(oldPart);
+                oldPart.Render.Visible = false;
+                oldPart.WorldMatrix = MatrixD.Zero;
+                //oldPart.Close();
             }
 
             Subpart = part;
@@ -88,7 +96,7 @@ namespace AnimationEngine.Core
                 Valid = false;
                 return;
             }
-            if (!Subpart.InScene)
+            if (!Subpart.InScene || Subpart.MarkedForClose)
                 return;
 
             foreach (var c in components)
