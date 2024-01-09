@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace AnimationEngine
+namespace AnimationEngine.Data.Scripts.Math0424.New.Language
 {
-    internal class Main
+    internal class AST
     {
     }
 }
