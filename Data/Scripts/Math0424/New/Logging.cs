@@ -5,7 +5,7 @@ using System.Text;
 
 namespace AnimationEngine.Data.Scripts.Math0424.New
 {
-    internal class Utils
+    internal class Logging
     {
 
         static int _indentLevel = 0;

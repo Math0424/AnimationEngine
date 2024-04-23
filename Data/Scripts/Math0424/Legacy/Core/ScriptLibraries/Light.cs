@@ -16,6 +16,7 @@ namespace AnimationEngine.Core
     {
         private string dummyName;
         private float radius;
+        private bool enabledFlare;
         private IMyModelDummy dum;
         private MyLight light;
         private IMyEntity parent;
@@ -26,10 +27,11 @@ namespace AnimationEngine.Core
             return parentSubpart;
         }
 
-        public Light(string dummyName, float radius, string parentSubpart)
+        public Light(string dummyName, float radius, string parentSubpart, bool enableFlare)
         {
             this.parentSubpart = parentSubpart;
             this.radius = radius;
+            this.enabledFlare = enableFlare;
             this.dummyName = dummyName;
 
             if (!MyAPIGateway.Utilities.IsDedicated)
@@ -78,11 +80,11 @@ namespace AnimationEngine.Core
             light = MyLights.AddLight();
             light.Start(dummyName + "_light");
 
-            light.GlareOn = true;
+            light.GlareOn = enabledFlare;
             light.LightOn = true;
 
             light.Color = Color.White;
-            light.Range = 5f;
+            light.Range = radius;
             light.Falloff = 1f;
             light.Intensity = 2f;
             light.PointLightOffset = 0f;
@@ -125,7 +127,7 @@ namespace AnimationEngine.Core
             if (light == null && !FindDummy(parent))
                 return null;
             light.LightOn = true;
-            light.GlareOn = true;
+            light.GlareOn = enabledFlare;
             light.UpdateLight();
             return null;
         }
@@ -145,7 +147,8 @@ namespace AnimationEngine.Core
             if (light == null && !FindDummy(parent))
                 return null;
             light.LightOn = !light.LightOn;
-            light.GlareOn = !light.GlareOn;
+            if (enabledFlare)
+                light.GlareOn = !light.GlareOn;
             light.UpdateLight();
             return null;
         }

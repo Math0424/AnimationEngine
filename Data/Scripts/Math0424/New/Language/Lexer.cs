@@ -8,18 +8,20 @@ namespace AnimationEngine.Data.Scripts.Math0424.New.Language
     internal class Lexer
     {
         static Regex _numberRegex = new Regex(@"^-?(([1-9]\d*|0)(\.\d*)?|\.\d+)", RegexOptions.Compiled);
-        static Regex _wordRegex = new Regex(@"^[a-zA-Z_]+", RegexOptions.Compiled);
+        static Regex _wordRegex = new Regex(@"^[a-zA-Z_][a-zA-Z_0-9]*", RegexOptions.Compiled);
         static Regex _stringRegex = new Regex("^\"(.+?)\"", RegexOptions.Compiled);
 
         public enum LexerTokenValue
         {
+            EMPTY,
+
             // keywords
             INT,
             FLOAT,
             STRING,
             BOOL,
             
-            VAR,
+            LET,
 
             STRUCT,
             FUNC,
@@ -52,6 +54,8 @@ namespace AnimationEngine.Data.Scripts.Math0424.New.Language
             COMMA,
             AT,
 
+            BKSLASH,
+
             LBRACE,
             RBRACE,
             LPAREN,
@@ -66,8 +70,10 @@ namespace AnimationEngine.Data.Scripts.Math0424.New.Language
             MULTIPLY,    // *
             DIVIDE,      // /
             MODULO,      // %
-
+            
             INTDIVISION, // //
+
+            SEPERATOR, // ::
 
             COMP,
             GRT,
@@ -82,6 +88,12 @@ namespace AnimationEngine.Data.Scripts.Math0424.New.Language
 
             KEYWORD,
             UNKNOWN,
+
+            // AST nodes
+            HEADER,
+            VARIABLE,
+            UNDECLARED_VARIABLE,
+            ROOT,
         }
 
         public struct LexerToken
@@ -101,7 +113,17 @@ namespace AnimationEngine.Data.Scripts.Math0424.New.Language
                 return $"{LineNumber + 1:000}:{CharacterNumber + 1:00} -> [{Type}]: {RawValue}";
             }
         }
-        
+
+        // Do nothing but load this class into memory
+        // makes the timings for the first script more accurate
+        public static void Init()
+        {
+            _wordRegex.Match("");
+            _stringRegex.Match("");
+            _numberRegex.Match("");
+            new LexerToken(LexerTokenValue.FLOAT, 0, 0, 0);
+        }
+
         public static LexerToken[] Parse(string[] file)
         {
             List<LexerToken> tokens = new List<LexerToken>();
@@ -110,6 +132,8 @@ namespace AnimationEngine.Data.Scripts.Math0424.New.Language
                 string rawLine = file[line];
                 if (string.IsNullOrEmpty(rawLine))
                     continue;
+
+                bool noEndL = false;
 
                 for (int index = 0; index < rawLine.Length; index++)
                 {
@@ -151,10 +175,19 @@ namespace AnimationEngine.Data.Scripts.Math0424.New.Language
                         RaiseError(file, line, index, $"Lexer cannot decipher token '{rawLine[index]}'");
                     if (token == LexerTokenValue.ENDL && tokens[tokens.Count - 1].Type == LexerTokenValue.ENDL)
                         continue;
+
+                    noEndL = false;
+                    if (token == LexerTokenValue.BKSLASH)
+                    {
+                        noEndL = true;
+                        continue;
+                    }
                     tokens.Add(new LexerToken(token, subString[0], line, index));
 
                 }
 
+                if (!noEndL && tokens[tokens.Count - 1].Type != LexerTokenValue.ENDL)
+                    tokens.Add(new LexerToken(LexerTokenValue.ENDL, "EndL", line, rawLine.Length));
             }
             return tokens.ToArray();
         }
@@ -177,8 +210,8 @@ namespace AnimationEngine.Data.Scripts.Math0424.New.Language
                 case "bool":
                     return LexerTokenValue.BOOL;
 
-                case "var":
-                    return LexerTokenValue.VAR;
+                case "let":
+                    return LexerTokenValue.LET;
 
                 case "struct":
                     return LexerTokenValue.STRUCT;
@@ -234,6 +267,11 @@ namespace AnimationEngine.Data.Scripts.Math0424.New.Language
                 case ',':
                     return LexerTokenValue.COMMA;
                 case ':':
+                    if (index + 1 < line.Length && line[index + 1] == ':')
+                    {
+                        index++;
+                        return LexerTokenValue.SEPERATOR;
+                    }
                     return LexerTokenValue.SEMICOLON;
                 case '.':
                     return LexerTokenValue.DOT;
@@ -252,6 +290,8 @@ namespace AnimationEngine.Data.Scripts.Math0424.New.Language
                 case ']':
                     return LexerTokenValue.RSQBRC;
 
+                case '\\':
+                    return LexerTokenValue.BKSLASH;
                 case '+':
                     return LexerTokenValue.ADD;
                 case '-':

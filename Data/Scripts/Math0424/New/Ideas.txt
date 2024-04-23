@@ -12,6 +12,34 @@
 # Below are more documented changes and ideas for V3 and its new methodology
 # preferably make this code mostly agnostic from SE
 
+
+
+
+# Delcaring Variable
+
+let x: float = 10.0
+let y: string = "value"
+let z = 0
+
+# Declaring structs
+
+struct Name {
+	x: float,
+	y: Vector,
+}
+
+
+# Seperate lines uing backslash
+if ( value == 1 && \
+	value2 == 3 \
+) {
+
+
+}
+
+
+
+
 # allow creation of stucts and advanced math
 struct Vector {
 	var m1, m2, m3
@@ -36,7 +64,7 @@ func value() {
 
 # allow creation of arrays
 func ArrayTesting() {
-	var[] arr;
+	var[20] arr;
 	arr[0] = 1
 }
 
@@ -52,8 +80,8 @@ func LoopingFunction() {}
 
 
 # defining your actions in property headers
-[Action("Block/Create")]
-[Action("Block/Built")]
+[Listener("Block/Create")]
+[Listener("Block/Built")]
 func BlockCreate() {}
 
 
@@ -127,7 +155,7 @@ func ApiTesting() {
 
 
 # Example of an exploding core
-[Action("Block/Damaged")]
+[Listener("Block/Damaged")]
 func DisplayExample() {
 	var characterPos = API:GetCharacter:Position
 	var distance = characterPos:distance(BLOCK:worldPosition)
@@ -156,7 +184,7 @@ func Explode() {
 # Ability to use synced variable and changed listeners for for method actions
 synced var VariableName
 
-func VaraibleName:Changed(var oldVal) {}
+func VariableName:Changed(var oldVal) {}
 
 
 # Terminal controls

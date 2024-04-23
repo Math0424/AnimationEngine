@@ -91,6 +91,7 @@ namespace AnimationEngine.Language
             new SpecialObject("button", new TokenType[] {TokenType.STR, TokenType.STR}, "SubpartName", "DummyName"),
             new SpecialObject("emissive", new TokenType[] {TokenType.STR}, "EmissiveMaterialID"),
             new SpecialObject("emitter", new TokenType[] {TokenType.STR}, "DummyName"),
+            new SpecialObject("light", new TokenType[] {TokenType.STR, TokenType.FLOAT, TokenType.BOOL}, "DummyName", "Radius", "EnableFlare"),
             new SpecialObject("light", new TokenType[] {TokenType.STR, TokenType.FLOAT}, "DummyName", "Radius"),
         };
         

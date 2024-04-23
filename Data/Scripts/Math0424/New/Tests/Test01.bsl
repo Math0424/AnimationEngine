@@ -1,20 +1,27 @@
-﻿@Version 3
+﻿@Author Math
+@Version 3
 
 # this is a comment
 
+var autoValue = "script"
 
-if (true) {
-	"This is \n a string"
-	" value ""string2"
+[Synced(True, False)]
+string stringValue = "This is \n a string"
 
-	0.1
-	1.1
-	.4
-	 10
-	1000 
+int intValue = 1
+float floatValue = 1.0
+bool boolValue = True
 
-	-.3
-	-0.2
-	-102
+[MethodHeader0]
+[MethodHeader1(10, 10)]
+[MethodHeader2(10, 12)]
+func MyCoolFunction01(10, 10, 20) {
 
+	int intValue = 1
+	float floatValue = 1.0
+	bool boolValue = True
+
+	# if (true) {
+	# 	
+	# }
 }

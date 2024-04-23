@@ -13,7 +13,8 @@ namespace AnimationEngine
         public static void Main(string[] args)
         {
             string path = Path.Combine(Assembly.GetExecutingAssembly().Location, "..\\Data", "Scripts", "Math0424", "New", "Tests");
-            foreach(var file in Directory.GetFiles(path))
+            Lexer.Init();
+            foreach (var file in Directory.GetFiles(path))
             {
                 Compiler compiler = new Compiler(file);
             }
