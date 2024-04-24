@@ -44,26 +44,26 @@ namespace AnimationEngine.Language
                 }
                 sb.AppendLine();
             }
-            sb.AppendLine("# Terminals\n");
-            foreach (var x in _terminalActions)
-            {
-                string o = "";
-                foreach (var y in x.Args)
-                    o += y + ", ";
-                if (o.Length > 0)
-                    o = o.Substring(0, o.Length - 2);
-                sb.AppendLine($"#### **{x.Name}({o})**");
-                foreach (var y in x.Children)
-                {
-                    o = "";
-                    foreach (var z in y.Args)
-                        o += z + ", ";
-                    if (o.Length > 0)
-                        o = o.Substring(0, o.Length - 2);
-                    sb.AppendLine($"* {y.Name}({o})");
-                }
-                sb.AppendLine();
-            }
+            // sb.AppendLine("# Terminals\n");
+            // foreach (var x in _terminalActions)
+            // {
+            //     string o = "";
+            //     foreach (var y in x.Args)
+            //         o += y + ", ";
+            //     if (o.Length > 0)
+            //         o = o.Substring(0, o.Length - 2);
+            //     sb.AppendLine($"#### **{x.Name}({o})**");
+            //     foreach (var y in x.Children)
+            //     {
+            //         o = "";
+            //         foreach (var z in y.Args)
+            //             o += z + ", ";
+            //         if (o.Length > 0)
+            //             o = o.Substring(0, o.Length - 2);
+            //         sb.AppendLine($"* {y.Name}({o})");
+            //     }
+            //     sb.AppendLine();
+            // }
             sb.AppendLine("# Libraries\n");
             foreach (var x in _libDictionary)
             {
@@ -91,6 +91,9 @@ namespace AnimationEngine.Language
             new SpecialObject("button", new TokenType[] {TokenType.STR, TokenType.STR}, "SubpartName", "DummyName"),
             new SpecialObject("emissive", new TokenType[] {TokenType.STR}, "EmissiveMaterialID"),
             new SpecialObject("emitter", new TokenType[] {TokenType.STR}, "DummyName"),
+
+            new SpecialObject("light", new TokenType[] {TokenType.STR, TokenType.FLOAT, TokenType.BOOL, TokenType.FLOAT, TokenType.FLOAT}, "DummyName", "Radius", "EnableFlare", "falloff", "intensity"),
+            new SpecialObject("light", new TokenType[] {TokenType.STR, TokenType.FLOAT, TokenType.BOOL, TokenType.FLOAT}, "DummyName", "Radius", "EnableFlare", "falloff"),
             new SpecialObject("light", new TokenType[] {TokenType.STR, TokenType.FLOAT, TokenType.BOOL}, "DummyName", "Radius", "EnableFlare"),
             new SpecialObject("light", new TokenType[] {TokenType.STR, TokenType.FLOAT}, "DummyName", "Radius"),
         };
@@ -248,7 +251,9 @@ namespace AnimationEngine.Language
                 new MethodDictionary("getsmallgridmaxspeed", true),
 
                 new MethodDictionary("getinputposition", true),
-                new MethodDictionary("getinputrotation", true)
+                new MethodDictionary("getinputrotation", true),
+
+                new MethodDictionary("iscontrollingentity", true)
             ),
 
             new LibraryDictionary("block",
@@ -305,6 +310,7 @@ namespace AnimationEngine.Language
 
             new LibraryDictionary("grid",
                 new MethodDictionary("isnpc", true),
+                new MethodDictionary("iscontrolled", true),
                 new MethodDictionary("getatmosphericdensity", true),
                 new MethodDictionary("getplanetaltitude", true),
                 new MethodDictionary("getplanetgroundaltitude", true),

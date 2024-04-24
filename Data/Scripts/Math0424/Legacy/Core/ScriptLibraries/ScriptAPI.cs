@@ -4,6 +4,7 @@ using Sandbox.Definitions;
 using Sandbox.Game.Entities;
 using Sandbox.ModAPI;
 using System.Collections.Generic;
+using VRage.Game.Entity;
 using VRage.Input;
 using VRage.ModAPI;
 using VRageMath;
@@ -48,6 +49,16 @@ namespace AnimationEngine.Language.Libs
 
             AddMethod("getlargegridmaxspeed", LargeGridMax);
             AddMethod("getsmallgridmaxspeed", SmallGridMax);
+
+            AddMethod("iscontrollingentity", IsControllingEntity);
+        }
+
+        public SVariable IsControllingEntity(SVariable[] var)
+        {
+            MyEntity ent = (MyEntity)MyAPIGateway.Session.ControlledObject;
+            if (ent != null && (ent is MyCockpit || ent is MyRemoteControl))
+                return new SVariableBool(true);
+            return new SVariableBool(false);
         }
 
         public SVariable LargeGridMax(SVariable[] var)

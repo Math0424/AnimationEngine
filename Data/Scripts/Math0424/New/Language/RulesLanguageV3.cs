@@ -112,11 +112,7 @@ namespace AnimationEngine.Data.Scripts.Math0424.New.Language
             {
                 switch (arr[index].Type)
                 {
-                    case Lexer.LexerTokenValue.VAR:
-                    case Lexer.LexerTokenValue.STRING:
-                    case Lexer.LexerTokenValue.BOOL:
-                    case Lexer.LexerTokenValue.INT:
-                    case Lexer.LexerTokenValue.FLOAT:
+                    case Lexer.LexerTokenValue.LET:
                         parent.Children.Add(Variable(arr, ref index));
                         break;
 

@@ -37,6 +37,7 @@ namespace AnimationEngine.Core
 
             AddMethod("getspeed", Speed);
             AddMethod("getnaturalgravity", NaturalGravity);
+            AddMethod("iscontrolled", IsControlled);
 
             AddMethod("geth2fuel", H2Fuel);
             AddMethod("geto2fuel", O2Fuel);
@@ -122,6 +123,11 @@ namespace AnimationEngine.Core
         private SVariable NaturalGravity(SVariable[] arr)
         {
             return new SVariableVector(Grid.NaturalGravity);
+        }
+
+        private SVariable IsControlled(SVariable[] arr)
+        {
+            return new SVariableBool(Grid?.ControlSystem?.IsControlled ?? false);
         }
 
         private SVariable PlanetMaxAltitude(SVariable[] arr)

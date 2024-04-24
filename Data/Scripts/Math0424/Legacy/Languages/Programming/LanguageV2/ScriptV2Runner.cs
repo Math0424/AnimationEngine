@@ -172,7 +172,13 @@ namespace AnimationEngine.Language
                     _libraries.Add(new Emitter(ent.Args[0].Value.ToString(), ent.Parent.Value?.ToString().ToLower()));
                     break;
                 case "light":
-                    _libraries.Add(new Light(ent.Args[0].Value.ToString(), (float)ent.Args[1].Value, ent.Parent.Value?.ToString().ToLower(), ((bool)(ent.Args.Length == 3 ? ent.Args[2].Value : true))));
+                    _libraries.Add(new Light(ent.Args[0].Value.ToString(), 
+                        (float)ent.Args[1].Value, 
+                        ent.Parent.Value?.ToString().ToLower(), 
+                        (bool)(ent.Args.Length >= 3 ? ent.Args[2].Value : true),
+                        (float)(ent.Args.Length >= 4 ? ent.Args[3].Value : 1f),
+                        (float)(ent.Args.Length >= 5 ? ent.Args[4].Value : 2f)
+                    ));
                     break;
             }
         }

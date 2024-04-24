@@ -15,7 +15,7 @@ namespace AnimationEngine.Core
     internal class Light : ScriptLib, Initializable, Parentable
     {
         private string dummyName;
-        private float radius;
+        private float radius, falloff, intensity;
         private bool enabledFlare;
         private IMyModelDummy dum;
         private MyLight light;
@@ -27,12 +27,14 @@ namespace AnimationEngine.Core
             return parentSubpart;
         }
 
-        public Light(string dummyName, float radius, string parentSubpart, bool enableFlare)
+        public Light(string dummyName, float radius, string parentSubpart, bool enableFlare, float falloff, float intensity)
         {
             this.parentSubpart = parentSubpart;
             this.radius = radius;
             this.enabledFlare = enableFlare;
             this.dummyName = dummyName;
+            this.falloff = falloff;
+            this.intensity = intensity;
 
             if (!MyAPIGateway.Utilities.IsDedicated)
             {
@@ -85,8 +87,8 @@ namespace AnimationEngine.Core
 
             light.Color = Color.White;
             light.Range = radius;
-            light.Falloff = 1f;
-            light.Intensity = 2f;
+            light.Falloff = falloff;
+            light.Intensity = intensity;
             light.PointLightOffset = 0f;
 
             light.GlareSize = new Vector2(radius, radius);

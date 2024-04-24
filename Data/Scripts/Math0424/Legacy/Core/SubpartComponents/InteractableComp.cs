@@ -41,7 +41,7 @@ namespace AnimationEngine
 
         public override void Tick(int i)
         {
-            if (block != null && MyAPIGateway.Session?.Player?.Character != null &&
+            if (block != null && !MyAPIGateway.Session.IsCameraUserControlledSpectator && MyAPIGateway.Session?.Player?.Character != null &&
                 Vector3.DistanceSquared(MyAPIGateway.Session.Player.Character.GetPosition(), block.GetPosition()) < 50)
             {
                 var view = MyAPIGateway.Session.Camera.WorldMatrix;
