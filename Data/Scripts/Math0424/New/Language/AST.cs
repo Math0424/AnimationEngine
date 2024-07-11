@@ -52,14 +52,28 @@ namespace AnimationEngine.Data.Scripts.Math0424.New.Language
             root = grammar(arr, ref index);
         }
 
-        public void PrintASTTree()
+        public void PrintAST()
         {
             PrintASTTree(root);
         }
 
         public void PrintASTTree(ASTNode node)
         {
-            Logging.Debug($"| {node.Type} '{node.Value ?? "null"}'");
+            if (node.Value is Array)
+            {
+                Array array = (Array)node.Value;
+                Logging.Debug($"| {node.Type}");
+                Logging.IncreaseIndent();
+                Logging.IncreaseIndent();
+                foreach (var x in array)
+                    Logging.Debug($"-'{x ?? "null"}'");
+                Logging.DecreaseIndent();
+                Logging.DecreaseIndent();
+            }
+            else
+            {
+                Logging.Debug($"| {node.Type} '{node.Value ?? "null"}'");
+            }
             Logging.IncreaseIndent();
             foreach(var x in node.Children)
                 PrintASTTree(x);

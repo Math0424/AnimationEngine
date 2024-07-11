@@ -10,6 +10,7 @@ namespace AnimationEngine
     internal class AnimationEngineV3
     {
 
+#if DEBUG
         public static void Main(string[] args)
         {
             string path = Path.Combine(Assembly.GetExecutingAssembly().Location, "..\\Data", "Scripts", "Math0424", "New", "Tests");
@@ -19,6 +20,7 @@ namespace AnimationEngine
                 Compiler compiler = new Compiler(file);
             }
         }
+#endif
 
     }
 }

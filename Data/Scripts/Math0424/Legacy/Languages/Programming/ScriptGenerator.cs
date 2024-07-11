@@ -38,14 +38,14 @@ namespace AnimationEngine.Language
                 try
                 {
                     long start = DateTime.Now.Ticks;
-                    Log($"Reading script {Path.GetFileName(path)} for {mod.Name}");
+                    //Log($"Reading script {Path.GetFileName(path)} for {mod.Name}");
                     this.Mod = mod;
-                    Log($"|  Lexer");
+                    //Log($"|  Lexer");
                     Lexer.TokenizeScript(this);
-                    Log($"|  |  Generated {Tokens.Count} tokens");
-                    Log($"|  Reading headers");
+                    //Log($"|  |  Generated {Tokens.Count} tokens");
+                    //Log($"|  Reading headers");
                     ParseHeaders();
-                    Log($"|  |  Found {headers.Count} headers");
+                    //Log($"|  |  Found {headers.Count} headers");
 
                     if (!headers.ContainsKey("version"))
                         throw new Exception("Cannot find script @version header");
@@ -77,13 +77,13 @@ namespace AnimationEngine.Language
                             {
                                 new ScriptV2Generator(this, out runner, out subparts, "weaponcore");
                                 runner = new WeaponcoreScriptRunner(weaponId, runner);
-                                Log($"|  Loading Weaponcore Script Runner");
+                                //Log($"|  Loading Weaponcore Script Runner");
                             } 
                             else if(toolcore)
                             {
                                 new ScriptV2Generator(this, out runner, out subparts);
                                 runner = new ToolcoreScriptRunner(weaponId, runner);
-                                Log($"|  Loading Toolcore Script Runner");
+                                //Log($"|  Loading Toolcore Script Runner");
                             }
                             else
                                 new ScriptV2Generator(this, out runner, out subparts);
@@ -95,11 +95,11 @@ namespace AnimationEngine.Language
                     rout = runner;
 #endif
 
-                    Log($"|  Registering block");
+                    //Log($"|  Registering block");
                     AnimationEngine.AddToRegisteredScripts(headers["blockid"], subparts.ToArray(), runner);
-                    Log($"|  |  Registered script to '{headers["blockid"]}'");
+                    //Log($"|  |  Registered script to '{headers["blockid"]}'");
 
-                    Log($"Compiled script ({(DateTime.Now.Ticks - start) / TimeSpan.TicksPerMillisecond}ms)");
+                    //Log($"Compiled script ({(DateTime.Now.Ticks - start) / TimeSpan.TicksPerMillisecond}ms)");
                 }
                 catch (Exception ex)
                 {

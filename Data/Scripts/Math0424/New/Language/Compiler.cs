@@ -11,6 +11,7 @@ namespace AnimationEngine.Data.Scripts.Math0424.New.Language
 
         public Compiler(string path)
         {
+#if DEBUG
             if (!File.Exists(path))
             {
                 Logging.Error($"Cannot find file at '{path}'");
@@ -42,12 +43,13 @@ namespace AnimationEngine.Data.Scripts.Math0424.New.Language
                 }
                 Logging.Info($"Compiled script ({(DateTime.Now.Ticks - start) / TimeSpan.TicksPerMillisecond}ms)");
 
-                ast.PrintASTTree();
+                ast.PrintAST();
             }
             catch (Exception ex)
             {
                 Logging.Error(ex.Message);
             }
+#endif
         }
 
         public Dictionary<string, object> ReadHeaders(ref Lexer.LexerToken[] arr)

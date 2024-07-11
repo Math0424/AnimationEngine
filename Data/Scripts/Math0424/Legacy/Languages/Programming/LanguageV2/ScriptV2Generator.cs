@@ -58,16 +58,16 @@ namespace AnimationEngine.Language
             objects.Add(new Entity("grid"));
             ScriptNode root = new ScriptNode();
 
-            Log($"|  Running Generator V2");
-            Log($"|  |  generated {GetNodeCount(root)} nodes");
-            Log($"|  |  |  created {globalCount} globals");
-            Log($"|  |  |  created {objects.Count} objects");
-            Log($"|  |  |  created {functions.Count} functions");
-            Log($"|  |  |  created {actions.Count} actions");
-            Log($"|  Compilation");
+            //Log($"|  Running Generator V2");
+            //Log($"|  |  generated {GetNodeCount(root)} nodes");
+            //Log($"|  |  |  created {globalCount} globals");
+            //Log($"|  |  |  created {objects.Count} objects");
+            //Log($"|  |  |  created {functions.Count} functions");
+            //Log($"|  |  |  created {actions.Count} actions");
+            //Log($"|  Compilation");
             globals = new SVariable[globalCount];
             root.Compile();
-            Log($"|  |  finalized {program.Count} lines of bytecode");
+            //Log($"|  |  finalized {program.Count} lines of bytecode");
 
 #if DEBUG
             int i;

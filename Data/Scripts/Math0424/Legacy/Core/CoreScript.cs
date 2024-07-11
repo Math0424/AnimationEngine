@@ -1,8 +1,7 @@
 ﻿using AnimationEngine.Utility;
-using Sandbox.Game.Components;
+using Sandbox.Game.Entities;
 using System.Collections.Generic;
 using VRage.Game.Entity;
-using VRage.Game.ModAPI;
 using VRage.ModAPI;
 using static VRage.Game.MyObjectBuilder_Checkpoint;
 
@@ -51,13 +50,9 @@ namespace AnimationEngine.Core
             EntityId = ent.EntityId;
             ParentId = ent.Parent.EntityId;
 
-            LoadAllSubparts();
-
             Flags |= BlockFlags.Created;
-            for (int i = 0; i < components.Count; i++)
-                components[i].InitBuilt(this);
-
-            PrepareFalttenedSubpart((MyEntity)ent);
+            CreateSubparts(ent);
+            ((MyEntity)ent).OnModelRefresh += CreateSubparts;
 
             ent.OnClosing += OnClose;
             AnimationEngine.AddScript(this);
@@ -67,6 +62,11 @@ namespace AnimationEngine.Core
         {
             if (FlattenedSubparts.Count == 0 || part == null || part.Subparts.Count == 0)
                 return;
+
+            foreach(var x in SubpartArr.Values)
+                foreach(var y in x)
+                    y?.Close();
+            SubpartArr.Clear();
 
             foreach (var x in part.Subparts)
             {
@@ -110,9 +110,15 @@ namespace AnimationEngine.Core
             return true;
         }
 
-        private void LoadAllSubparts()
+        private void CreateSubparts(IMyEntity e)
         {
+            foreach (var x in components)
+                if (x is ScriptRunner)
+                    ((ScriptRunner)x).Stop();
+
+            Flags &= ~BlockFlags.Built;
             Flags |= BlockFlags.SubpartReady;
+
             foreach (var x in subpartData)
             {
                 SubpartCore core;
@@ -122,62 +128,46 @@ namespace AnimationEngine.Core
                     core = new SubpartCore(null, x.CustomName);
 
                 if (!InitSubpart(x, ref core))
+                {
                     Flags &= ~BlockFlags.SubpartReady;
+                    break;
+                }
+            }
+
+            if (Flags.HasFlag(BlockFlags.SubpartReady))
+            {
+                PrepareFalttenedSubpart(((MyEntity)e));
+
+                Flags |= BlockFlags.Built;
+                for (int i = 0; i < components.Count; i++)
+                    components[i].InitBuilt(this);
             }
         }
 
         public void Tick(int time)
         {
-            if (Entity == null)
+            if (Entity == null || !Flags.HasFlag(BlockFlags.SubpartReady))
                 return;
-
-            if (!Flags.HasFlag(BlockFlags.SubpartReady))
-            {
-                foreach (var x in components)
-                    if (x is ScriptRunner)
-                        ((ScriptRunner)x).Stop();
-
-                LoadAllSubparts();
-
-                if (Flags.HasFlag(BlockFlags.SubpartReady))
-                {
-                    Flags |= BlockFlags.Built;
-                    foreach (var x in components)
-                        x.InitBuilt(this);
-                }
-                return;
-            }
 
             foreach (var component in components)
                 component.Tick(time);
+
             foreach (var x in Subparts.Values)
-            {
-                if (!x.Valid)
-                    Flags &= ~BlockFlags.SubpartReady;
-                else
+                if (x.Valid)
                     x.Tick(time);
-            }
+                else
+                    Flags &= ~BlockFlags.SubpartReady;
 
-            // goofy aaah
+            //goofy aaah
             foreach(var x in SubpartArr.Values)
-            {
                 foreach(var y in x)
-                {
-                    if (!y.Valid)
-                    {
-                        SubpartArr.Clear();
-                        PrepareFalttenedSubpart((MyEntity)Entity);
-                        return;
-                    }
-                    else
+                    if (y.Valid)
                         y.Tick(time);
-                }
-            }
-
         }
 
         public void OnClose(IMyEntity ent)
         {
+            ((MyEntity)ent).OnModelRefresh -= CreateSubparts;
             AnimationEngine.RemoveScript(this);
             foreach (var x in components)
                 x.Close();

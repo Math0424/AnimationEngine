@@ -13,15 +13,15 @@ namespace AnimationEngine.Utility
 {
     internal static class Utils
     {
-        private static MyLog log;
+        //private static MyLog log;
         private static MyStringId SQUARE = MyStringId.GetOrCompute("Square");
         private static readonly double c = Math.PI / 180;
 
         static Utils()
         {
-            log = new MyLog(true);
+            //log = new MyLog(true);
 #if !DEBUG
-            log.Init("AnimationEngine.log", new System.Text.StringBuilder("Beta"));
+            //log.Init("AnimationEngine.log", new System.Text.StringBuilder("Beta"));
 #endif
         }
 
@@ -109,22 +109,22 @@ namespace AnimationEngine.Utility
             );
         }
 
-        public static void NotifyPlayer(object msg)
+        public static void NotifyPlayer(object msg, int time = 16)
         {
-            log.WriteLine($"AnimationEngine MessagePlayer: {msg ?? "null"}");
-            MyAPIGateway.Utilities.ShowNotification($"AE: {msg ?? "null"}", 16, "Red");
+            MyLog.Default.WriteLine($"AnimationEngine MessagePlayer: {msg ?? "null"}");
+            MyAPIGateway.Utilities.ShowNotification($"AE: {msg ?? "null"}", time, "Red");
         }
 
         public static void MessagePlayer(object msg)
         {
-            log.WriteLine($"AnimationEngine MessagePlayer: {msg ?? "null"}");
+            MyLog.Default.WriteLine($"AnimationEngine MessagePlayer: {msg ?? "null"}");
             MyAPIGateway.Utilities.ShowMessage($"AnimationEngine", $"{msg ?? "null"}");
         }
 
         public static void LogToFile(object msg)
         {
 #if !DEBUG
-            log.WriteLine($"AnimationEngine: {msg ?? "null"}");
+            MyLog.Default.WriteLine($"AnimationEngine: {msg ?? "null"}");
 #else
             Console.WriteLine($"AnimationEngine: {msg ?? "null"}");
 #endif
@@ -144,13 +144,13 @@ namespace AnimationEngine.Utility
 
         public static string GetLogPath()
         {
-            return log?.GetFilePath();
+            return MyLog.Default?.GetFilePath();
         }
 
         public static void CloseLog()
         {
-            log?.Flush();
-            log?.Close();
+            //MyLog.Default?.Flush();
+            //MyLog.Default?.Close();
         }
 
     }

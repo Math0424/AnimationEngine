@@ -212,7 +212,6 @@ namespace AnimationEngine
                 if (ent == null || !ent.InScene)
                     continue;
 
-
                 if (MyAPIGateway.Utilities.IsDedicated)
                 {
                     if (currentTick % 3 == 0)
@@ -279,6 +278,7 @@ namespace AnimationEngine
             Utils.LogToFile($"Starting Animation Engine...");
             Utils.LogToFile($"Reading {MyAPIGateway.Session.Mods.Count} mods");
             int registered = 0;
+            long start = DateTime.Now.Ticks;
             foreach (var mod in MyAPIGateway.Session.Mods)
             {
                 try
@@ -290,7 +290,7 @@ namespace AnimationEngine
                     }
                     else if (MyAPIGateway.Utilities.FileExistsInModLocation(MainPath + MainInfo, mod))
                     {
-                        Utils.LogToFile($"Reading animation file for {mod.Name}");
+                        //Utils.LogToFile($"Reading animation file for {mod.Name}");
                         foreach (var s in MyAPIGateway.Utilities.ReadFileInModLocation(MainPath + MainInfo, mod).ReadToEnd().Split('\n'))
                         {
                             if (s.ToLower().StartsWith("animation "))
@@ -303,6 +303,7 @@ namespace AnimationEngine
                 }
                 catch (Exception ex)
                 {
+                    Utils.LogToFile($"Error reading one or more scripts from mod '{mod.Name}' ({mod.GetWorkshopId().Id})");
                     if (!(ex is ScriptError))
                     {
                         Utils.LogToFile("System critical script error!");
@@ -311,7 +312,7 @@ namespace AnimationEngine
                     failed.Add(mod.Name);
                 }
             }
-            Utils.LogToFile($"Loaded {registered} scripts");
+            Utils.LogToFile($"Loaded {registered} scripts in {(DateTime.Now.Ticks - start) / TimeSpan.TicksPerMillisecond}ms");
 
             if (failed.Count != 0)
             {

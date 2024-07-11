@@ -2,9 +2,141 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Text.RegularExpressions;
+using static AnimationEngine.Data.Scripts.Math0424.New.Language.Lexer;
 
 namespace AnimationEngine.Data.Scripts.Math0424.New.Language
 {
+    internal static class LexerExt
+    {
+        public static int GetPrecedence(this LexerTokenValue value)
+        {
+            switch (value)
+            {
+                case LexerTokenValue.OR:
+                    return 1;
+                case LexerTokenValue.AND:
+                    return 2;
+                case LexerTokenValue.COMP:
+                case LexerTokenValue.NOTEQ:
+                    return 3;
+                case LexerTokenValue.LST:
+                case LexerTokenValue.GRT:
+                case LexerTokenValue.LSTEQ:
+                case LexerTokenValue.GRTEQ:
+                    return 4;
+                case LexerTokenValue.ADD:
+                case LexerTokenValue.SUBTRACT:
+                    return 5;
+                case LexerTokenValue.MULTIPLY:
+                case LexerTokenValue.DIVIDE:
+                    return 6;
+                default:
+                    return 0;
+            }
+        }
+
+        public static bool IsLiteralMatch(this LexerTokenValue value, LexerTokenValue value2)
+        {
+            switch (value)
+            {
+                case LexerTokenValue.LFLOAT:
+                    return value2 == LexerTokenValue.FLOAT || value2 == LexerTokenValue.INT;
+                case LexerTokenValue.LINT:
+                    return value2 == LexerTokenValue.INT;
+                case LexerTokenValue.LSTRING:
+                    return value2 == LexerTokenValue.STRING;
+                case LexerTokenValue.TRUE:
+                    return value2 == LexerTokenValue.BOOL;
+                case LexerTokenValue.FALSE:
+                    return value2 == LexerTokenValue.BOOL;
+
+                case LexerTokenValue.FLOAT:
+                    return value2 == LexerTokenValue.LFLOAT || value2 == LexerTokenValue.LINT;
+                case LexerTokenValue.INT:
+                    return value2 == LexerTokenValue.LINT;
+                case LexerTokenValue.STRING:
+                    return value2 == LexerTokenValue.LSTRING;
+                case LexerTokenValue.BOOL:
+                    return value2 == LexerTokenValue.TRUE || value2 == LexerTokenValue.FALSE;
+
+                default: return false;
+            }
+        }
+
+        public static bool IsLiteralMathVariable(this LexerTokenValue value)
+        {
+            switch (value)
+            {
+                case LexerTokenValue.LFLOAT:
+                case LexerTokenValue.LINT:
+                case LexerTokenValue.TRUE:
+                case LexerTokenValue.FALSE:
+                    return true;
+                default: return false;
+            }
+        }
+
+        public static bool IsLiteralVariable(this LexerTokenValue value)
+        {
+            switch (value)
+            {
+                case LexerTokenValue.LFLOAT:
+                case LexerTokenValue.LINT:
+                case LexerTokenValue.LSTRING:
+                case LexerTokenValue.TRUE:
+                case LexerTokenValue.FALSE:
+                    return true;
+                default: return false;
+            }
+        }
+
+        public static bool IsVariable(this LexerTokenValue value)
+        {
+            switch (value)
+            {
+                case LexerTokenValue.FLOAT:
+                case LexerTokenValue.INT:
+                case LexerTokenValue.STRING:
+                case LexerTokenValue.BOOL:
+                    return true;
+                default: return false;
+            }
+        }
+
+        public static bool IsMathOperator(this LexerTokenValue value)
+        {
+            switch (value)
+            {
+                case LexerTokenValue.EQUAL:
+                case LexerTokenValue.ADD:
+                case LexerTokenValue.SUBTRACT:
+                case LexerTokenValue.MULTIPLY:
+                case LexerTokenValue.DIVIDE:
+                case LexerTokenValue.MODULO:
+                case LexerTokenValue.INTDIVISION:
+                    return true;
+                default: return false;
+            }
+        }
+
+        public static bool IsLogicOperator(this LexerTokenValue value)
+        {
+            switch (value)
+            {
+                case LexerTokenValue.COMP:
+                case LexerTokenValue.NOTEQ:
+                case LexerTokenValue.GRT:
+                case LexerTokenValue.GRTEQ:
+                case LexerTokenValue.LST:
+                case LexerTokenValue.LSTEQ:
+                case LexerTokenValue.AND:
+                case LexerTokenValue.OR:
+                    return true;
+                default: return false;
+            }
+        }
+    }
+
     internal class Lexer
     {
         static Regex _numberRegex = new Regex(@"^-?(([1-9]\d*|0)(\.\d*)?|\.\d+)", RegexOptions.Compiled);
@@ -14,6 +146,12 @@ namespace AnimationEngine.Data.Scripts.Math0424.New.Language
         public enum LexerTokenValue
         {
             EMPTY,
+
+            // variables
+            LINT,
+            LFLOAT,
+            LSTRING,
+            VBOOL,
 
             // keywords
             INT,
@@ -27,7 +165,6 @@ namespace AnimationEngine.Data.Scripts.Math0424.New.Language
             FUNC,
 
             IF,
-            ELIF,
             ELSE,
 
             FOR,
@@ -47,7 +184,6 @@ namespace AnimationEngine.Data.Scripts.Math0424.New.Language
             FALSE,
 
             // grammar
-            ENDL,
             SEMICOLON,
             COLON,
             DOT,
@@ -92,6 +228,8 @@ namespace AnimationEngine.Data.Scripts.Math0424.New.Language
             // AST nodes
             HEADER,
             VARIABLE,
+            BODY,
+            EXPRESSION,
             UNDECLARED_VARIABLE,
             ROOT,
         }
@@ -154,7 +292,7 @@ namespace AnimationEngine.Data.Scripts.Math0424.New.Language
                     match = _stringRegex.Match(subString);
                     if (match.Success)
                     {
-                        tokens.Add(new LexerToken(LexerTokenValue.STRING, match.Groups[1].Value, line, index));
+                        tokens.Add(new LexerToken(LexerTokenValue.LSTRING, match.Groups[1].Value, line, index));
                         index += match.Length - 1;
                         continue;
                     }
@@ -163,9 +301,9 @@ namespace AnimationEngine.Data.Scripts.Math0424.New.Language
                     if (match.Success)
                     {
                         if (match.Groups[2].Success && !match.Groups[3].Success)
-                            tokens.Add(new LexerToken(LexerTokenValue.INT, int.Parse(match.Value), line, index));
+                            tokens.Add(new LexerToken(LexerTokenValue.LINT, int.Parse(match.Value), line, index));
                         else
-                            tokens.Add(new LexerToken(LexerTokenValue.FLOAT, float.Parse(match.Value), line, index));
+                            tokens.Add(new LexerToken(LexerTokenValue.LFLOAT, float.Parse(match.Value), line, index));
                         index += match.Length - 1;
                         continue;
                     }
@@ -173,7 +311,7 @@ namespace AnimationEngine.Data.Scripts.Math0424.New.Language
                     LexerTokenValue token = GetOperator(ref rawLine, ref index);
                     if (token == LexerTokenValue.UNKNOWN)
                         RaiseError(file, line, index, $"Lexer cannot decipher token '{rawLine[index]}'");
-                    if (token == LexerTokenValue.ENDL && tokens[tokens.Count - 1].Type == LexerTokenValue.ENDL)
+                    if (token == LexerTokenValue.SEMICOLON && tokens[tokens.Count - 1].Type == LexerTokenValue.SEMICOLON)
                         continue;
 
                     noEndL = false;
@@ -186,8 +324,8 @@ namespace AnimationEngine.Data.Scripts.Math0424.New.Language
 
                 }
 
-                if (!noEndL && tokens[tokens.Count - 1].Type != LexerTokenValue.ENDL)
-                    tokens.Add(new LexerToken(LexerTokenValue.ENDL, "EndL", line, rawLine.Length));
+                if (!noEndL && tokens[tokens.Count - 1].Type != LexerTokenValue.SEMICOLON)
+                    tokens.Add(new LexerToken(LexerTokenValue.SEMICOLON, "EndL", line, rawLine.Length));
             }
             return tokens.ToArray();
         }
@@ -220,8 +358,6 @@ namespace AnimationEngine.Data.Scripts.Math0424.New.Language
 
                 case "if":
                     return LexerTokenValue.IF;
-                case "elif":
-                    return LexerTokenValue.ELIF;
                 case "else":
                     return LexerTokenValue.ELSE;
 
@@ -263,7 +399,7 @@ namespace AnimationEngine.Data.Scripts.Math0424.New.Language
             switch (line[index])
             {
                 case ';':
-                    return LexerTokenValue.ENDL;
+                    return LexerTokenValue.SEMICOLON;
                 case ',':
                     return LexerTokenValue.COMMA;
                 case ':':
@@ -272,7 +408,7 @@ namespace AnimationEngine.Data.Scripts.Math0424.New.Language
                         index++;
                         return LexerTokenValue.SEPERATOR;
                     }
-                    return LexerTokenValue.SEMICOLON;
+                    return LexerTokenValue.COLON;
                 case '.':
                     return LexerTokenValue.DOT;
                 case '@':
@@ -354,5 +490,6 @@ namespace AnimationEngine.Data.Scripts.Math0424.New.Language
             }
             return LexerTokenValue.UNKNOWN;
         }
+
     }
 }

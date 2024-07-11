@@ -24,12 +24,12 @@ namespace AnimationEngine.LanguageV1
         {
             Script = generator;
 
-            Log($"|  Running Generator V1");
+            //Log($"|  Running Generator V1");
             new Parser(this);
-            Log($"|  |  created {headers.Count} headers");
-            Log($"|  |  created {objects.Count} objects");
-            Log($"|  |  created {functions.Count} functions");
-            Log($"|  |  created {actions.Count} actions");
+            //Log($"|  |  created {headers.Count} headers");
+            //Log($"|  |  created {objects.Count} objects");
+            //Log($"|  |  created {functions.Count} functions");
+            //Log($"|  |  created {actions.Count} actions");
 
             foreach (var obj in objects.Values)
                 AssembleObject(obj);

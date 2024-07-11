@@ -254,7 +254,7 @@ namespace AnimationEngine.LanguageV1
                     libraries[def.Name.ToLower()] = new Emitter(def.Values[0].ToString(), null);
                     break;
                 case "light":
-                    libraries[def.Name.ToLower()] = new Light(def.Values[0].ToString(), (float)def.Values[1], null);
+                    libraries[def.Name.ToLower()] = new Light(def.Values[0].ToString(), (float)def.Values[1], null, true, 1, 2);
                     break;
             }
         }

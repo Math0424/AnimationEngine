@@ -44,28 +44,26 @@ namespace AnimationEngine.Data.Scripts.Math0424.New
                     combined += indent + arr[i] + "\n";
                 else
                     combined += indent.PadRight(dateTime.Length) + arr[i] + "\n";
+#if DEBUG
             Console.WriteLine($"{dateTime}{combined.Substring(0, combined.Length - 1)}");
+#endif
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Info(object data)
         {
             Log(LoggingMode.Info, data);
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Warning(object data)
         {
             Log(LoggingMode.Warning, data);
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Debug(object data)
         {
             Log(LoggingMode.Debug, data);
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Error(object data)
         {
             Log(LoggingMode.Error, data);

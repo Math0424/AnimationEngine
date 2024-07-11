@@ -15,7 +15,7 @@ namespace AnimationEngine.Data.Scripts.Math0424.New.Language
 
         protected static void EndLine(Lexer.LexerToken[] arr, ref int index)
         {
-            while (index < arr.Length && arr[index].Type != Lexer.LexerTokenValue.ENDL)
+            while (index < arr.Length && arr[index].Type != Lexer.LexerTokenValue.SEMICOLON)
                 index++;
         }
 
@@ -32,7 +32,7 @@ namespace AnimationEngine.Data.Scripts.Math0424.New.Language
             {
                 if (arr[index].Type == value)
                     return true;
-                else if (arr[index].Type != Lexer.LexerTokenValue.ENDL)
+                else if (arr[index].Type != Lexer.LexerTokenValue.SEMICOLON)
                     return false;
                 index++;
             }
