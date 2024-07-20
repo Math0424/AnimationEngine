@@ -184,9 +184,9 @@ func Explode() {
 # Ability to use synced variable and changed listeners for for method actions
 synced var VariableName
 
-func VariableName:Changed(var oldVal) {}
+func VariableName:Changed(oldVal) {}
 
 
 # Terminal controls
 [Terminal("slider", 0, 1)]
-func SliderTerminal(var newValue) {}
+func SliderTerminal(newValue) {}

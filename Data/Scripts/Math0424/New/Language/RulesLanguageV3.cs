@@ -109,7 +109,7 @@ namespace AnimationEngine.Data.Scripts.Math0424.New.Language
                 throw new Exception($"Method name must be a keyword at {arr[index]}");
 
             index++;
-            int args = ParseParenthesesSimple(arr, ref index, ref function); // (va, l, ue)
+            int args = ParseVariablesSimple(arr, ref index, ref function); // (va, l, ue)
             ((object[])function.Value)[1] = args;
 
             function.Children.Add(ParseBody(arr, ref index));
@@ -200,6 +200,17 @@ namespace AnimationEngine.Data.Scripts.Math0424.New.Language
                 throw new Exception($"Unexpected token in expression {arr[index]}");
         }
 
+        private static ASTNode Return(Lexer.LexerToken[] arr, ref int index)
+        {
+            index++;
+            ASTNode returnNode = new ASTNode(Lexer.LexerTokenValue.RETURN);
+            if (arr[index].Type == Lexer.LexerTokenValue.SEMICOLON)
+                return returnNode;
+            
+            returnNode.Children.Add(ParseExpression(arr, ref index));
+            return returnNode;
+        }
+
         private static ASTNode ParseBody(Lexer.LexerToken[] arr, ref int index)
         {
             ASTNode bodyNode = new ASTNode(Lexer.LexerTokenValue.BODY);
@@ -220,9 +231,12 @@ namespace AnimationEngine.Data.Scripts.Math0424.New.Language
                     case Lexer.LexerTokenValue.WHILE:
                         bodyNode.Children.Add(WhileStatement(arr, ref index));
                         break;
-                    case Lexer.LexerTokenValue.SWITCH:
+                    case Lexer.LexerTokenValue.BREAK:
+                        bodyNode.Children.Add(new ASTNode(arr[index]));
+                        index++;
                         break;
                     case Lexer.LexerTokenValue.RETURN:
+                        bodyNode.Children.Add(Return(arr, ref index));
                         break;
 
                     // parse math, functions, ect
@@ -291,6 +305,49 @@ namespace AnimationEngine.Data.Scripts.Math0424.New.Language
             index++;
             return args;
         }
+
+
+        private static int ParseVariablesSimple(Lexer.LexerToken[] arr, ref int index, ref ASTNode node)
+        {
+            if (arr[index].Type != Lexer.LexerTokenValue.LPAREN)
+                throw new Exception($"Cannot read parentheses at {arr[index]}");
+
+            int args = 0;
+            bool commaExpected = false;
+
+            while (arr[++index].Type != Lexer.LexerTokenValue.RPAREN)
+            {
+                if (commaExpected)
+                {
+                    if (arr[index].Type != Lexer.LexerTokenValue.COMMA)
+                        throw new Exception($"Missing separator at {arr[index]}");
+                    index++;
+                }
+
+                if (arr[index].Type == Lexer.LexerTokenValue.RPAREN)
+                    break;
+
+                Lexer.LexerToken variableName = arr[index];
+                if (arr[index + 1].Type != Lexer.LexerTokenValue.COLON)
+                    throw new Exception($"Expected ':' after variable name at {arr[index + 1]}");
+
+                Lexer.LexerToken variableType = arr[index + 2];
+                if (!variableType.Type.IsVariable())
+                    throw new Exception($"Invalid variable type at {variableType}");
+
+                ASTNode variableNode = new ASTNode(Lexer.LexerTokenValue.VARIABLE, variableName.RawValue);
+                variableNode.Children.Add(new ASTNode(variableType));
+                node.Children.Add(variableNode);
+
+                args++;
+                index += 2;
+                commaExpected = true;
+            }
+
+            index++;
+            return args;
+        }
+
 
     }
 }

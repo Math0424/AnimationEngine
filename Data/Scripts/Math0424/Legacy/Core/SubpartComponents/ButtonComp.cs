@@ -66,7 +66,7 @@ namespace AnimationEngine.Core
             core.AddMethod("enabled", SetEnabled);
             core.AddMethod("interactable", SetInteractable);
 
-            registeredId = $"{dummy}:{core.Subpart.EntityId}:{core.Subpart.Parent.EntityId}";
+            registeredId = $"{dummy}:{core?.Subpart?.EntityId ?? 0}:{core?.Subpart?.Parent?.EntityId ?? 0}";
             registeredButtons.Add(registeredId, Interacted);
         }
 

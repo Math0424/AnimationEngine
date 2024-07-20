@@ -178,6 +178,7 @@ namespace AnimationEngine.Data.Scripts.Math0424.New.Language
 
             BREAK,
             CONTINUE,
+            CASE,
             RETURN,
 
             TRUE,
@@ -367,6 +368,8 @@ namespace AnimationEngine.Data.Scripts.Math0424.New.Language
                     return LexerTokenValue.WHILE;
                 case "switch":
                     return LexerTokenValue.SWITCH;
+                case "case":
+                    return LexerTokenValue.CASE;
                 case "default":
                     return LexerTokenValue.DEFAULT;
 

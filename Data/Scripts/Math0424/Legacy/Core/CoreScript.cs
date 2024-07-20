@@ -1,5 +1,6 @@
 ﻿using AnimationEngine.Utility;
 using Sandbox.Game.Entities;
+using System;
 using System.Collections.Generic;
 using VRage.Game.Entity;
 using VRage.ModAPI;
@@ -146,8 +147,14 @@ namespace AnimationEngine.Core
 
         public void Tick(int time)
         {
-            if (Entity == null || !Flags.HasFlag(BlockFlags.SubpartReady))
+            if (Entity == null)
                 return;
+
+            if (!Flags.HasFlag(BlockFlags.SubpartReady))
+            {
+                CreateSubparts(Entity);
+                return;
+            }
 
             foreach (var component in components)
                 component.Tick(time);
@@ -167,12 +174,19 @@ namespace AnimationEngine.Core
 
         public void OnClose(IMyEntity ent)
         {
-            ((MyEntity)ent).OnModelRefresh -= CreateSubparts;
-            AnimationEngine.RemoveScript(this);
-            foreach (var x in components)
-                x.Close();
-            foreach (var x in Subparts.Values)
-                x.Close();
+            try
+            {
+                ((MyEntity)ent).OnModelRefresh -= CreateSubparts;
+                AnimationEngine.RemoveScript(this);
+                foreach (var x in components)
+                    x.Close();
+                foreach (var x in Subparts.Values)
+                    x.Close();
+            }
+            catch (Exception ignored)
+            {
+
+            }
             Entity = null;
         }
         

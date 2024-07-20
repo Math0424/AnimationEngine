@@ -283,10 +283,12 @@ namespace AnimationEngine
             {
                 try
                 {
+                    bool found = false;
                     if (MyAPIGateway.Utilities.FileExistsInModLocation(MainPath + MainScript, mod))
                     {
                         new ScriptGenerator(mod, MainPath + MainScript);
                         registered++;
+                        found = true;
                     }
                     else if (MyAPIGateway.Utilities.FileExistsInModLocation(MainPath + MainInfo, mod))
                     {
@@ -297,8 +299,13 @@ namespace AnimationEngine
                             {
                                 new ScriptGenerator(mod, MainPath + s.ToLower().Substring(10).Trim() + ".bsl");
                                 registered++;
+                                found = true;
                             }
                         }
+                    }
+                    if (found)
+                    {
+                        Utils.LogToFile($"- Loading files for mod '{mod.Name}'");
                     }
                 }
                 catch (Exception ex)
