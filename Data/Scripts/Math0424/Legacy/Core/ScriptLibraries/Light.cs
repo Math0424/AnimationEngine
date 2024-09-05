@@ -71,6 +71,9 @@ namespace AnimationEngine.Core
 
         public void Init(IMyEntity ent)
         {
+            if (ent == null)
+                return;
+
             parent = ent;
             if (!FindDummy(ent))
             {

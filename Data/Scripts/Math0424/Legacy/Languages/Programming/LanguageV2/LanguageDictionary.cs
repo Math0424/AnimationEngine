@@ -294,6 +294,8 @@ namespace AnimationEngine.Language
                 new MethodDictionary("iscountingdown", true),
                 new MethodDictionary("detonationtime", true),
 
+                new MethodDictionary("canaccess", true),
+
                 //terrible ideas
                 new MethodDictionary("poweron", false),
                 new MethodDictionary("poweroff", false),

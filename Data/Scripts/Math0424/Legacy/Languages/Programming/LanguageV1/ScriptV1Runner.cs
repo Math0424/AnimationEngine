@@ -1,8 +1,10 @@
 ﻿using AnimationEngine.Core;
 using AnimationEngine.Language;
 using AnimationEngine.LogicV1;
+using AnimationEngine.Utility;
 using Sandbox.ModAPI;
 using SpaceEngineers.Game.ModAPI;
+using System;
 using System.Collections.Generic;
 using static VRage.Game.MyObjectBuilder_Checkpoint;
 
@@ -55,9 +57,17 @@ namespace AnimationEngine.LanguageV1
 
             libraries.Add("block", new BlockCore(script));
 
+            
             foreach (var x in libraries.Values)
                 if (x is Initializable)
-                    ((Initializable)x).Init(script.Entity);
+                    try
+                    {
+                        ((Initializable)x).Init(script.Entity);
+                    }
+                    catch (Exception ex)
+                    {
+                        Utils.LogToFile(ex);
+                    }
 
             Call("blockaction", "create");
         }

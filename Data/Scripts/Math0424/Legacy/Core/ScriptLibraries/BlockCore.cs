@@ -126,6 +126,11 @@ namespace AnimationEngine.Core
             AddMethod("isoccupied", IsOccupied);
             AddMethod("isworking", IsWorking);
             AddMethod("isfunctional", IsFunctional);
+
+            if (Block is IMyTerminalBlock)
+            {
+                AddMethod("canaccess", CanAccess);
+            }
         }
 
         public override void Tick(int tick)
@@ -156,6 +161,11 @@ namespace AnimationEngine.Core
         private SVariable IsCountingDown(SVariable[] arr)
         {
             return new SVariableBool(((IMyWarhead)Block).IsCountingDown);
+        }
+
+        private SVariable CanAccess(SVariable[] arr)
+        {
+            return new SVariableBool(((IMyTerminalBlock)Block).HasLocalPlayerAccess());
         }
 
         private SVariable IsArmed(SVariable[] arr)
