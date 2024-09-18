@@ -1,8 +1,13 @@
 ﻿@Author Math
 @Version 3
 
-# this is a comment
+import "script.bsl"
 
+using light1 as Light()
+using subpart1 as Subpart("name")
+using subgrid1 as Grid("name", 1) parent subpart1
+
+# this is a comment
 let autoValue = "script"
 
 [Synced(True, False)]
@@ -12,6 +17,7 @@ let intValue: int = 1
 let floatValue: float = 1.0
 let boolValue: bool = True
 
+[Listener("Block/Built")]
 [MethodHeader0]
 [MethodHeader1(10, 10)]
 [MethodHeader2(10, 12)]

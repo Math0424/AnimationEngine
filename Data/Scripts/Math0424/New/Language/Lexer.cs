@@ -151,7 +151,7 @@ namespace AnimationEngine.Data.Scripts.Math0424.New.Language
             LINT,
             LFLOAT,
             LSTRING,
-            VBOOL,
+            LBOOL,
 
             // keywords
             INT,
@@ -190,6 +190,7 @@ namespace AnimationEngine.Data.Scripts.Math0424.New.Language
             DOT,
             COMMA,
             AT,
+            IMPORT,
 
             BKSLASH,
 
@@ -376,9 +377,11 @@ namespace AnimationEngine.Data.Scripts.Math0424.New.Language
                 case "using":
                     return LexerTokenValue.USING;
                 case "as":
-                    return LexerTokenValue.USING;
+                    return LexerTokenValue.AS;
                 case "parent":
                     return LexerTokenValue.PARENT;
+                case "import":
+                    return LexerTokenValue.IMPORT;
 
                 case "true":
                     return LexerTokenValue.TRUE;

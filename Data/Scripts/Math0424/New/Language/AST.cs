@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
-using System.Text.RegularExpressions;
 
 namespace AnimationEngine.Data.Scripts.Math0424.New.Language
 {
@@ -19,7 +17,6 @@ namespace AnimationEngine.Data.Scripts.Math0424.New.Language
         {
             get { return Token.RawValue; }
         }
-
 
         public ASTNode(Lexer.LexerTokenValue value)
         {

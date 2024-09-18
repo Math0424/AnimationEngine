@@ -131,7 +131,16 @@ namespace AnimationEngine.Language
                 if (x is Parentable && ((Parentable)x).GetParent() != null)
                     ent = script.Subparts[((Parentable)x).GetParent()].Subpart;
                 if (x is Initializable)
-                    ((Initializable)x).Init(ent);
+                {
+                    try
+                    {
+                        ((Initializable)x).Init(ent);
+                    } 
+                    catch
+                    {
+
+                    }
+                }
             }
         }
 

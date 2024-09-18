@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace AnimationEngine.Data.Scripts.Math0424.New.Language
 {
@@ -21,7 +20,7 @@ namespace AnimationEngine.Data.Scripts.Math0424.New.Language
                     case Lexer.LexerTokenValue.LSQBRC:
                         List<ASTNode> headers = new List<ASTNode>();
                         ASTNode headerNode;
-                        while (Header(arr, ref index, out headerNode))
+                        while (MethodHeader(arr, ref index, out headerNode))
                             headers.Add(headerNode);
 
                         ASTNode node;
@@ -52,16 +51,112 @@ namespace AnimationEngine.Data.Scripts.Math0424.New.Language
                         root.Children.Add(Function(arr, ref index));
                         break;
 
-                        // TODO: handle imports
+                    case Lexer.LexerTokenValue.STRUCT:
+                        root.Children.Add(ParseStruct(arr, ref index));
+                        break;
+
+                    // TODO: handle imports
                     case Lexer.LexerTokenValue.AT:
                         EndLine(arr, ref index);
                         break;
-                    
+
+                    case Lexer.LexerTokenValue.IMPORT:
+                        root.Children.Add(Import(arr, ref index));
+                        break;
+
+                    case Lexer.LexerTokenValue.USING:
+                        root.Children.Add(ParseUsing(arr, ref index));
+                        break;
+
                     default:
                         throw new Exception($"Invalid token found in script domain\n{arr[index]}");
                 }
             }
             return root;
+        }
+
+        private static ASTNode ParseUsing(Lexer.LexerToken[] arr, ref int index)
+        {
+            index++;
+            if (arr[index].Type != Lexer.LexerTokenValue.KEYWORD)
+                throw new Exception($"Using statement requires a name {arr[index]}");
+            var name = arr[index];
+
+            index++;
+            if (arr[index].Type != Lexer.LexerTokenValue.AS)
+                throw new Exception($"Using statement requires an as statement {arr[index]}");
+            index++;
+
+            if (arr[index].Type != Lexer.LexerTokenValue.KEYWORD)
+                throw new Exception($"Using statement requires a type {arr[index]}");
+            var type = arr[index];
+
+            index++;
+            var usingNode = new ASTNode(Lexer.LexerTokenValue.USING, name.RawValue);
+            var keywordType = new ASTNode(type);
+            ParseParenthesesSimple(arr, ref index, ref keywordType);
+            usingNode.Children.Add(keywordType);
+
+            if (arr[index].Type == Lexer.LexerTokenValue.PARENT)
+            {
+                index++;
+                if (arr[index].Type != Lexer.LexerTokenValue.KEYWORD)
+                    throw new Exception($"parent statement requires a name {arr[index]}");
+                usingNode.Children.Add(new ASTNode(Lexer.LexerTokenValue.PARENT, arr[index].RawValue));
+                index++;
+            }
+
+            return usingNode;
+        }
+
+        private static ASTNode Import(Lexer.LexerToken[] arr, ref int index)
+        {
+            index++;
+            if (arr[index].Type != Lexer.LexerTokenValue.LSTRING)
+                throw new Exception($"Must use a string on an import statement {arr[index]}");
+            return new ASTNode(Lexer.LexerTokenValue.IMPORT, arr[index++].RawValue);
+        }
+
+        private static ASTNode ParseStruct(Lexer.LexerToken[] arr, ref int index)
+        {
+            Lexer.LexerToken structName;
+            index++;
+            if (arr[index].Type != Lexer.LexerTokenValue.KEYWORD)
+                throw new Exception($"Not a valid struct name at {arr[index]}");
+            structName = arr[index];
+            
+            index++;
+            if (!StrictNext(Lexer.LexerTokenValue.LBRACE, arr, ref index)) // {
+                throw new Exception($"Cannot find body start for struct {structName}");
+
+            ASTNode customStruct = new ASTNode(Lexer.LexerTokenValue.STRUCT, structName.RawValue);
+            while (!ExpectNext(Lexer.LexerTokenValue.RBRACE, arr, ref index))
+            {
+                index++;
+                if (arr[index].Type == Lexer.LexerTokenValue.SEMICOLON)
+                    continue;
+
+                if (arr[index].Type != Lexer.LexerTokenValue.KEYWORD)
+                    throw new Exception($"Not a valid variable name at {arr[index]}");
+                Lexer.LexerToken variableName = arr[index];
+
+                index++;
+                if (arr[index].Type != Lexer.LexerTokenValue.COLON)
+                    throw new Exception($"Must have semicolon for variable {arr[index - 1]}");
+
+                index++;
+                if (!arr[index].Type.IsVariable())
+                    throw new Exception($"Variable must be a variable type {arr[index - 2]}");
+                Lexer.LexerToken variableType = arr[index];
+
+                ASTNode variable = new ASTNode(Lexer.LexerTokenValue.VARIABLE, variableName.RawValue);
+                variable.Children.Add(new ASTNode(variableType));
+                customStruct.Children.Add(variable);
+            }
+            index += 2;
+
+            //variable.Children.Add(new ASTNode(value, arr[index + 3]));
+            return customStruct;
         }
 
         private static ASTNode Variable(Lexer.LexerToken[] arr, ref int index)
@@ -89,10 +184,8 @@ namespace AnimationEngine.Data.Scripts.Math0424.New.Language
             if (value != Lexer.LexerTokenValue.DEFAULT && !value.IsLiteralMatch(arr[index + 3].Type))
                 throw new Exception($"Variable type missmatch {value} is not of type {arr[index + 3].Type}");
 
-            value = arr[index + 3].Type;
-
             ASTNode variable = new ASTNode(Lexer.LexerTokenValue.VARIABLE, variableName.RawValue);
-            variable.Children.Add(new ASTNode(value, arr[index + 3]));
+            variable.Children.Add(new ASTNode(arr[index + 3]));
             index += 4;
             return variable;
         }
@@ -257,7 +350,7 @@ namespace AnimationEngine.Data.Scripts.Math0424.New.Language
             return bodyNode;
         }
 
-        private static bool Header(Lexer.LexerToken[] arr, ref int index, out ASTNode node)
+        private static bool MethodHeader(Lexer.LexerToken[] arr, ref int index, out ASTNode node)
         {
             node = default(ASTNode);
 
@@ -306,7 +399,6 @@ namespace AnimationEngine.Data.Scripts.Math0424.New.Language
             return args;
         }
 
-
         private static int ParseVariablesSimple(Lexer.LexerToken[] arr, ref int index, ref ASTNode node)
         {
             if (arr[index].Type != Lexer.LexerTokenValue.LPAREN)
@@ -347,7 +439,6 @@ namespace AnimationEngine.Data.Scripts.Math0424.New.Language
             index++;
             return args;
         }
-
 
     }
 }

@@ -13,8 +13,6 @@
 # preferably make this code mostly agnostic from SE
 
 
-
-
 # Delcaring Variable
 
 let x: float = 10.0
@@ -29,7 +27,7 @@ struct Name {
 }
 
 
-# Seperate lines uing backslash
+# Seperate lines using backslash
 if ( value == 1 && \
 	value2 == 3 \
 ) {
@@ -38,22 +36,12 @@ if ( value == 1 && \
 }
 
 
-
-
 # allow creation of stucts and advanced math
-struct Vector {
-	var m1, m2, m3
-}
-
-struct Matrix {
-	Vector m1, m2, m3, m4
-}
-
 struct PlanetDetails {
-	var Radius
-	var Height
-	var WaterLevel
-	var Name
+	Radius: float
+	Height: float
+	WaterLevel: float
+	Name: float
 }
 
 # declaration of these structs
@@ -99,19 +87,6 @@ func DoThing(var obj) {
 
 # importing script libraries
 import "MyOtherScript.bsl"
-
-
-# syncing variables across clients
-synced var VariableName
-
-
-# saving variables to a block
-saved var VariableName
-
-
-# synced var example
-synced saved var VariableName
-
 
 # Switch statements
 # including jump tables
