@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
 using static AnimationEngine.Data.Scripts.Math0424.New.Language.Lexer;
@@ -229,20 +230,26 @@ namespace AnimationEngine.Data.Scripts.Math0424.New.Language
 
             // AST nodes
             HEADER,
+            ROOT,
             VARIABLE,
             BODY,
             EXPRESSION,
-            UNDECLARED_VARIABLE,
-            ROOT,
+            UNKNOWN_VARIABLE,
+
+            FUNCTION_CALL,
+            LIBRARY_CALL,
+            OBJECT_CALL,
         }
 
         public struct LexerToken
         {
+            public string File;
             public LexerTokenValue Type;
             public object RawValue;
             public int LineNumber, CharacterNumber;
-            public LexerToken(LexerTokenValue type, object rawValue, int line, int index)
+            public LexerToken(string File, LexerTokenValue type, object rawValue, int line, int index)
             {
+                this.File = File;
                 this.Type = type;
                 this.RawValue = rawValue;
                 this.LineNumber = line;
@@ -250,7 +257,7 @@ namespace AnimationEngine.Data.Scripts.Math0424.New.Language
             }
             public override string ToString()
             {
-                return $"{LineNumber + 1:000}:{CharacterNumber + 1:00} -> [{Type}]: {RawValue}";
+                return $"[{File}] {LineNumber + 1:000}:{CharacterNumber + 1:00} -> [{Type}]: {RawValue}";
             }
         }
 
@@ -261,10 +268,10 @@ namespace AnimationEngine.Data.Scripts.Math0424.New.Language
             _wordRegex.Match("");
             _stringRegex.Match("");
             _numberRegex.Match("");
-            new LexerToken(LexerTokenValue.FLOAT, 0, 0, 0);
+            new LexerToken("debug", LexerTokenValue.FLOAT, 0, 0, 0);
         }
 
-        public static LexerToken[] Parse(string[] file)
+        public static LexerToken[] Parse(string fileName, string[] file)
         {
             List<LexerToken> tokens = new List<LexerToken>();
             for (int line = 0; line < file.Length; line++)
@@ -286,7 +293,7 @@ namespace AnimationEngine.Data.Scripts.Math0424.New.Language
                     var match = _wordRegex.Match(subString);
                     if (match.Success)
                     {
-                        tokens.Add(new LexerToken(GetWordValue(match.Value), match.Value, line, index));
+                        tokens.Add(new LexerToken(fileName, GetWordValue(match.Value), match.Value, line, index));
                         index += match.Length - 1;
                         continue;
                     }
@@ -294,7 +301,7 @@ namespace AnimationEngine.Data.Scripts.Math0424.New.Language
                     match = _stringRegex.Match(subString);
                     if (match.Success)
                     {
-                        tokens.Add(new LexerToken(LexerTokenValue.LSTRING, match.Groups[1].Value, line, index));
+                        tokens.Add(new LexerToken(fileName, LexerTokenValue.LSTRING, match.Groups[1].Value, line, index));
                         index += match.Length - 1;
                         continue;
                     }
@@ -303,9 +310,9 @@ namespace AnimationEngine.Data.Scripts.Math0424.New.Language
                     if (match.Success)
                     {
                         if (match.Groups[2].Success && !match.Groups[3].Success)
-                            tokens.Add(new LexerToken(LexerTokenValue.LINT, int.Parse(match.Value), line, index));
+                            tokens.Add(new LexerToken(fileName, LexerTokenValue.LINT, int.Parse(match.Value), line, index));
                         else
-                            tokens.Add(new LexerToken(LexerTokenValue.LFLOAT, float.Parse(match.Value), line, index));
+                            tokens.Add(new LexerToken(fileName, LexerTokenValue.LFLOAT, float.Parse(match.Value), line, index));
                         index += match.Length - 1;
                         continue;
                     }
@@ -322,12 +329,12 @@ namespace AnimationEngine.Data.Scripts.Math0424.New.Language
                         noEndL = true;
                         continue;
                     }
-                    tokens.Add(new LexerToken(token, subString[0], line, index));
+                    tokens.Add(new LexerToken(fileName, token, subString[0], line, index));
 
                 }
 
                 if (!noEndL && tokens[tokens.Count - 1].Type != LexerTokenValue.SEMICOLON)
-                    tokens.Add(new LexerToken(LexerTokenValue.SEMICOLON, "EndL", line, rawLine.Length));
+                    tokens.Add(new LexerToken(fileName, LexerTokenValue.SEMICOLON, "EndL", line, rawLine.Length));
             }
             return tokens.ToArray();
         }

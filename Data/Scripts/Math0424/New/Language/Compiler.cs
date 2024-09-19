@@ -9,38 +9,17 @@ namespace AnimationEngine.Data.Scripts.Math0424.New.Language
     internal class Compiler
     {
 
-        public Compiler(string path)
-        {
 #if DEBUG
-            if (!File.Exists(path))
-            {
-                Logging.Error($"Cannot find file at '{path}'");
-                return;
-            }
+        public static void Compile(string path)
+        {
             string[] rawFile = File.ReadAllLines(path);
             try
             {
                 long start = DateTime.Now.Ticks;
-                Lexer.LexerToken[] lexerScript = Lexer.Parse(rawFile);
-                var headers = ReadHeaders(ref lexerScript);
-                if (!headers.ContainsKey("version") || headers["version"].GetType() != typeof(int))
-                    throw new Exception($"Missing or invalid version header!");
+                
+                var ast = GenerateAST(path);
+                Linker.LinkASTFiles(path, ast);
 
-                AST ast;
-                switch(((int)headers["version"]))
-                {
-                    case 1:
-                        ast = null;
-                        break;
-                    case 2:
-                        ast = null;
-                        break;
-                    case 3:
-                        ast = new AST(lexerScript, RulesLanguageV3.Program);
-                        break;
-                    default:
-                        throw new Exception($"Cannot read scripts with version {headers["version"]}");
-                }
                 Logging.Info($"Compiled script ({(DateTime.Now.Ticks - start) / TimeSpan.TicksPerMillisecond}ms)");
 
                 ast.PrintAST();
@@ -49,10 +28,50 @@ namespace AnimationEngine.Data.Scripts.Math0424.New.Language
             {
                 Logging.Error(ex.Message);
             }
-#endif
         }
 
-        public Dictionary<string, object> ReadHeaders(ref Lexer.LexerToken[] arr)
+        public static AST GenerateAST(string path)
+        {
+            var lines = ReadFile(path);
+            var tokens = Lexer.Parse(Path.GetFileName(path), lines);
+            return GenerateAST(tokens);
+        }
+
+        private static string[] ReadFile(string path)
+        {
+            if (!File.Exists(path))
+            {
+                Logging.Error($"Cannot find file at '{path}'");
+                return null;
+            }
+            return File.ReadAllLines(path);
+        }
+
+        private static AST GenerateAST(Lexer.LexerToken[] tokens)
+        {
+            var headers = ReadHeaders(ref tokens);
+            if (!headers.ContainsKey("version") || headers["version"].GetType() != typeof(int))
+                throw new Exception($"Missing version header!");
+            AST ast;
+            switch (((int)headers["version"]))
+            {
+                case 1:
+                    ast = null;
+                    break;
+                case 2:
+                    ast = null;
+                    break;
+                case 3:
+                    ast = new AST(tokens, RulesLanguageV3.Program);
+                    break;
+                default:
+                    throw new Exception($"Cannot read scripts with version {headers["version"]}");
+            }
+            return ast;
+        }
+#endif
+
+        public static Dictionary<string, object> ReadHeaders(ref Lexer.LexerToken[] arr)
         {
             Dictionary<string, object> headers = new Dictionary<string, object>();
 

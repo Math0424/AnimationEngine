@@ -35,6 +35,14 @@ if ( value == 1 && \
 
 }
 
+# Calls
+function(x, y + 2) # function Call
+API:log(109) # library call
+
+subpart.rotate() # object call
+
+
+
 
 # allow creation of stucts and advanced math
 struct PlanetDetails {

@@ -6,10 +6,10 @@ namespace AnimationEngine.Data.Scripts.Math0424.New.Language
 {
     internal class RulesHelper
     {
-        protected static bool ExpectNext(Lexer.LexerTokenValue value, Lexer.LexerToken[] arr, ref int index)
+        protected static bool ExpectNext(Lexer.LexerToken[] arr, int index, Lexer.LexerTokenValue value)
         {
-            if (index + 1 == arr.Length)
-                throw new Exception("Trying to access Token outside of Token range");
+            if (index + 1 >= arr.Length)
+                throw new Exception("Trying to access Token outside of Token range", new Exception($"Trying to access index {index + 1} and check for {value}"));
             return arr[index + 1].Type == value;
         }
 
@@ -19,14 +19,14 @@ namespace AnimationEngine.Data.Scripts.Math0424.New.Language
                 index++;
         }
 
-        protected static bool Next(Lexer.LexerTokenValue value, Lexer.LexerToken[] arr, ref int index)
+        protected static bool Next(Lexer.LexerToken[] arr, ref int index, Lexer.LexerTokenValue value)
         {
             while (index < arr.Length && arr[index].Type != value)
                 index++;
             return index != arr.Length;
         }
 
-        protected static bool StrictNext(Lexer.LexerTokenValue value, Lexer.LexerToken[] arr, ref int index)
+        protected static bool StrictNext(Lexer.LexerToken[] arr, ref int index, Lexer.LexerTokenValue value)
         {
             while (index < arr.Length)
             {

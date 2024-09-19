@@ -1,9 +1,6 @@
 ﻿using AnimationEngine.Data.Scripts.Math0424.New.Language;
-using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
-using System.Text;
 
 namespace AnimationEngine
 {
@@ -17,7 +14,7 @@ namespace AnimationEngine
             Lexer.Init();
             foreach (var file in Directory.GetFiles(path))
             {
-                Compiler compiler = new Compiler(file);
+                Compiler.Compile(file);
             }
         }
 #endif

@@ -55,7 +55,6 @@ namespace AnimationEngine.Data.Scripts.Math0424.New.Language
                         root.Children.Add(ParseStruct(arr, ref index));
                         break;
 
-                    // TODO: handle imports
                     case Lexer.LexerTokenValue.AT:
                         EndLine(arr, ref index);
                         break;
@@ -126,11 +125,11 @@ namespace AnimationEngine.Data.Scripts.Math0424.New.Language
             structName = arr[index];
             
             index++;
-            if (!StrictNext(Lexer.LexerTokenValue.LBRACE, arr, ref index)) // {
+            if (!StrictNext(arr, ref index, Lexer.LexerTokenValue.LBRACE)) // {
                 throw new Exception($"Cannot find body start for struct {structName}");
 
             ASTNode customStruct = new ASTNode(Lexer.LexerTokenValue.STRUCT, structName.RawValue);
-            while (!ExpectNext(Lexer.LexerTokenValue.RBRACE, arr, ref index))
+            while (!ExpectNext(arr, index, Lexer.LexerTokenValue.RBRACE))
             {
                 index++;
                 if (arr[index].Type == Lexer.LexerTokenValue.SEMICOLON)
@@ -161,32 +160,45 @@ namespace AnimationEngine.Data.Scripts.Math0424.New.Language
 
         private static ASTNode Variable(Lexer.LexerToken[] arr, ref int index)
         {
-            Lexer.LexerToken variableName;
-            if (arr[index + 1].Type != Lexer.LexerTokenValue.KEYWORD)
-                throw new Exception($"Not a valid variable name at {arr[index + 1]}");
-            variableName = arr[index + 1];
+            index++;
+            if (arr[index].Type != Lexer.LexerTokenValue.KEYWORD)
+                throw new Exception($"Not a valid variable name at {arr[index]}");
+            Lexer.LexerToken variableName = arr[index];
 
-            Lexer.LexerTokenValue value = Lexer.LexerTokenValue.DEFAULT;
-            if (arr[index + 2].Type == Lexer.LexerTokenValue.COLON)
+            Lexer.LexerToken? variableToken = null;
+            if (arr[index + 1].Type == Lexer.LexerTokenValue.COLON)
             {
-                if (!arr[index + 3].Type.IsVariable())
-                    throw new Exception($"Cannot use non variable type for variable {arr[index + 3]}");
-                value = arr[index + 3].Type;
+                variableToken = arr[index + 2];
                 index += 2;
             }
 
-            if (arr[index + 2].Type != Lexer.LexerTokenValue.EQUAL)
-                throw new Exception($"Not a valid variable declaration at {arr[index + 2]}");
+            index++;
+            if (arr[index].Type != Lexer.LexerTokenValue.EQUAL)
+                throw new Exception($"Not a valid variable declaration at {arr[index]}");
+            index++;
 
-            if (!arr[index + 3].Type.IsLiteralVariable())
-                throw new Exception($"Cannot initalize variable to non variable type {arr[index + 3]}");
+            ASTNode variable = new ASTNode(variableToken.HasValue ? Lexer.LexerTokenValue.VARIABLE : Lexer.LexerTokenValue.UNKNOWN_VARIABLE, variableName.RawValue);
+            if (variableToken.HasValue)
+                variable.Children.Add(new ASTNode(variableToken.Value));
 
-            if (value != Lexer.LexerTokenValue.DEFAULT && !value.IsLiteralMatch(arr[index + 3].Type))
-                throw new Exception($"Variable type missmatch {value} is not of type {arr[index + 3].Type}");
-
-            ASTNode variable = new ASTNode(Lexer.LexerTokenValue.VARIABLE, variableName.RawValue);
-            variable.Children.Add(new ASTNode(arr[index + 3]));
-            index += 4;
+            if (arr[index].Type == Lexer.LexerTokenValue.DEFAULT)
+            {
+                variable.Children.Add(new ASTNode(arr[index]));
+                index++;
+            }
+            else if (arr[index].Type.IsLiteralVariable() && arr[index + 1].Type == Lexer.LexerTokenValue.SEMICOLON)
+            {
+                if (variableToken.HasValue && !variableToken.Value.Type.IsLiteralMatch(arr[index].Type))
+                    throw new Exception($"Missmatch of literal and initalized variable at {arr[index]}");
+                
+                variable.Children.Add(new ASTNode(arr[index]));
+                index++;
+            } 
+            else
+            {
+                variable.Children.Add(ParseExpression(arr, ref index));
+            }
+            index++;
             return variable;
         }
 
@@ -241,7 +253,7 @@ namespace AnimationEngine.Data.Scripts.Math0424.New.Language
         private static ASTNode ParseExpression(Lexer.LexerToken[] arr, ref int index, int precedence = 0)
         {
             int newIndex = index;
-            ASTNode left = ParsePrimaryExpression(arr, ref newIndex);
+            ASTNode left = ParseExpressionHelper(arr, ref newIndex);
             index = newIndex;
 
             while (index < arr.Length && arr[index].Type.GetPrecedence() > precedence)
@@ -261,7 +273,7 @@ namespace AnimationEngine.Data.Scripts.Math0424.New.Language
             return left;
         }
 
-        private static ASTNode ParsePrimaryExpression(Lexer.LexerToken[] arr, ref int index)
+        private static ASTNode ParseExpressionHelper(Lexer.LexerToken[] arr, ref int index)
         {
             if (arr[index].Type == Lexer.LexerTokenValue.RPAREN)
                 throw new Exception($"Empty parenthesis at {arr[index]}");
@@ -278,16 +290,27 @@ namespace AnimationEngine.Data.Scripts.Math0424.New.Language
             else if (arr[index].Type == Lexer.LexerTokenValue.NOT)
             {
                 index++;
-                ASTNode operand = ParsePrimaryExpression(arr, ref index);
+                ASTNode operand = ParseExpressionHelper(arr, ref index);
                 ASTNode notNode = new ASTNode(Lexer.LexerTokenValue.NOT);
                 notNode.Children.Add(operand);
                 return notNode;
             }
-            else if (arr[index].Type.IsLiteralMathVariable() || arr[index].Type == Lexer.LexerTokenValue.KEYWORD)
+            else if (arr[index].Type.IsLiteralMathVariable())
             {
                 ASTNode node = new ASTNode(arr[index]);
                 index++;
                 return node;
+            }
+            else if(arr[index].Type == Lexer.LexerTokenValue.KEYWORD)
+            {
+                if (arr[index + 1].Type == Lexer.LexerTokenValue.COLON || arr[index + 1].Type == Lexer.LexerTokenValue.LPAREN)
+                    return ParseCall(arr, ref index);
+                else
+                {
+                    ASTNode node = new ASTNode(arr[index]);
+                    index++;
+                    return node;
+                }
             }
             else
                 throw new Exception($"Unexpected token in expression {arr[index]}");
@@ -307,11 +330,11 @@ namespace AnimationEngine.Data.Scripts.Math0424.New.Language
         private static ASTNode ParseBody(Lexer.LexerToken[] arr, ref int index)
         {
             ASTNode bodyNode = new ASTNode(Lexer.LexerTokenValue.BODY);
-            if (!StrictNext(Lexer.LexerTokenValue.LBRACE, arr, ref index)) // {
+            if (!StrictNext(arr, ref index, Lexer.LexerTokenValue.LBRACE)) // {
                 throw new Exception($"Cannot find body start for {arr[index]}");
             index++;
 
-            while (!StrictNext(Lexer.LexerTokenValue.RBRACE, arr, ref index)) // }
+            while (!StrictNext(arr, ref index, Lexer.LexerTokenValue.RBRACE)) // }
             {
                 switch (arr[index].Type)
                 {
@@ -337,6 +360,7 @@ namespace AnimationEngine.Data.Scripts.Math0424.New.Language
                     // FunctionCall(va, lue)
                     // value = 10
                     case Lexer.LexerTokenValue.KEYWORD:
+                        bodyNode.Children.Add(Keyword(arr, ref index));
                         break;
 
                     case Lexer.LexerTokenValue.SEMICOLON:
@@ -348,6 +372,69 @@ namespace AnimationEngine.Data.Scripts.Math0424.New.Language
             }
             index++;
             return bodyNode;
+        }
+
+        private static ASTNode Keyword(Lexer.LexerToken[] arr, ref int index)
+        {
+            if (arr[index + 1].Type == Lexer.LexerTokenValue.EQUAL)
+            {
+                var equal = new ASTNode(Lexer.LexerTokenValue.EQUAL, arr[index].RawValue);
+                index += 2;
+                equal.Children.Add(ParseExpression(arr, ref index));
+                return equal;
+            }
+            else if(arr[index + 1].Type == Lexer.LexerTokenValue.DOT)
+            {
+                return ParseObjectCall(arr, ref index);
+            }
+            return ParseCall(arr, ref index);
+        }
+
+        private static ASTNode ParseObjectCall(Lexer.LexerToken[] arr, ref int index)
+        {
+            if (arr[index].Type != Lexer.LexerTokenValue.KEYWORD)
+                throw new Exception($"Object call must be a keyword {arr[index]}");
+
+            var apiCall = new ASTNode(Lexer.LexerTokenValue.OBJECT_CALL, arr[index].RawValue);
+
+            index++;
+            while (arr[index].Type == Lexer.LexerTokenValue.DOT)
+            {
+                index++;
+                apiCall.Children.Add(ParseBasicCall(arr, ref index));
+            }
+
+            return apiCall;
+        }
+
+        private static ASTNode ParseBasicCall(Lexer.LexerToken[] arr, ref int index)
+        {
+            if (arr[index].Type != Lexer.LexerTokenValue.KEYWORD)
+                throw new Exception($"Call must be a keyword {arr[index]}");
+
+            var apiCall = new ASTNode(Lexer.LexerTokenValue.FUNCTION_CALL, arr[index].RawValue);
+            index++;
+            ParseParentheses(arr, ref index, ref apiCall);
+            return apiCall;
+        }
+
+        private static ASTNode ParseCall(Lexer.LexerToken[] arr, ref int index)
+        {
+            if (arr[index].Type != Lexer.LexerTokenValue.KEYWORD)
+                throw new Exception($"Call must be a keyword {arr[index + 1]}");
+
+            if (ExpectNext(arr, index, Lexer.LexerTokenValue.LPAREN))
+            {
+                return ParseBasicCall(arr, ref index);
+            }
+            else if (ExpectNext(arr, index, Lexer.LexerTokenValue.COLON))
+            {
+                var apiCall = new ASTNode(Lexer.LexerTokenValue.LIBRARY_CALL, arr[index].RawValue);
+                index += 2;
+                apiCall.Children.Add(ParseCall(arr, ref index));
+                return apiCall;
+            }
+            throw new Exception($"Cannot parse call with object {arr[index + 1]}");
         }
 
         private static bool MethodHeader(Lexer.LexerToken[] arr, ref int index, out ASTNode node)
@@ -373,6 +460,31 @@ namespace AnimationEngine.Data.Scripts.Math0424.New.Language
                 return true;
             }
             return false;
+        }
+
+        private static int ParseParentheses(Lexer.LexerToken[] arr, ref int index, ref ASTNode node)
+        {
+            if (arr[index].Type != Lexer.LexerTokenValue.LPAREN)
+                throw new Exception($"Cannot read parentheses at {arr[index]}");
+
+            int args = 0;
+            bool comma = false;
+            while (arr[++index].Type != Lexer.LexerTokenValue.RPAREN)
+            {
+                if (comma && arr[index].Type != Lexer.LexerTokenValue.COMMA)
+                    throw new Exception($"Missing seperator at {arr[index]}");
+                else if (arr[index].Type == Lexer.LexerTokenValue.RPAREN)
+                    break;
+                else if (!comma)
+                {
+                    args++;
+                    node.Children.Add(ParseExpression(arr, ref index));
+                    index--;
+                }
+                comma = !comma;
+            }
+            index++;
+            return args;
         }
 
         private static int ParseParenthesesSimple(Lexer.LexerToken[] arr, ref int index, ref ASTNode node)

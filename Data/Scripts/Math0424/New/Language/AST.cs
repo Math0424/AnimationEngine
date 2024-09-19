@@ -20,7 +20,7 @@ namespace AnimationEngine.Data.Scripts.Math0424.New.Language
 
         public ASTNode(Lexer.LexerTokenValue value)
         {
-            Token = new Lexer.LexerToken(value, null, 0, 0);
+            Token = new Lexer.LexerToken("debug", value, null, 0, 0);
             Children = new List<ASTNode>();
         }
         public ASTNode(Lexer.LexerToken Token)
@@ -30,28 +30,28 @@ namespace AnimationEngine.Data.Scripts.Math0424.New.Language
         }
         public ASTNode(Lexer.LexerTokenValue value, object Value)
         {
-            Token = new Lexer.LexerToken(value, Value, 0, 0);
+            Token = new Lexer.LexerToken("debug", value, Value, 0, 0);
             Children = new List<ASTNode>();
         }
     }
 
     internal class AST
     {
-        Lexer.LexerToken[] arr;
+        Lexer.LexerToken[] Tokens;
         int index;
-        ASTNode root;
+        public ASTNode Root { get; private set; }
         GrammarRule grammar;
 
         public AST(Lexer.LexerToken[] arr, GrammarRule grammar)
         {
-            this.arr = arr;
+            this.Tokens = arr;
             index = 0;
-            root = grammar(arr, ref index);
+            Root = grammar(arr, ref index);
         }
 
         public void PrintAST()
         {
-            PrintASTTree(root);
+            PrintASTTree(Root);
         }
 
         public void PrintASTTree(ASTNode node)
